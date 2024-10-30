@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
+
+import { NextAuthSessionProvider } from "@/providers/sessionProvider";
+
 import "./globals.css";
 
 const nunito = Nunito({
@@ -35,7 +38,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className={`${nunito.className} antialiased`}>{children}</body>
+      <body className={`${nunito.className} overflow-x-hidden antialiased`}>
+        <NextAuthSessionProvider>{children}</NextAuthSessionProvider>
+      </body>
     </html>
   );
 }

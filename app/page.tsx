@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { signIn } from "next-auth/react";
 
 import {
   Form,
@@ -15,7 +17,6 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 
 const formSchema = z.object({
   email: z
@@ -42,13 +43,29 @@ export default function Home() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      const res = await signIn("credentials", { ...values, redirect: false });
+
+      if (!res?.error) {
+        console.log("Usuário logado");
+      } else {
+        if (res.error === "Configuration") {
+          console.log("E-mail ou Senha inválidos");
+        } else {
+          console.log("Ocorreu um erro, tente novamente mais tarde");
+        }
+      }
+    } catch (error) {
+      console.error({ error });
+    } finally {
+      // TODO: adicionar isSubmitting
+    }
   }
 
   return (
-    <main className="w-screen h-full flex items-center justify-center bg-skin-primary">
-      <div className="w-full flex flex-col items-center gap-6 bg-white rounded-3xl mx-6 p-6">
+    <main className="w-full min-h-screen flex items-center justify-center bg-skin-primary py-12 px-6">
+      <div className="w-full flex flex-col items-center gap-6 bg-white rounded-3xl p-6 max-w-[450px]">
         <Image
           src="/logo.svg"
           alt="Logo"
