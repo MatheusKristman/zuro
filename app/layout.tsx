@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
 
 import { NextAuthSessionProvider } from "@/providers/sessionProvider";
+import TRPCProvider from "@/providers/TRPCProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 import "./globals.css";
 
@@ -39,7 +41,10 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className={`${nunito.className} overflow-x-hidden antialiased`}>
-        <NextAuthSessionProvider>{children}</NextAuthSessionProvider>
+        <NextAuthSessionProvider>
+          <TRPCProvider>{children}</TRPCProvider>
+        </NextAuthSessionProvider>
+        <Toaster />
       </body>
     </html>
   );

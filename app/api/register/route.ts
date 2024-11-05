@@ -1,16 +1,26 @@
-import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
+import { generate } from "generate-password";
+
+import { prisma } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    const { name, email, password } = await request.json();
+    const { name, email } = await request.json();
 
-    if (!name || !email || !password) {
+    if (!name || !email) {
       return new Response("Dados inválidos", { status: 400 });
     }
 
+    const generatedPassword = generate({
+      length: 10,
+      numbers: true,
+    });
+
     const salt = await bcrypt.genSalt(10);
-    const pwHash = await bcrypt.hash(password, salt);
+    const pwHash = await bcrypt.hash(generatedPassword, salt);
+
+    // TODO: enviar no e-mail a senha para o usuário
+    console.log(generatedPassword);
 
     await prisma.user.create({
       data: {
