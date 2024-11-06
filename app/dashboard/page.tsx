@@ -15,16 +15,19 @@ export default function Dashboard() {
     console.log("Carregando com skeletons");
   }
 
-  console.log(isPending);
-
   if (session.status === "unauthenticated") {
     router.replace("/");
   }
 
   if (data && !data.user.emailVerified) {
-    console.log("Redirecionar para mudar senha");
     router.replace("/nova-senha");
   }
+
+  if (data && !data.user.firstAccess) {
+    router.replace("/dashboard/primeira-configuracao?step=0");
+  }
+
+  console.log({ data });
 
   return (
     <div>

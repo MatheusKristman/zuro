@@ -114,6 +114,7 @@ export default function Home() {
                         <Input
                           placeholder="Insira o seu e-mail"
                           className="text-slate-800"
+                          disabled={isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -146,6 +147,7 @@ export default function Home() {
                           type="password"
                           placeholder="Insira a sua senha"
                           className="text-slate-800"
+                          disabled={isSubmitting}
                           {...field}
                         />
                       </FormControl>
@@ -157,6 +159,7 @@ export default function Home() {
               </div>
 
               <Button
+                disabled={isSubmitting}
                 type="submit"
                 size="xl"
                 className="w-full flex items-center gap-2"
