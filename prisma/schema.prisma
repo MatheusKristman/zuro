@@ -19,16 +19,17 @@ enum Role {
 }
 
 model User {
-  id            String    @id @default(auto()) @map("_id") @db.ObjectId
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  role          Role      @default(USER)
-  firstAccess   Boolean   @default(false)
-  accounts      Account[]
-  sessions      Session[]
+  id                     String    @id @default(auto()) @map("_id") @db.ObjectId
+  name                   String?
+  email                  String?   @unique
+  emailVerified          DateTime?
+  password               String?
+  image                  String?
+  role                   Role      @default(USER)
+  firstAccess            Boolean   @default(false)
+  firstConfigurationStep Int       @default(0)
+  accounts               Account[]
+  sessions               Session[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 
 import { trpc } from "@/lib/trpc-client";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Dashboard() {
   const session = useSession();
@@ -11,21 +12,25 @@ export default function Dashboard() {
 
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
 
-  if (isPending) {
-    console.log("Carregando com skeletons");
-  }
+  useEffect(() => {
+    if (isPending) {
+      console.log("Carregando com skeletons");
+    }
+  }, [isPending]);
 
-  if (session.status === "unauthenticated") {
-    router.replace("/");
-  }
+  useEffect(() => {
+    if (session.status === "unauthenticated") {
+      router.replace("/");
+    }
 
-  if (data && !data.user.emailVerified) {
-    router.replace("/nova-senha");
-  }
+    if (data && !data.user.emailVerified) {
+      router.replace("/nova-senha");
+    }
 
-  if (data && !data.user.firstAccess) {
-    router.replace("/dashboard/primeira-configuracao?step=0");
-  }
+    if (data && !data.user.firstAccess) {
+      router.replace("/dashboard/primeira-configuracao?step=0");
+    }
+  }, [session, data, router]);
 
   console.log({ data });
 
