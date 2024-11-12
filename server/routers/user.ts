@@ -129,4 +129,52 @@ export const userRouter = router({
 
       return { message: "Senha atualizada com sucesso" };
     }),
+  submitFirstConfigurationStepOne: isUserAuthedProcedure
+    .input(
+      z
+        .object({
+          paymentPreference: z.enum(["before_after", "before", "after"], {
+            message: "Dados inválidos",
+          }),
+          pixKey: z.string(),
+        })
+        .superRefine(({ paymentPreference, pixKey }, ctx) => {
+          if (
+            (!paymentPreference ||
+              paymentPreference === "before_after" ||
+              paymentPreference === "before") &&
+            !pixKey
+          ) {
+            ctx.addIssue({
+              code: "custom",
+              message: "Dados inválidos",
+              path: ["pixKey"],
+            });
+          }
+        }),
+    )
+    .mutation(async (opts) => {
+      const { paymentPreference, pixKey } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return { error: true, message: "Usuário não encontrado" };
+      }
+
+      const userUpdated = await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          paymentPreference,
+          pixKey,
+        },
+      });
+
+      return {
+        error: false,
+        message: "Dados salvos com sucesso",
+        user: userUpdated,
+      };
+    }),
 });
