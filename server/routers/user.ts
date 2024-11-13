@@ -50,7 +50,7 @@ export const userRouter = router({
           })
           .min(1, "E-mail é obrigatório")
           .email("E-mail inválido"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -108,7 +108,7 @@ export const userRouter = router({
           })
           .min(1, "Este campo é obrigatório")
           .min(6, { message: "Este campo precisa ter no mínimo 6 caracteres" }),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -133,16 +133,14 @@ export const userRouter = router({
     .input(
       z
         .object({
-          paymentPreference: z.enum(["before_after", "before", "after"], {
+          paymentPreference: z.enum(["", "before_after", "before", "after"], {
             message: "Dados inválidos",
           }),
           pixKey: z.string(),
         })
         .superRefine(({ paymentPreference, pixKey }, ctx) => {
           if (
-            (!paymentPreference ||
-              paymentPreference === "before_after" ||
-              paymentPreference === "before") &&
+            (!paymentPreference || paymentPreference === "before_after" || paymentPreference === "before") &&
             !pixKey
           ) {
             ctx.addIssue({
@@ -151,11 +149,18 @@ export const userRouter = router({
               path: ["pixKey"],
             });
           }
-        }),
+        })
     )
     .mutation(async (opts) => {
       const { paymentPreference, pixKey } = opts.input;
       const { email } = opts.ctx.user.user;
+
+      if (!paymentPreference) {
+        return {
+          error: true,
+          message: "Dados inválidos, verifique e tente novamente",
+        };
+      }
 
       if (!email) {
         return {

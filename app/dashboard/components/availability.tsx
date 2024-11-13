@@ -1,24 +1,37 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-function DaySchedule() {
+import { cn } from "@/lib/utils";
+import { dayOffType, FirstConfigurationStore } from "@/stores/first-configuration-store";
+
+type setTabType = "" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+
+interface DayScheduleProps {
+  dayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+}
+
+function DaySchedule({ dayOfWeek }: DayScheduleProps) {
+  const { setAvailability, availability, configurationError } = FirstConfigurationStore();
+
+  const selectedAvailability = availability.find((item) => item.dayOfWeek === dayOfWeek);
+  const hasInterval = selectedAvailability?.hasInterval;
+
   return (
     <>
       <div className="w-full flex flex-col items-center gap-y-4 mt-6 sm:flex-row sm:gap-x-2">
         <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
           <Label>Horário de início</Label>
 
-          <Select>
+          <Select
+            value={selectedAvailability?.startTime}
+            onValueChange={(value) => setAvailability(dayOfWeek, "startTime", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o horário de início" />
             </SelectTrigger>
@@ -55,7 +68,10 @@ function DaySchedule() {
         <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
           <Label>Horário de término</Label>
 
-          <Select>
+          <Select
+            value={selectedAvailability?.endTime}
+            onValueChange={(value) => setAvailability(dayOfWeek, "endTime", value)}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Selecione o horário de término" />
             </SelectTrigger>
@@ -91,177 +107,306 @@ function DaySchedule() {
       </div>
 
       <div className="flex gap-2 items-center mt-6">
-        <Checkbox id="break" />
+        <Checkbox
+          id="break"
+          value={hasInterval ? "on" : "off"}
+          defaultChecked={hasInterval}
+          onCheckedChange={(checked) => setAvailability(dayOfWeek, "hasInterval", checked)}
+        />
 
         <Label htmlFor="break">Deseja colocar um período de intervalo?</Label>
       </div>
 
       {/* TODO: adicionar dinamicamente de acordo com o checkbox */}
-      <div className="w-full bg-black/10 h-px mt-6" />
+      {hasInterval && (
+        <>
+          <div className="w-full bg-black/10 h-px mt-6" />
 
-      <div className="mt-6 w-full flex flex-col gap-4 sm:flex-row sm:gap-2">
-        <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-          <Label htmlFor="break-begin">Horário de início do intervalo</Label>
+          <div className="mt-6 w-full flex flex-col gap-4 sm:flex-row sm:gap-2">
+            <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
+              <Label htmlFor="break-begin">Horário de início do intervalo</Label>
 
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o horário de início do intervalo" />
-            </SelectTrigger>
+              <Select
+                value={selectedAvailability.startIntervalTime}
+                onValueChange={(value) => setAvailability(dayOfWeek, "startIntervalTime", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o horário de início do intervalo" />
+                </SelectTrigger>
 
-            <SelectContent>
-              <SelectItem value="01:00">01:00</SelectItem>
-              <SelectItem value="02:00">02:00</SelectItem>
-              <SelectItem value="03:00">03:00</SelectItem>
-              <SelectItem value="04:00">04:00</SelectItem>
-              <SelectItem value="05:00">05:00</SelectItem>
-              <SelectItem value="06:00">06:00</SelectItem>
-              <SelectItem value="07:00">07:00</SelectItem>
-              <SelectItem value="08:00">08:00</SelectItem>
-              <SelectItem value="09:00">09:00</SelectItem>
-              <SelectItem value="10:00">10:00</SelectItem>
-              <SelectItem value="11:00">11:00</SelectItem>
-              <SelectItem value="12:00">12:00</SelectItem>
-              <SelectItem value="13:00">13:00</SelectItem>
-              <SelectItem value="14:00">14:00</SelectItem>
-              <SelectItem value="15:00">15:00</SelectItem>
-              <SelectItem value="16:00">16:00</SelectItem>
-              <SelectItem value="17:00">17:00</SelectItem>
-              <SelectItem value="18:00">18:00</SelectItem>
-              <SelectItem value="19:00">19:00</SelectItem>
-              <SelectItem value="20:00">20:00</SelectItem>
-              <SelectItem value="21:00">21:00</SelectItem>
-              <SelectItem value="22:00">22:00</SelectItem>
-              <SelectItem value="23:00">23:00</SelectItem>
-              <SelectItem value="00:00">00:00</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+                <SelectContent>
+                  <SelectItem value="01:00">01:00</SelectItem>
+                  <SelectItem value="02:00">02:00</SelectItem>
+                  <SelectItem value="03:00">03:00</SelectItem>
+                  <SelectItem value="04:00">04:00</SelectItem>
+                  <SelectItem value="05:00">05:00</SelectItem>
+                  <SelectItem value="06:00">06:00</SelectItem>
+                  <SelectItem value="07:00">07:00</SelectItem>
+                  <SelectItem value="08:00">08:00</SelectItem>
+                  <SelectItem value="09:00">09:00</SelectItem>
+                  <SelectItem value="10:00">10:00</SelectItem>
+                  <SelectItem value="11:00">11:00</SelectItem>
+                  <SelectItem value="12:00">12:00</SelectItem>
+                  <SelectItem value="13:00">13:00</SelectItem>
+                  <SelectItem value="14:00">14:00</SelectItem>
+                  <SelectItem value="15:00">15:00</SelectItem>
+                  <SelectItem value="16:00">16:00</SelectItem>
+                  <SelectItem value="17:00">17:00</SelectItem>
+                  <SelectItem value="18:00">18:00</SelectItem>
+                  <SelectItem value="19:00">19:00</SelectItem>
+                  <SelectItem value="20:00">20:00</SelectItem>
+                  <SelectItem value="21:00">21:00</SelectItem>
+                  <SelectItem value="22:00">22:00</SelectItem>
+                  <SelectItem value="23:00">23:00</SelectItem>
+                  <SelectItem value="00:00">00:00</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-          <Label htmlFor="break-begin">Horário de término do intervalo</Label>
+            <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
+              <Label htmlFor="break-begin">Horário de término do intervalo</Label>
 
-          <Select>
-            <SelectTrigger>
-              <SelectValue placeholder="Selecione o horário de término do intervalo" />
-            </SelectTrigger>
+              <Select
+                value={selectedAvailability.endIntervalTime}
+                onValueChange={(value) => setAvailability(dayOfWeek, "endIntervalTime", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o horário de término do intervalo" />
+                </SelectTrigger>
 
-            <SelectContent>
-              <SelectItem value="01:00">01:00</SelectItem>
-              <SelectItem value="02:00">02:00</SelectItem>
-              <SelectItem value="03:00">03:00</SelectItem>
-              <SelectItem value="04:00">04:00</SelectItem>
-              <SelectItem value="05:00">05:00</SelectItem>
-              <SelectItem value="06:00">06:00</SelectItem>
-              <SelectItem value="07:00">07:00</SelectItem>
-              <SelectItem value="08:00">08:00</SelectItem>
-              <SelectItem value="09:00">09:00</SelectItem>
-              <SelectItem value="10:00">10:00</SelectItem>
-              <SelectItem value="11:00">11:00</SelectItem>
-              <SelectItem value="12:00">12:00</SelectItem>
-              <SelectItem value="13:00">13:00</SelectItem>
-              <SelectItem value="14:00">14:00</SelectItem>
-              <SelectItem value="15:00">15:00</SelectItem>
-              <SelectItem value="16:00">16:00</SelectItem>
-              <SelectItem value="17:00">17:00</SelectItem>
-              <SelectItem value="18:00">18:00</SelectItem>
-              <SelectItem value="19:00">19:00</SelectItem>
-              <SelectItem value="20:00">20:00</SelectItem>
-              <SelectItem value="21:00">21:00</SelectItem>
-              <SelectItem value="22:00">22:00</SelectItem>
-              <SelectItem value="23:00">23:00</SelectItem>
-              <SelectItem value="00:00">00:00</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+                <SelectContent>
+                  <SelectItem value="01:00">01:00</SelectItem>
+                  <SelectItem value="02:00">02:00</SelectItem>
+                  <SelectItem value="03:00">03:00</SelectItem>
+                  <SelectItem value="04:00">04:00</SelectItem>
+                  <SelectItem value="05:00">05:00</SelectItem>
+                  <SelectItem value="06:00">06:00</SelectItem>
+                  <SelectItem value="07:00">07:00</SelectItem>
+                  <SelectItem value="08:00">08:00</SelectItem>
+                  <SelectItem value="09:00">09:00</SelectItem>
+                  <SelectItem value="10:00">10:00</SelectItem>
+                  <SelectItem value="11:00">11:00</SelectItem>
+                  <SelectItem value="12:00">12:00</SelectItem>
+                  <SelectItem value="13:00">13:00</SelectItem>
+                  <SelectItem value="14:00">14:00</SelectItem>
+                  <SelectItem value="15:00">15:00</SelectItem>
+                  <SelectItem value="16:00">16:00</SelectItem>
+                  <SelectItem value="17:00">17:00</SelectItem>
+                  <SelectItem value="18:00">18:00</SelectItem>
+                  <SelectItem value="19:00">19:00</SelectItem>
+                  <SelectItem value="20:00">20:00</SelectItem>
+                  <SelectItem value="21:00">21:00</SelectItem>
+                  <SelectItem value="22:00">22:00</SelectItem>
+                  <SelectItem value="23:00">23:00</SelectItem>
+                  <SelectItem value="00:00">00:00</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </>
+      )}
+
+      {configurationError.availability.length > 0 && (
+        <ul className="mt-6 flex flex-col gap-2">
+          {configurationError.availability.map((error, index) => (
+            <li className="text-sm text-destructive" key={`error-${index}`}>
+              - {error}
+            </li>
+          ))}
+        </ul>
+      )}
     </>
   );
 }
 
 export function Availability() {
+  const [tab, setTab] = useState<setTabType>("");
+
+  const { dayOff, setDayOff, setAvailability, availability, configurationError } = FirstConfigurationStore();
+
+  useEffect(() => {
+    console.log({ availability });
+  }, [availability]);
+
+  useEffect(() => {
+    if (dayOff === "Weekend") {
+      setAvailability("Sunday", "startTime", "");
+      setAvailability("Sunday", "endTime", "");
+      setAvailability("Sunday", "hasInterval", false);
+      setAvailability("Sunday", "startIntervalTime", "");
+      setAvailability("Sunday", "endIntervalTime", "");
+      setAvailability("Saturday", "startTime", "");
+      setAvailability("Saturday", "endTime", "");
+      setAvailability("Saturday", "hasInterval", false);
+      setAvailability("Saturday", "startIntervalTime", "");
+      setAvailability("Saturday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Sunday") {
+      setAvailability("Sunday", "startTime", "");
+      setAvailability("Sunday", "endTime", "");
+      setAvailability("Sunday", "hasInterval", false);
+      setAvailability("Sunday", "startIntervalTime", "");
+      setAvailability("Sunday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Saturday") {
+      setAvailability("Saturday", "startTime", "");
+      setAvailability("Saturday", "endTime", "");
+      setAvailability("Saturday", "hasInterval", false);
+      setAvailability("Saturday", "startIntervalTime", "");
+      setAvailability("Saturday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Monday") {
+      setAvailability("Monday", "startTime", "");
+      setAvailability("Monday", "endTime", "");
+      setAvailability("Monday", "hasInterval", false);
+      setAvailability("Monday", "startIntervalTime", "");
+      setAvailability("Monday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Tuesday") {
+      setAvailability("Tuesday", "startTime", "");
+      setAvailability("Tuesday", "endTime", "");
+      setAvailability("Tuesday", "hasInterval", false);
+      setAvailability("Tuesday", "startIntervalTime", "");
+      setAvailability("Tuesday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Wednesday") {
+      setAvailability("Wednesday", "startTime", "");
+      setAvailability("Wednesday", "endTime", "");
+      setAvailability("Wednesday", "hasInterval", false);
+      setAvailability("Wednesday", "startIntervalTime", "");
+      setAvailability("Wednesday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Thursday") {
+      setAvailability("Thursday", "startTime", "");
+      setAvailability("Thursday", "endTime", "");
+      setAvailability("Thursday", "hasInterval", false);
+      setAvailability("Thursday", "startIntervalTime", "");
+      setAvailability("Thursday", "endIntervalTime", "");
+    }
+
+    if (dayOff === "Friday") {
+      setAvailability("Friday", "startTime", "");
+      setAvailability("Friday", "endTime", "");
+      setAvailability("Friday", "hasInterval", false);
+      setAvailability("Friday", "startIntervalTime", "");
+      setAvailability("Friday", "endIntervalTime", "");
+    }
+  }, [dayOff, setAvailability]);
+
   return (
     <div className="bg-white rounded-3xl p-6">
-      <h3 className="text-3xl font-bold text-skin-primary mb-4">
-        Disponibilidade
-      </h3>
+      <h3 className="text-3xl font-bold text-skin-primary mb-4">Disponibilidade</h3>
 
       <div className="flex flex-col gap-2 mb-4">
         <h4 className="text-xl font-semibold">Quais dias irá folgar?</h4>
 
-        <Select>
+        <Select
+          value={dayOff}
+          onValueChange={(value) => {
+            //TODO: resetar o dia quando selecionado a folga, para não adicionar dados no dia que está de folga
+            setDayOff(value as dayOffType);
+            setTab("");
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Selecione os dias" />
           </SelectTrigger>
 
           <SelectContent>
-            <SelectItem value="final-de-semana">Final de Semana</SelectItem>
-            <SelectItem value="domingos">Domingos</SelectItem>
-            <SelectItem value="segundas">Segundas</SelectItem>
-            <SelectItem value="tercas">Terças</SelectItem>
-            <SelectItem value="quartas">Quartas</SelectItem>
-            <SelectItem value="quintas">Quintas</SelectItem>
-            <SelectItem value="sextas">Sextas</SelectItem>
-            <SelectItem value="sabados">Sábados</SelectItem>
+            <SelectItem value="Weekend">Final de Semana</SelectItem>
+            <SelectItem value="Sunday">Domingos</SelectItem>
+            <SelectItem value="Monday">Segundas</SelectItem>
+            <SelectItem value="Tuesday">Terças</SelectItem>
+            <SelectItem value="Wednesday">Quartas</SelectItem>
+            <SelectItem value="Thursday">Quintas</SelectItem>
+            <SelectItem value="Friday">Sextas</SelectItem>
+            <SelectItem value="Saturday">Sábados</SelectItem>
           </SelectContent>
         </Select>
+
+        <span
+          className={cn("text-sm text-destructive hidden", {
+            block: configurationError.dayOff !== "",
+          })}
+        >
+          {configurationError.dayOff !== "" && configurationError.dayOff}
+        </span>
       </div>
 
       <div className="flex flex-col gap-2 mb-4">
-        <h4 className="text-xl font-semibold">
-          Selecione os horários que trabalha
-        </h4>
+        <h4 className="text-xl font-semibold">Selecione os horários que trabalha</h4>
 
-        <Tabs className="w-full">
+        <Tabs defaultValue="" value={tab} onValueChange={(value) => setTab(value as setTabType)} className="w-full">
           <TabsList className="w-full flex flex-col h-fit sm:flex-row">
-            <TabsTrigger value="domingo" className="w-full basis-full">
+            <TabsTrigger
+              value="Sunday"
+              disabled={dayOff === "Weekend" || dayOff === "Sunday"}
+              className="w-full basis-full"
+            >
               Domingo
             </TabsTrigger>
-            <TabsTrigger value="segunda" className="w-full basis-full">
+
+            <TabsTrigger value="Monday" disabled={dayOff === "Monday"} className="w-full basis-full">
               Segunda
             </TabsTrigger>
-            <TabsTrigger value="terca" className="w-full basis-full">
+
+            <TabsTrigger value="Tuesday" disabled={dayOff === "Tuesday"} className="w-full basis-full">
               Terça
             </TabsTrigger>
-            <TabsTrigger value="quarta" className="w-full basis-full">
+
+            <TabsTrigger value="Wednesday" disabled={dayOff === "Wednesday"} className="w-full basis-full">
               Quarta
             </TabsTrigger>
-            <TabsTrigger value="quinta" className="w-full basis-full">
+
+            <TabsTrigger value="Thursday" disabled={dayOff === "Thursday"} className="w-full basis-full">
               Quinta
             </TabsTrigger>
-            <TabsTrigger value="sexta" className="w-full basis-full">
+
+            <TabsTrigger value="Friday" disabled={dayOff === "Friday"} className="w-full basis-full">
               Sexta
             </TabsTrigger>
-            <TabsTrigger value="sabado" className="w-full basis-full">
+
+            <TabsTrigger
+              value="Saturday"
+              disabled={dayOff === "Weekend" || dayOff === "Saturday"}
+              className="w-full basis-full"
+            >
               Sábado
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="domingo">
-            <DaySchedule />
+          <TabsContent value="Sunday">
+            <DaySchedule dayOfWeek="Sunday" />
           </TabsContent>
 
-          <TabsContent value="segunda">
-            <DaySchedule />
+          <TabsContent value="Monday">
+            <DaySchedule dayOfWeek="Monday" />
           </TabsContent>
 
-          <TabsContent value="terca">
-            <DaySchedule />
+          <TabsContent value="Tuesday">
+            <DaySchedule dayOfWeek="Tuesday" />
           </TabsContent>
 
-          <TabsContent value="quarta">
-            <DaySchedule />
+          <TabsContent value="Wednesday">
+            <DaySchedule dayOfWeek="Wednesday" />
           </TabsContent>
 
-          <TabsContent value="quinta">
-            <DaySchedule />
+          <TabsContent value="Thursday">
+            <DaySchedule dayOfWeek="Thursday" />
           </TabsContent>
 
-          <TabsContent value="sexta">
-            <DaySchedule />
+          <TabsContent value="Friday">
+            <DaySchedule dayOfWeek="Friday" />
           </TabsContent>
 
-          <TabsContent value="sabado">
-            <DaySchedule />
+          <TabsContent value="Saturday">
+            <DaySchedule dayOfWeek="Saturday" />
           </TabsContent>
         </Tabs>
       </div>

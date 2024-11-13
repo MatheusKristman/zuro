@@ -24,6 +24,16 @@ enum PaymentPreference {
   after
 }
 
+enum Days {
+  Sunday
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+}
+
 model User {
   id                     String             @id @default(auto()) @map("_id") @db.ObjectId
   name                   String?
@@ -37,8 +47,9 @@ model User {
   paymentPreference      PaymentPreference?
   pixKey                 String?
 
-  accounts Account[]
-  sessions Session[]
+  accounts     Account[]
+  sessions     Session[]
+  availability Availability[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -84,4 +95,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Availability {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  dayOfWeek         Days
+  startTime         String
+  endTime           String
+  hasInterval       Boolean @default(false)
+  startIntervalTime String?
+  endIntervalTime   String?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @db.ObjectId
 }
