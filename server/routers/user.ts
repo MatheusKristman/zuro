@@ -129,7 +129,7 @@ export const userRouter = router({
 
       return { message: "Senha atualizada com sucesso" };
     }),
-  submitFirstConfigurationStepOne: isUserAuthedProcedure
+  submitPaymentPreference: isUserAuthedProcedure
     .input(
       z
         .object({
@@ -158,10 +158,44 @@ export const userRouter = router({
       const { email } = opts.ctx.user.user;
 
       if (!email) {
-        return { error: true, message: "Usuário não encontrado" };
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
       }
 
-      const userUpdated = await prisma.user.update({
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      if (user.firstConfigurationStep === 0) {
+        await prisma.user.update({
+          where: {
+            email,
+          },
+          data: {
+            firstConfigurationStep: 1,
+            paymentPreference,
+            pixKey,
+          },
+        });
+
+        return {
+          error: false,
+          message: "Dados salvos com sucesso",
+        };
+      }
+
+      await prisma.user.update({
         where: {
           email,
         },
@@ -174,7 +208,6 @@ export const userRouter = router({
       return {
         error: false,
         message: "Dados salvos com sucesso",
-        user: userUpdated,
       };
     }),
 });

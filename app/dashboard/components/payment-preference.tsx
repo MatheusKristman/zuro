@@ -1,10 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { cn } from "@/lib/utils";
 
 import { FirstConfigurationStore } from "@/stores/first-configuration-store";
 
-export function PaymentPreference() {
+interface PaymentPreferenceProps {
+  isPending: boolean;
+}
+
+export function PaymentPreference({ isPending }: PaymentPreferenceProps) {
   const {
     configurationError,
     setPixKey,
@@ -12,8 +17,6 @@ export function PaymentPreference() {
     paymentPreference,
     setPaymentPreference,
   } = FirstConfigurationStore();
-
-  //TODO: adicionar rota de salvar dados da primeira rota e atualizar dados do usuário
 
   return (
     <div className="bg-white rounded-3xl p-6">
@@ -33,6 +36,7 @@ export function PaymentPreference() {
             }
             size="xl"
             onClick={() => setPaymentPreference("before_after")}
+            disabled={isPending}
           >
             Receber Antes ou Depois
           </Button>
@@ -41,6 +45,7 @@ export function PaymentPreference() {
             variant={paymentPreference === "before" ? "default" : "outline"}
             size="xl"
             onClick={() => setPaymentPreference("before")}
+            disabled={isPending}
           >
             Receber Antes
           </Button>
@@ -49,6 +54,7 @@ export function PaymentPreference() {
             variant={paymentPreference === "after" ? "default" : "outline"}
             size="xl"
             onClick={() => setPaymentPreference("after")}
+            disabled={isPending}
           >
             Receber Depois
           </Button>
@@ -76,6 +82,7 @@ export function PaymentPreference() {
             )}
             onChange={(e) => setPixKey(e.target.value)}
             value={pixKey}
+            disabled={isPending}
           />
 
           <span

@@ -1,7 +1,8 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -18,27 +19,64 @@ import { FinishConfigurationMessage } from "../components/finish-configuration-m
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
 import { FirstConfigurationStore } from "@/stores/first-configuration-store";
-import { toast } from "sonner";
 
 export default function FirstConfigurationPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const step = searchParams.get("step");
 
   const {
     paymentPreference,
+    setPaymentPreference,
     pixKey,
+    setPixKey,
     setConfigurationError,
     configurationError,
     resetConfigurationError,
   } = FirstConfigurationStore();
 
+  const util = trpc.useUtils();
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
+  const {
+    mutate: submitPaymentPreference,
+    isPending: isPaymentPreferencePending,
+  } = trpc.userRouter.submitPaymentPreference.useMutation({
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success(res.message);
+      util.userRouter.getUser.invalidate();
+      router.push("/dashboard/primeira-configuracao?step=1");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const pending: boolean = isPending || isPaymentPreferencePending;
 
   useEffect(() => {
-    if (isPending) {
-      console.log("Carregando dados");
+    if (data) {
+      if (data.user.paymentPreference) {
+        setPaymentPreference(data.user.paymentPreference);
+      }
+
+      if (data.user.pixKey) {
+        setPixKey(data.user.pixKey);
+      }
     }
-  }, [isPending]);
+  }, [data, setPaymentPreference, setPixKey]);
+
+  function handleBack() {
+    if (step) {
+      router.push(
+        `/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`,
+      );
+    }
+  }
 
   function handleNext() {
     if (step === "0") {
@@ -59,9 +97,6 @@ export default function FirstConfigurationPage() {
         pixKeyErrorMessage = "O campo não pode estar vazio";
       }
 
-      console.log(pixKeyErrorMessage);
-      console.log(paymentPreferenceErrorMessage);
-
       if (pixKeyErrorMessage !== "" || paymentPreferenceErrorMessage !== "") {
         setConfigurationError({
           ...configurationError,
@@ -73,7 +108,7 @@ export default function FirstConfigurationPage() {
 
       resetConfigurationError();
 
-      toast.success("Pode prosseguir");
+      submitPaymentPreference({ paymentPreference, pixKey });
     }
   }
 
@@ -88,7 +123,7 @@ export default function FirstConfigurationPage() {
           <div className="w-full flex items-center justify-between gap-2 max-w-[250px]">
             <TooltipProvider delayDuration={100}>
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger disabled={pending}>
                   <div
                     className={cn(
                       "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
@@ -113,7 +148,7 @@ export default function FirstConfigurationPage() {
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger disabled={pending}>
                   <div
                     className={cn(
                       "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
@@ -138,7 +173,7 @@ export default function FirstConfigurationPage() {
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger disabled={pending}>
                   <div
                     className={cn(
                       "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
@@ -163,7 +198,7 @@ export default function FirstConfigurationPage() {
               </Tooltip>
 
               <Tooltip>
-                <TooltipTrigger>
+                <TooltipTrigger disabled={pending}>
                   <div
                     className={cn(
                       "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
@@ -191,7 +226,7 @@ export default function FirstConfigurationPage() {
         </div>
 
         <div className="flex-grow mt-24">
-          {step === "0" && <PaymentPreference />}
+          {step === "0" && <PaymentPreference isPending={pending} />}
           {step === "1" && <Availability />}
           {step === "2" && <Services />}
           {step === "3" && <FinishConfigurationMessage />}
@@ -201,13 +236,19 @@ export default function FirstConfigurationPage() {
           <Button
             variant="secondary"
             size="xl"
-            disabled={step === "0"}
+            disabled={step === "0" || pending}
             className={cn(step === "0" && "!opacity-0")}
+            onClick={handleBack}
           >
             Voltar
           </Button>
 
-          <Button variant="secondary" size="xl" onClick={handleNext}>
+          <Button
+            variant="secondary"
+            size="xl"
+            disabled={pending}
+            onClick={handleNext}
+          >
             Próximo
           </Button>
         </div>
