@@ -1,15 +1,6 @@
 import { create } from "zustand";
 
-export type dayOffType =
-  | ""
-  | "Weekend"
-  | "Sunday"
-  | "Monday"
-  | "Tuesday"
-  | "Wednesday"
-  | "Thursday"
-  | "Friday"
-  | "Saturday";
+export type dayOffType = "Weekend" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
 type availabilityType = {
   dayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
   startTime: string;
@@ -17,6 +8,11 @@ type availabilityType = {
   hasInterval: boolean;
   startIntervalTime: string;
   endIntervalTime: string;
+};
+type serviceType = {
+  name: string;
+  minutes: string;
+  price: string;
 };
 
 interface FirstConfigurationStoreInter {
@@ -32,17 +28,27 @@ interface FirstConfigurationStoreInter {
     field: string,
     value: string | boolean
   ) => void;
+  services: serviceType[];
+  setServices: (value: serviceType) => void;
   configurationError: {
     paymentPreference: string;
     pixKey: string;
     dayOff: string;
     availability: string[];
+    serviceName: string;
+    serviceMinutes: string;
+    servicePrice: string;
+    services: string;
   };
   setConfigurationError: (value: {
     paymentPreference: string;
     pixKey: string;
     dayOff: string;
     availability: string[];
+    serviceName: string;
+    serviceMinutes: string;
+    servicePrice: string;
+    services: string;
   }) => void;
   resetConfigurationError: () => void;
 }
@@ -52,7 +58,7 @@ export const FirstConfigurationStore = create<FirstConfigurationStoreInter>((set
   setPaymentPreference: (value) => set({ paymentPreference: value }),
   pixKey: "",
   setPixKey: (value) => set({ pixKey: value }),
-  dayOff: "",
+  dayOff: "Weekend",
   setDayOff: (value) => set({ dayOff: value }),
   availability: [
     {
@@ -116,13 +122,30 @@ export const FirstConfigurationStore = create<FirstConfigurationStoreInter>((set
     set((state) => ({
       availability: state.availability.map((day) => (day.dayOfWeek === dayOfWeek ? { ...day, [field]: value } : day)),
     })),
+  services: [],
+  setServices: (value) => set((state) => ({ services: [...state.services, value] })),
   configurationError: {
     paymentPreference: "",
     pixKey: "",
     dayOff: "",
     availability: [],
+    serviceName: "",
+    serviceMinutes: "",
+    servicePrice: "",
+    services: "",
   },
   setConfigurationError: (value) => set({ configurationError: value }),
   resetConfigurationError: () =>
-    set({ configurationError: { paymentPreference: "", pixKey: "", dayOff: "", availability: [] } }),
+    set({
+      configurationError: {
+        paymentPreference: "",
+        pixKey: "",
+        dayOff: "",
+        availability: [],
+        serviceName: "",
+        serviceMinutes: "",
+        servicePrice: "",
+        services: "",
+      },
+    }),
 }));

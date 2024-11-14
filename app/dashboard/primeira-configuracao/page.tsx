@@ -26,7 +26,9 @@ export default function FirstConfigurationPage() {
     pixKey,
     setPixKey,
     dayOff,
+    setDayOff,
     availability,
+    setAvailability,
     setConfigurationError,
     configurationError,
     resetConfigurationError,
@@ -50,8 +52,21 @@ export default function FirstConfigurationPage() {
         console.log(error);
       },
     });
+  const { mutate: submitAvailability, isPending: isAvailabilityPending } =
+    trpc.userRouter.submitAvailability.useMutation({
+      onSuccess: (res) => {
+        if (res.error) {
+          toast.error(res.message);
+          return;
+        }
 
-  const pending: boolean = isPending || isPaymentPreferencePending;
+        toast.success(res.message);
+        util.userRouter.getUser.invalidate();
+        router.push("/dashboard/primeira-configuracao?step=2");
+      },
+    });
+
+  const pending: boolean = isPending || isPaymentPreferencePending || isAvailabilityPending;
 
   useEffect(() => {
     if (data) {
@@ -61,6 +76,32 @@ export default function FirstConfigurationPage() {
 
       if (data.user.pixKey) {
         setPixKey(data.user.pixKey);
+      }
+
+      if (data.user.dayOff) {
+        setDayOff(data.user.dayOff);
+      }
+
+      if (data.user.availability.length > 0) {
+        data.user.availability.forEach((newItem) => {
+          const original = availability.find((item) => item.dayOfWeek === newItem.dayOfWeek);
+
+          if (original) {
+            setAvailability(newItem.dayOfWeek, "startTime", newItem.startTime);
+            setAvailability(newItem.dayOfWeek, "endTime", newItem.endTime);
+            setAvailability(newItem.dayOfWeek, "hasInterval", newItem.hasInterval);
+            setAvailability(
+              newItem.dayOfWeek,
+              "startIntervalTime",
+              newItem.startIntervalTime ? newItem.startIntervalTime : ""
+            );
+            setAvailability(
+              newItem.dayOfWeek,
+              "endIntervalTime",
+              newItem.endIntervalTime ? newItem.endIntervalTime : ""
+            );
+          }
+        });
       }
     }
   }, [data, setPaymentPreference, setPixKey]);
@@ -164,8 +205,7 @@ export default function FirstConfigurationPage() {
 
       resetConfigurationError();
 
-      // TODO: adicionar função para salvar os dados da disponibilidade no banco de dados
-      toast.success("Pode prosseguir!");
+      submitAvailability({ availability, dayOff });
     }
   }
 

@@ -24,6 +24,17 @@ enum PaymentPreference {
   after
 }
 
+enum DayOff {
+  Weekend
+  Sunday
+  Monday
+  Tuesday
+  Wednesday
+  Thursday
+  Friday
+  Saturday
+}
+
 enum Days {
   Sunday
   Monday
@@ -46,6 +57,7 @@ model User {
   firstConfigurationStep Int                @default(0)
   paymentPreference      PaymentPreference?
   pixKey                 String?
+  dayOff                 DayOff?
 
   accounts     Account[]
   sessions     Session[]

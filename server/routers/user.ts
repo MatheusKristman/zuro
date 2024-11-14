@@ -22,6 +22,9 @@ export const userRouter = router({
       where: {
         email,
       },
+      include: {
+        availability: true,
+      },
     });
 
     if (!userSelected) {
@@ -208,6 +211,117 @@ export const userRouter = router({
           paymentPreference,
           pixKey,
         },
+      });
+
+      return {
+        error: false,
+        message: "Dados salvos com sucesso",
+      };
+    }),
+  submitAvailability: isUserAuthedProcedure
+    .input(
+      z.object({
+        dayOff: z.enum(["Weekend", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+        availability: z
+          .object({
+            dayOfWeek: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+            startTime: z.string(),
+            endTime: z.string(),
+            hasInterval: z.boolean(),
+            startIntervalTime: z.string(),
+            endIntervalTime: z.string(),
+          })
+          .array()
+          .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
+      })
+    )
+    .mutation(async (opts) => {
+      const { availability, dayOff } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          availability: true,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const availabilityFiltered = availability
+        .filter((item) => item.startTime !== "" || item.endTime !== "")
+        .map((item) => ({ ...item, userId: user.id }));
+
+      if (user.firstConfigurationStep === 1) {
+        await prisma.user.update({
+          where: {
+            email,
+          },
+          data: {
+            firstConfigurationStep: 2,
+            dayOff,
+          },
+        });
+
+        if (user.availability.length > 0) {
+          const availabilityDeletePromise = user.availability.map((obj) =>
+            prisma.availability.delete({
+              where: {
+                id: obj.id,
+              },
+            })
+          );
+
+          await Promise.all(availabilityDeletePromise);
+        }
+
+        await prisma.availability.createMany({
+          data: availabilityFiltered,
+        });
+
+        return {
+          error: false,
+          message: "Dados salvos com sucesso",
+        };
+      }
+
+      if (user.availability.length > 0) {
+        const availabilityDeletePromise = user.availability.map((obj) =>
+          prisma.availability.delete({
+            where: {
+              id: obj.id,
+            },
+          })
+        );
+
+        await Promise.all(availabilityDeletePromise);
+      }
+
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          dayOff,
+        },
+      });
+
+      await prisma.availability.createMany({
+        data: availabilityFiltered,
       });
 
       return {

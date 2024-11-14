@@ -229,74 +229,28 @@ export function Availability() {
   }, [availability]);
 
   useEffect(() => {
-    if (dayOff === "Weekend") {
-      setAvailability("Sunday", "startTime", "");
-      setAvailability("Sunday", "endTime", "");
-      setAvailability("Sunday", "hasInterval", false);
-      setAvailability("Sunday", "startIntervalTime", "");
-      setAvailability("Sunday", "endIntervalTime", "");
-      setAvailability("Saturday", "startTime", "");
-      setAvailability("Saturday", "endTime", "");
-      setAvailability("Saturday", "hasInterval", false);
-      setAvailability("Saturday", "startIntervalTime", "");
-      setAvailability("Saturday", "endIntervalTime", "");
-    }
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-    if (dayOff === "Sunday") {
-      setAvailability("Sunday", "startTime", "");
-      setAvailability("Sunday", "endTime", "");
-      setAvailability("Sunday", "hasInterval", false);
-      setAvailability("Sunday", "startIntervalTime", "");
-      setAvailability("Sunday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Saturday") {
-      setAvailability("Saturday", "startTime", "");
-      setAvailability("Saturday", "endTime", "");
-      setAvailability("Saturday", "hasInterval", false);
-      setAvailability("Saturday", "startIntervalTime", "");
-      setAvailability("Saturday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Monday") {
-      setAvailability("Monday", "startTime", "");
-      setAvailability("Monday", "endTime", "");
-      setAvailability("Monday", "hasInterval", false);
-      setAvailability("Monday", "startIntervalTime", "");
-      setAvailability("Monday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Tuesday") {
-      setAvailability("Tuesday", "startTime", "");
-      setAvailability("Tuesday", "endTime", "");
-      setAvailability("Tuesday", "hasInterval", false);
-      setAvailability("Tuesday", "startIntervalTime", "");
-      setAvailability("Tuesday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Wednesday") {
-      setAvailability("Wednesday", "startTime", "");
-      setAvailability("Wednesday", "endTime", "");
-      setAvailability("Wednesday", "hasInterval", false);
-      setAvailability("Wednesday", "startIntervalTime", "");
-      setAvailability("Wednesday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Thursday") {
-      setAvailability("Thursday", "startTime", "");
-      setAvailability("Thursday", "endTime", "");
-      setAvailability("Thursday", "hasInterval", false);
-      setAvailability("Thursday", "startIntervalTime", "");
-      setAvailability("Thursday", "endIntervalTime", "");
-    }
-
-    if (dayOff === "Friday") {
-      setAvailability("Friday", "startTime", "");
-      setAvailability("Friday", "endTime", "");
-      setAvailability("Friday", "hasInterval", false);
-      setAvailability("Friday", "startIntervalTime", "");
-      setAvailability("Friday", "endIntervalTime", "");
-    }
+    days.forEach((day) => {
+      if (dayOff === "Weekend") {
+        setAvailability("Sunday", "startTime", "");
+        setAvailability("Sunday", "endTime", "");
+        setAvailability("Sunday", "hasInterval", false);
+        setAvailability("Sunday", "startIntervalTime", "");
+        setAvailability("Sunday", "endIntervalTime", "");
+        setAvailability("Saturday", "startTime", "");
+        setAvailability("Saturday", "endTime", "");
+        setAvailability("Saturday", "hasInterval", false);
+        setAvailability("Saturday", "startIntervalTime", "");
+        setAvailability("Saturday", "endIntervalTime", "");
+      } else if (dayOff === day) {
+        setAvailability(day, "startTime", "");
+        setAvailability(day, "endTime", "");
+        setAvailability(day, "hasInterval", false);
+        setAvailability(day, "startIntervalTime", "");
+        setAvailability(day, "endIntervalTime", "");
+      }
+    });
   }, [dayOff, setAvailability]);
 
   return (
@@ -309,7 +263,6 @@ export function Availability() {
         <Select
           value={dayOff}
           onValueChange={(value) => {
-            //TODO: resetar o dia quando selecionado a folga, para não adicionar dados no dia que está de folga
             setDayOff(value as dayOffType);
             setTab("");
           }}
