@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
 import { FirstConfigurationStore } from "@/stores/first-configuration-store";
 
+// TODO: remover cursor-pointer quando fizer um hover nas bolinhas dos steps
 export default function FirstConfigurationPage() {
   const searchParams = useSearchParams();
   const router = useRouter();

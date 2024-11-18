@@ -1,6 +1,8 @@
 import { Check } from "lucide-react";
 
 export function FinishConfigurationMessage() {
+  // TODO: adicionar uma animação quando finalizar os passos
+
   return (
     <div className="bg-white rounded-3xl p-6 py-12 flex flex-col items-center gap-6 justify-center">
       <div className="flex flex-col items-center gap-4">
