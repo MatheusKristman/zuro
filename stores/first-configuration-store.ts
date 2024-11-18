@@ -11,11 +11,18 @@ type availabilityType = {
 };
 type serviceType = {
   name: string;
-  minutes: string;
-  price: string;
+  minutes: number;
+  price: number;
+};
+
+type redirectionType = {
+  previous: boolean;
+  next: boolean;
 };
 
 interface FirstConfigurationStoreInter {
+  redirection: redirectionType;
+  setRedirection: (value: redirectionType) => void;
   paymentPreference: "" | "before_after" | "before" | "after";
   setPaymentPreference: (value: "before_after" | "before" | "after") => void;
   pixKey: string;
@@ -30,6 +37,8 @@ interface FirstConfigurationStoreInter {
   ) => void;
   services: serviceType[];
   setServices: (value: serviceType) => void;
+  setDefaultServices: (value: serviceType[]) => void;
+  deleteService: (value: string) => void;
   configurationError: {
     paymentPreference: string;
     pixKey: string;
@@ -54,6 +63,11 @@ interface FirstConfigurationStoreInter {
 }
 
 export const FirstConfigurationStore = create<FirstConfigurationStoreInter>((set) => ({
+  redirection: {
+    previous: false,
+    next: false,
+  },
+  setRedirection: (value) => set({ redirection: value }),
   paymentPreference: "",
   setPaymentPreference: (value) => set({ paymentPreference: value }),
   pixKey: "",
@@ -124,6 +138,13 @@ export const FirstConfigurationStore = create<FirstConfigurationStoreInter>((set
     })),
   services: [],
   setServices: (value) => set((state) => ({ services: [...state.services, value] })),
+  setDefaultServices: (value) => set({ services: value }),
+  deleteService: (value) =>
+    set((state) => {
+      const newServices = state.services.filter((service) => service.name !== value);
+
+      return { services: newServices };
+    }),
   configurationError: {
     paymentPreference: "",
     pixKey: "",

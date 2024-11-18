@@ -24,6 +24,7 @@ export const userRouter = router({
       },
       include: {
         availability: true,
+        services: true,
       },
     });
 
@@ -322,6 +323,106 @@ export const userRouter = router({
 
       await prisma.availability.createMany({
         data: availabilityFiltered,
+      });
+
+      return {
+        error: false,
+        message: "Dados salvos com sucesso",
+      };
+    }),
+  submitServices: isUserAuthedProcedure
+    .input(
+      z.object({
+        services: z
+          .array(
+            z.object({
+              name: z.string().min(1, "Nome é obrigatório"),
+              minutes: z.number().gt(0, "Minutos inválidos"),
+              price: z.number().gt(0, "Valor inválido"),
+            })
+          )
+          .min(1, "É preciso ter ao menos um serviço registrado"),
+      })
+    )
+    .mutation(async (opts) => {
+      const { services } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+        include: {
+          services: true,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const servicesFiltered = services.map((service) => ({
+        ...service,
+        userId: user.id,
+      }));
+
+      if (user.firstConfigurationStep === 2) {
+        await prisma.user.update({
+          where: {
+            email,
+          },
+          data: {
+            firstConfigurationStep: 3,
+            firstAccess: true,
+          },
+        });
+
+        if (user.services.length > 0) {
+          const servicesDeletePromise = user.services.map((obj) =>
+            prisma.service.delete({
+              where: {
+                id: obj.id,
+              },
+            })
+          );
+
+          await Promise.all(servicesDeletePromise);
+        }
+
+        await prisma.service.createMany({
+          data: servicesFiltered,
+        });
+
+        return {
+          error: false,
+          message: "Dados salvos com sucesso",
+        };
+      }
+
+      if (user.services.length > 0) {
+        const servicesDeletePromise = user.services.map((obj) =>
+          prisma.service.delete({
+            where: {
+              id: obj.id,
+            },
+          })
+        );
+
+        await Promise.all(servicesDeletePromise);
+      }
+
+      await prisma.service.createMany({
+        data: servicesFiltered,
       });
 
       return {

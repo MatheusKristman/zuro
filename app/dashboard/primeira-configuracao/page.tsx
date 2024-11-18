@@ -21,6 +21,8 @@ export default function FirstConfigurationPage() {
   const step = searchParams.get("step");
 
   const {
+    redirection,
+    setRedirection,
     paymentPreference,
     setPaymentPreference,
     pixKey,
@@ -29,6 +31,8 @@ export default function FirstConfigurationPage() {
     setDayOff,
     availability,
     setAvailability,
+    services,
+    setDefaultServices,
     setConfigurationError,
     configurationError,
     resetConfigurationError,
@@ -36,6 +40,25 @@ export default function FirstConfigurationPage() {
 
   const util = trpc.useUtils();
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
+
+  function handleRedirect() {
+    if (redirection.previous && step) {
+      setRedirection({ previous: false, next: false });
+
+      if (parseInt(step) !== 0) {
+        router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`);
+      }
+    }
+
+    if (redirection.next && step) {
+      setRedirection({ previous: false, next: false });
+
+      if (parseInt(step) !== 3) {
+        router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) + 1}`);
+      }
+    }
+  }
+
   const { mutate: submitPaymentPreference, isPending: isPaymentPreferencePending } =
     trpc.userRouter.submitPaymentPreference.useMutation({
       onSuccess: (res) => {
@@ -46,7 +69,7 @@ export default function FirstConfigurationPage() {
 
         toast.success(res.message);
         util.userRouter.getUser.invalidate();
-        router.push("/dashboard/primeira-configuracao?step=1");
+        handleRedirect();
       },
       onError: (error) => {
         console.log(error);
@@ -62,11 +85,26 @@ export default function FirstConfigurationPage() {
 
         toast.success(res.message);
         util.userRouter.getUser.invalidate();
-        router.push("/dashboard/primeira-configuracao?step=2");
+        handleRedirect();
       },
     });
+  const { mutate: submitServices, isPending: isServicesPending } = trpc.userRouter.submitServices.useMutation({
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.message);
+        return;
+      }
 
-  const pending: boolean = isPending || isPaymentPreferencePending || isAvailabilityPending;
+      toast.success(res.message);
+      util.userRouter.getUser.invalidate();
+      handleRedirect();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const pending: boolean = isPending || isPaymentPreferencePending || isAvailabilityPending || isServicesPending;
 
   useEffect(() => {
     if (data) {
@@ -103,16 +141,20 @@ export default function FirstConfigurationPage() {
           }
         });
       }
+
+      if (data.user.services.length > 0) {
+        const newServices = data.user.services.map((service) => ({
+          name: service.name,
+          minutes: service.minutes,
+          price: service.price,
+        }));
+
+        setDefaultServices(newServices);
+      }
     }
   }, [data, setPaymentPreference, setPixKey]);
 
-  function handleBack() {
-    if (step) {
-      router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`);
-    }
-  }
-
-  function handleNext() {
+  function handleSubmit() {
     if (step === "0") {
       let paymentPreferenceErrorMessage = "";
       let pixKeyErrorMessage = "";
@@ -137,6 +179,8 @@ export default function FirstConfigurationPage() {
       resetConfigurationError();
 
       submitPaymentPreference({ paymentPreference, pixKey });
+
+      return;
     }
 
     if (step === "1") {
@@ -206,7 +250,58 @@ export default function FirstConfigurationPage() {
       resetConfigurationError();
 
       submitAvailability({ availability, dayOff });
+
+      return;
     }
+
+    if (step === "2") {
+      let servicesError = "";
+
+      if (services.length === 0) {
+        servicesError = "É preciso ter ao menos um serviço cadastrado";
+      }
+
+      if (servicesError !== "") {
+        setConfigurationError({
+          ...configurationError,
+          services: servicesError,
+        });
+
+        return;
+      }
+
+      resetConfigurationError();
+
+      submitServices({ services });
+    }
+  }
+
+  function handleBack() {
+    if (step === "0") {
+      return;
+    }
+
+    if (step === "3") {
+      router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`);
+
+      return;
+    }
+
+    setRedirection({ previous: true, next: false });
+
+    handleSubmit();
+  }
+
+  function handleNext() {
+    if (step === "3") {
+      router.push("/dashboard");
+
+      return;
+    }
+
+    setRedirection({ previous: false, next: true });
+
+    handleSubmit();
   }
 
   return (
@@ -303,7 +398,7 @@ export default function FirstConfigurationPage() {
           </Button>
 
           <Button variant="secondary" size="xl" disabled={pending} onClick={handleNext}>
-            Próximo
+            {step === "3" ? <>Ir para dashboard</> : <>Próximo</>}
           </Button>
         </div>
       </div>
