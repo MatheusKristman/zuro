@@ -5,12 +5,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PaymentPreference } from "@/app/dashboard/components/payment-preference";
 import { Availability } from "../components/availability";
 import { Services } from "../components/services";
@@ -52,9 +47,7 @@ export default function FirstConfigurationPage() {
       setRedirection({ previous: false, next: false });
 
       if (parseInt(step) !== 0) {
-        router.push(
-          `/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`,
-        );
+        router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`);
       }
     }
 
@@ -62,46 +55,13 @@ export default function FirstConfigurationPage() {
       setRedirection({ previous: false, next: false });
 
       if (parseInt(step) !== 3) {
-        router.push(
-          `/dashboard/primeira-configuracao?step=${parseInt(step) + 1}`,
-        );
+        router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) + 1}`);
       }
     }
   }
 
-  const {
-    mutate: submitPaymentPreference,
-    isPending: isPaymentPreferencePending,
-  } = trpc.userRouter.submitPaymentPreference.useMutation({
-    onSuccess: (res) => {
-      if (res.error) {
-        toast.error(res.message);
-        return;
-      }
-
-      toast.success(res.message);
-      util.userRouter.getUser.invalidate();
-      handleRedirect();
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-  const { mutate: submitAvailability, isPending: isAvailabilityPending } =
-    trpc.userRouter.submitAvailability.useMutation({
-      onSuccess: (res) => {
-        if (res.error) {
-          toast.error(res.message);
-          return;
-        }
-
-        toast.success(res.message);
-        util.userRouter.getUser.invalidate();
-        handleRedirect();
-      },
-    });
-  const { mutate: submitServices, isPending: isServicesPending } =
-    trpc.userRouter.submitServices.useMutation({
+  const { mutate: submitPaymentPreference, isPending: isPaymentPreferencePending } =
+    trpc.userRouter.submitPaymentPreference.useMutation({
       onSuccess: (res) => {
         if (res.error) {
           toast.error(res.message);
@@ -116,12 +76,36 @@ export default function FirstConfigurationPage() {
         console.log(error);
       },
     });
+  const { mutate: submitAvailability, isPending: isAvailabilityPending } =
+    trpc.userRouter.submitAvailability.useMutation({
+      onSuccess: (res) => {
+        if (res.error) {
+          toast.error(res.message);
+          return;
+        }
 
-  const pending: boolean =
-    isPending ||
-    isPaymentPreferencePending ||
-    isAvailabilityPending ||
-    isServicesPending;
+        toast.success(res.message);
+        util.userRouter.getUser.invalidate();
+        handleRedirect();
+      },
+    });
+  const { mutate: submitServices, isPending: isServicesPending } = trpc.userRouter.submitServices.useMutation({
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.message);
+        return;
+      }
+
+      toast.success(res.message);
+      util.userRouter.getUser.invalidate();
+      handleRedirect();
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const pending: boolean = isPending || isPaymentPreferencePending || isAvailabilityPending || isServicesPending;
 
   useEffect(() => {
     if (data) {
@@ -139,27 +123,21 @@ export default function FirstConfigurationPage() {
 
       if (data.user.availability.length > 0) {
         data.user.availability.forEach((newItem) => {
-          const original = availability.find(
-            (item) => item.dayOfWeek === newItem.dayOfWeek,
-          );
+          const original = availability.find((item) => item.dayOfWeek === newItem.dayOfWeek);
 
           if (original) {
             setAvailability(newItem.dayOfWeek, "startTime", newItem.startTime);
             setAvailability(newItem.dayOfWeek, "endTime", newItem.endTime);
-            setAvailability(
-              newItem.dayOfWeek,
-              "hasInterval",
-              newItem.hasInterval,
-            );
+            setAvailability(newItem.dayOfWeek, "hasInterval", newItem.hasInterval);
             setAvailability(
               newItem.dayOfWeek,
               "startIntervalTime",
-              newItem.startIntervalTime ? newItem.startIntervalTime : "",
+              newItem.startIntervalTime ? newItem.startIntervalTime : ""
             );
             setAvailability(
               newItem.dayOfWeek,
               "endIntervalTime",
-              newItem.endIntervalTime ? newItem.endIntervalTime : "",
+              newItem.endIntervalTime ? newItem.endIntervalTime : ""
             );
           }
         });
@@ -175,7 +153,7 @@ export default function FirstConfigurationPage() {
         setDefaultServices(newServices);
       }
     }
-  }, [data, setPaymentPreference, setPixKey]);
+  }, [data, setPaymentPreference, setPixKey, setAvailability, setDayOff, setDefaultServices]);
 
   function handleSubmit() {
     if (step === "0") {
@@ -183,16 +161,10 @@ export default function FirstConfigurationPage() {
       let pixKeyErrorMessage = "";
 
       if (!paymentPreference) {
-        paymentPreferenceErrorMessage =
-          "Selecione uma das opções para prosseguir";
+        paymentPreferenceErrorMessage = "Selecione uma das opções para prosseguir";
       }
 
-      if (
-        (!paymentPreference ||
-          paymentPreference === "before_after" ||
-          paymentPreference === "before") &&
-        !pixKey
-      ) {
+      if ((!paymentPreference || paymentPreference === "before_after" || paymentPreference === "before") && !pixKey) {
         pixKeyErrorMessage = "O campo não pode estar vazio";
       }
 
@@ -233,43 +205,34 @@ export default function FirstConfigurationPage() {
       daysOfWeek.forEach((dayObj, index) => {
         const { day, label } = dayObj;
 
-        if (
-          (dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) ||
-          dayOff === day
-        ) {
+        if ((dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) || dayOff === day) {
           return;
         }
 
-        const {
-          startTime,
-          endTime,
-          hasInterval,
-          startIntervalTime,
-          endIntervalTime,
-        } = availability[index];
+        const { startTime, endTime, hasInterval, startIntervalTime, endIntervalTime } = availability[index];
 
         if (startTime === "") {
           availabilityErrorMessage.push(
-            `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`,
+            `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`
           );
         }
 
         if (endTime === "") {
           availabilityErrorMessage.push(
-            `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`,
+            `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`
           );
         }
 
         if (hasInterval) {
           if (startIntervalTime === "") {
             availabilityErrorMessage.push(
-              `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+              `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`
             );
           }
 
           if (endIntervalTime === "") {
             availabilityErrorMessage.push(
-              `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+              `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`
             );
           }
         }
@@ -320,9 +283,7 @@ export default function FirstConfigurationPage() {
     }
 
     if (step === "3") {
-      router.push(
-        `/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`,
-      );
+      router.push(`/dashboard/primeira-configuracao?step=${parseInt(step) - 1}`);
 
       return;
     }
@@ -345,36 +306,25 @@ export default function FirstConfigurationPage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-72px)] px-6 pt-6 overflow-auto sm:min-h-[calc(100vh-112px)] lg:absolute lg:top-0 lg:left-[450px] lg:min-h-screen lg:w-[calc(100%-450px)]">
-      <div className="w-full min-h-[calc(100vh-72px-24px)] max-w-4xl mx-auto flex flex-col justify-between sm:min-h-[calc(100vh-112px-24px)] lg:min-h-[calc(100vh-24px)]">
+    <main className="dashboard-main">
+      <div className="dashboard-container min-h-[calc(100vh-72px-24px)] flex flex-col justify-between sm:min-h-[calc(100vh-112px-24px)] lg:min-h-[calc(100vh-24px)]">
         <div className="flex flex-col items-center gap-2 mt-10">
-          <h2 className="text-3xl font-bold text-center text-white">
-            Configure a sua conta
-          </h2>
+          <h2 className="text-3xl font-bold text-center text-white">Configure a sua conta</h2>
 
           <div className="w-full flex items-center justify-between gap-2 max-w-[250px]">
             <TooltipProvider delayDuration={100}>
               <Tooltip>
                 <TooltipTrigger disabled={pending}>
                   <div
-                    className={cn(
-                      "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
-                      {
-                        "border-white":
-                          data && data.user.firstConfigurationStep >= 0,
-                      },
-                    )}
+                    className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
+                      "border-white": data && data.user.firstConfigurationStep >= 0,
+                    })}
                   >
-                    {step === "0" && (
-                      <div className="bg-white size-4 rounded-full" />
-                    )}
+                    {step === "0" && <div className="bg-white size-4 rounded-full" />}
                   </div>
                 </TooltipTrigger>
 
-                <TooltipContent
-                  side="bottom"
-                  className="text-skin-primary text-lg font-semibold rounded-xl"
-                >
+                <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
                   Preferencia de pagamento
                 </TooltipContent>
               </Tooltip>
@@ -382,24 +332,15 @@ export default function FirstConfigurationPage() {
               <Tooltip>
                 <TooltipTrigger disabled={pending}>
                   <div
-                    className={cn(
-                      "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
-                      {
-                        "border-white":
-                          data && data.user.firstConfigurationStep >= 1,
-                      },
-                    )}
+                    className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
+                      "border-white": data && data.user.firstConfigurationStep >= 1,
+                    })}
                   >
-                    {step === "1" && (
-                      <div className="bg-white size-4 rounded-full" />
-                    )}
+                    {step === "1" && <div className="bg-white size-4 rounded-full" />}
                   </div>
                 </TooltipTrigger>
 
-                <TooltipContent
-                  side="bottom"
-                  className="text-skin-primary text-lg font-semibold rounded-xl"
-                >
+                <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
                   Disponibilidade
                 </TooltipContent>
               </Tooltip>
@@ -407,24 +348,15 @@ export default function FirstConfigurationPage() {
               <Tooltip>
                 <TooltipTrigger disabled={pending}>
                   <div
-                    className={cn(
-                      "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
-                      {
-                        "border-white":
-                          data && data.user.firstConfigurationStep >= 2,
-                      },
-                    )}
+                    className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
+                      "border-white": data && data.user.firstConfigurationStep >= 2,
+                    })}
                   >
-                    {step === "2" && (
-                      <div className="bg-white size-4 rounded-full" />
-                    )}
+                    {step === "2" && <div className="bg-white size-4 rounded-full" />}
                   </div>
                 </TooltipTrigger>
 
-                <TooltipContent
-                  side="bottom"
-                  className="text-skin-primary text-lg font-semibold rounded-xl"
-                >
+                <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
                   Serviços
                 </TooltipContent>
               </Tooltip>
@@ -432,24 +364,15 @@ export default function FirstConfigurationPage() {
               <Tooltip>
                 <TooltipTrigger disabled={pending}>
                   <div
-                    className={cn(
-                      "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
-                      {
-                        "border-white":
-                          data && data.user.firstConfigurationStep >= 3,
-                      },
-                    )}
+                    className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
+                      "border-white": data && data.user.firstConfigurationStep >= 3,
+                    })}
                   >
-                    {step === "3" && (
-                      <div className="bg-white size-4 rounded-full" />
-                    )}
+                    {step === "3" && <div className="bg-white size-4 rounded-full" />}
                   </div>
                 </TooltipTrigger>
 
-                <TooltipContent
-                  side="bottom"
-                  className="text-skin-primary text-lg font-semibold rounded-xl"
-                >
+                <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
                   Conclusão
                 </TooltipContent>
               </Tooltip>
@@ -476,12 +399,7 @@ export default function FirstConfigurationPage() {
             Voltar
           </Button>
 
-          <Button
-            variant="secondary"
-            size="xl"
-            disabled={pending}
-            onClick={handleNext}
-          >
+          <Button variant="secondary" size="xl" disabled={pending} onClick={handleNext}>
             {step === "3" ? <>Ir para dashboard</> : <>Próximo</>}
           </Button>
         </div>

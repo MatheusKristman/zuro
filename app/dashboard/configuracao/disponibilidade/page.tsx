@@ -51,27 +51,21 @@ export default function AvailabilityPage() {
 
       if (data.user.availability.length > 0) {
         data.user.availability.forEach((newItem) => {
-          const original = availability.find(
-            (item) => item.dayOfWeek === newItem.dayOfWeek,
-          );
+          const original = availability.find((item) => item.dayOfWeek === newItem.dayOfWeek);
 
           if (original) {
             setAvailability(newItem.dayOfWeek, "startTime", newItem.startTime);
             setAvailability(newItem.dayOfWeek, "endTime", newItem.endTime);
-            setAvailability(
-              newItem.dayOfWeek,
-              "hasInterval",
-              newItem.hasInterval,
-            );
+            setAvailability(newItem.dayOfWeek, "hasInterval", newItem.hasInterval);
             setAvailability(
               newItem.dayOfWeek,
               "startIntervalTime",
-              newItem.startIntervalTime ? newItem.startIntervalTime : "",
+              newItem.startIntervalTime ? newItem.startIntervalTime : ""
             );
             setAvailability(
               newItem.dayOfWeek,
               "endIntervalTime",
-              newItem.endIntervalTime ? newItem.endIntervalTime : "",
+              newItem.endIntervalTime ? newItem.endIntervalTime : ""
             );
           }
         });
@@ -100,43 +94,34 @@ export default function AvailabilityPage() {
     daysOfWeek.forEach((dayObj, index) => {
       const { day, label } = dayObj;
 
-      if (
-        (dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) ||
-        dayOff === day
-      ) {
+      if ((dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) || dayOff === day) {
         return;
       }
 
-      const {
-        startTime,
-        endTime,
-        hasInterval,
-        startIntervalTime,
-        endIntervalTime,
-      } = availability[index];
+      const { startTime, endTime, hasInterval, startIntervalTime, endIntervalTime } = availability[index];
 
       if (startTime === "") {
         availabilityErrorMessage.push(
-          `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`,
+          `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`
         );
       }
 
       if (endTime === "") {
         availabilityErrorMessage.push(
-          `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`,
+          `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`
         );
       }
 
       if (hasInterval) {
         if (startIntervalTime === "") {
           availabilityErrorMessage.push(
-            `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+            `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`
           );
         }
 
         if (endIntervalTime === "") {
           availabilityErrorMessage.push(
-            `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+            `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`
           );
         }
       }
@@ -160,11 +145,9 @@ export default function AvailabilityPage() {
   }
 
   return (
-    <main className="min-h-[calc(100vh-72px)] px-6 pt-6 overflow-auto sm:min-h-[calc(100vh-112px)] lg:absolute lg:top-0 lg:left-[450px] lg:min-h-screen lg:w-[calc(100%-450px)]">
-      <div className="w-full min-h-[calc(100vh-72px-24px)] max-w-4xl mx-auto flex flex-col justify-between sm:min-h-[calc(100vh-112px-24px)] lg:min-h-[calc(100vh-24px)]">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">
-          Configurações
-        </h2>
+    <main className="dashboard-main">
+      <div className="dashboard-container min-h-[calc(100vh-72px-24px)] flex flex-col justify-between sm:min-h-[calc(100vh-112px-24px)] lg:min-h-[calc(100vh-24px)]">
+        <h2 className="text-3xl font-bold text-center text-white mt-10">Configurações</h2>
 
         <div className="flex-grow mt-24">
           <Availability isPending={pending} />
@@ -175,12 +158,7 @@ export default function AvailabilityPage() {
             <Link href="/dashboard/configuracao">Voltar</Link>
           </Button>
 
-          <Button
-            variant="secondary"
-            size="xl"
-            disabled={pending}
-            onClick={handleSubmit}
-          >
+          <Button variant="secondary" size="xl" disabled={pending} onClick={handleSubmit}>
             Salvar
           </Button>
         </div>

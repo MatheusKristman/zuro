@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export function DashboardNav() {
   return (
-    <nav className="w-[450px] min-h-screen p-6 hidden lg:flex lg:flex-col">
+    <nav className="w-[450px] min-h-screen p-6 hidden lg:fixed lg:top-0 lg:left-0 lg:flex lg:flex-col">
       <div className="bg-black/30 rounded-2xl p-6 w-full flex-grow flex flex-col justify-between">
         <div className="w-full flex flex-col items-center gap-6">
           <div className="flex flex-col items-center justify-center gap-3">
