@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export default function DashboardConfigurationPage() {
   return (
-    <main className="min-h-screen px-6 pt-6 overflow-auto lg:absolute lg:top-0 lg:left-[450px] lg:w-[calc(100%-450px)]">
+    <main className="min-h-[calc(100vh-72px)] px-6 py-6 overflow-auto sm:min-h-[calc(100vh-112px)] lg:absolute lg:top-0 lg:left-[450px] lg:min-h-screen lg:w-[calc(100%-450px)]">
       <div className="w-full h-full max-w-4xl mx-auto">
         <h2 className="text-3xl font-bold text-center text-white mt-10">
           Configurações
