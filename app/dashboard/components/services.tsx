@@ -11,13 +11,23 @@ import { Label } from "@/components/ui/label";
 import { FirstConfigurationStore } from "@/stores/first-configuration-store";
 import { formatPrice } from "@/lib/utils";
 
-export function Services() {
+interface ServicesProps {
+  isPending: boolean;
+}
+
+export function Services({ isPending }: ServicesProps) {
   const [name, setName] = useState<string>("");
   const [minutes, setMinutes] = useState<string>("");
   const [price, setPrice] = useState<string | undefined>();
 
-  const { services, setServices, deleteService, setConfigurationError, resetConfigurationError, configurationError } =
-    FirstConfigurationStore();
+  const {
+    services,
+    setServices,
+    deleteService,
+    setConfigurationError,
+    resetConfigurationError,
+    configurationError,
+  } = FirstConfigurationStore();
 
   function handleMinutes(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value.trim().replace(/[^0-9]/g, "");
@@ -78,7 +88,9 @@ export function Services() {
 
   return (
     <div className="bg-white rounded-3xl p-6">
-      <h3 className="text-3xl font-bold text-skin-primary mb-4">Serviços prestados</h3>
+      <h3 className="text-3xl font-bold text-skin-primary mb-4">
+        Serviços prestados
+      </h3>
 
       <div className="w-full flex flex-col gap-10">
         <div className="w-full flex flex-col gap-4 sm:grid sm:grid-cols-3 sm:gap-2">
@@ -87,13 +99,16 @@ export function Services() {
 
             <Input
               id="service-name"
+              disabled={isPending}
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Insira o nome do serviço"
             />
 
             {configurationError.serviceName && (
-              <span className="text-sm text-destructive">{configurationError.serviceName}</span>
+              <span className="text-sm text-destructive">
+                {configurationError.serviceName}
+              </span>
             )}
           </div>
 
@@ -102,13 +117,16 @@ export function Services() {
 
             <Input
               id="service-minutes"
+              disabled={isPending}
               value={minutes}
               onChange={handleMinutes}
               placeholder="Insira o tempo de realização do serviço"
             />
 
             {configurationError.serviceMinutes && (
-              <span className="text-sm text-destructive">{configurationError.serviceMinutes}</span>
+              <span className="text-sm text-destructive">
+                {configurationError.serviceMinutes}
+              </span>
             )}
           </div>
 
@@ -119,22 +137,29 @@ export function Services() {
               className="flex h-12 w-full rounded-xl border border-skin-primary/40 bg-background px-3 py-2 text-sm ring-0 ring-offset-0 outline-none transition file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:border-skin-primary disabled:cursor-not-allowed disabled:opacity-50"
               id="service-price"
               placeholder="Insira o preço do serviço"
+              disabled={isPending}
               decimalsLimit={2}
               value={price}
               onValueChange={(value) => setPrice(value)}
             />
 
             {configurationError.servicePrice && (
-              <span className="text-sm text-destructive">{configurationError.servicePrice}</span>
+              <span className="text-sm text-destructive">
+                {configurationError.servicePrice}
+              </span>
             )}
           </div>
         </div>
 
-        <Button onClick={addService} className="w-fit" size="xl">
+        <Button
+          onClick={addService}
+          disabled={isPending}
+          className="w-fit"
+          size="xl"
+        >
           Adicionar
         </Button>
 
-        {/* TODO: adicionar as boxes do serviço dinamicamente */}
         <div className="w-full h-px bg-black/10" />
 
         <div className="w-full flex flex-col gap-4 sm:grid sm:grid-cols-2">
@@ -144,16 +169,23 @@ export function Services() {
                 key={`service-${index}`}
                 className="relative w-full bg-skin-primary rounded-xl px-6 py-4 flex flex-col gap-2 group"
               >
-                <span className="text-white font-semibold text-2xl">{service.name}</span>
+                <span className="text-white font-semibold text-2xl">
+                  {service.name}
+                </span>
 
-                <span className="font-medium text-lg text-white">Tempo: {service.minutes}Min</span>
+                <span className="font-medium text-lg text-white">
+                  Tempo: {service.minutes}Min
+                </span>
 
-                <span className="font-medium text-lg text-white">Valor: {formatPrice(service.price)}</span>
+                <span className="font-medium text-lg text-white">
+                  Valor: {formatPrice(service.price)}
+                </span>
 
                 <Button
                   size="icon"
                   variant="ghost"
                   className="absolute top-3 right-3 opacity-0 transition-opacity group-hover:opacity-100"
+                  disabled={isPending}
                   onClick={() => deleteService(service.name)}
                 >
                   <Trash2 className="size-8 shrink-0 text-white" />
@@ -162,12 +194,16 @@ export function Services() {
             ))
           ) : (
             <div className="flex items-center justify-center sm:col-span-2">
-              <span className="text-xl font-semibold text-muted-foreground/70">Nenhum serviço cadastrado</span>
+              <span className="text-xl font-semibold text-muted-foreground/70">
+                Nenhum serviço cadastrado
+              </span>
             </div>
           )}
 
           {configurationError.services && (
-            <span className="text-sm text-center text-destructive sm:col-span-2">{configurationError.services}</span>
+            <span className="text-sm text-center text-destructive sm:col-span-2">
+              {configurationError.services}
+            </span>
           )}
         </div>
       </div>

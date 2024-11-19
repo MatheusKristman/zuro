@@ -460,8 +460,8 @@ export default function FirstConfigurationPage() {
         {/* TODO: adicionar isPending nos outros componentes */}
         <div className="flex-grow mt-24">
           {step === "0" && <PaymentPreference isPending={pending} />}
-          {step === "1" && <Availability />}
-          {step === "2" && <Services />}
+          {step === "1" && <Availability isPending={pending} />}
+          {step === "2" && <Services isPending={pending} />}
           {step === "3" && <FinishConfigurationMessage />}
         </div>
 

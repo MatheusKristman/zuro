@@ -96,11 +96,9 @@ export default function PaymentPreferencePage() {
   return (
     <main className="h-full px-6 pt-6 overflow-auto lg:absolute lg:top-0 lg:left-[450px] lg:w-[calc(100%-450px)]">
       <div className="w-full h-full max-w-4xl mx-auto flex flex-col justify-between">
-        <div className="flex flex-col items-center gap-2 mt-10">
-          <h2 className="text-3xl font-bold text-center text-white">
-            Configurações
-          </h2>
-        </div>
+        <h2 className="text-3xl font-bold text-center text-white mt-10">
+          Configurações
+        </h2>
 
         <div className="flex-grow mt-24">
           <PaymentPreference isPending={pending} />

@@ -4,22 +4,54 @@ import { useEffect, useState } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { cn } from "@/lib/utils";
-import { dayOffType, FirstConfigurationStore } from "@/stores/first-configuration-store";
+import {
+  dayOffType,
+  FirstConfigurationStore,
+} from "@/stores/first-configuration-store";
 
-type setTabType = "" | "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+type setTabType =
+  | ""
+  | "Sunday"
+  | "Monday"
+  | "Tuesday"
+  | "Wednesday"
+  | "Thursday"
+  | "Friday"
+  | "Saturday";
 
 interface DayScheduleProps {
-  dayOfWeek: "Sunday" | "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday";
+  dayOfWeek:
+    | "Sunday"
+    | "Monday"
+    | "Tuesday"
+    | "Wednesday"
+    | "Thursday"
+    | "Friday"
+    | "Saturday";
+  isPending: boolean;
 }
 
-function DaySchedule({ dayOfWeek }: DayScheduleProps) {
-  const { setAvailability, availability, configurationError } = FirstConfigurationStore();
+interface AvailabilityProps {
+  isPending: boolean;
+}
 
-  const selectedAvailability = availability.find((item) => item.dayOfWeek === dayOfWeek);
+function DaySchedule({ dayOfWeek, isPending }: DayScheduleProps) {
+  const { setAvailability, availability, configurationError } =
+    FirstConfigurationStore();
+
+  const selectedAvailability = availability.find(
+    (item) => item.dayOfWeek === dayOfWeek,
+  );
   const hasInterval = selectedAvailability?.hasInterval;
 
   return (
@@ -30,9 +62,11 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
 
           <Select
             value={selectedAvailability?.startTime}
-            onValueChange={(value) => setAvailability(dayOfWeek, "startTime", value)}
+            onValueChange={(value) =>
+              setAvailability(dayOfWeek, "startTime", value)
+            }
           >
-            <SelectTrigger>
+            <SelectTrigger disabled={isPending}>
               <SelectValue placeholder="Selecione o horário de início" />
             </SelectTrigger>
 
@@ -70,9 +104,11 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
 
           <Select
             value={selectedAvailability?.endTime}
-            onValueChange={(value) => setAvailability(dayOfWeek, "endTime", value)}
+            onValueChange={(value) =>
+              setAvailability(dayOfWeek, "endTime", value)
+            }
           >
-            <SelectTrigger>
+            <SelectTrigger disabled={isPending}>
               <SelectValue placeholder="Selecione o horário de término" />
             </SelectTrigger>
 
@@ -108,10 +144,13 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
 
       <div className="flex gap-2 items-center mt-6">
         <Checkbox
+          disabled={isPending}
           id="break"
           value={hasInterval ? "on" : "off"}
           defaultChecked={hasInterval}
-          onCheckedChange={(checked) => setAvailability(dayOfWeek, "hasInterval", checked)}
+          onCheckedChange={(checked) =>
+            setAvailability(dayOfWeek, "hasInterval", checked)
+          }
         />
 
         <Label htmlFor="break">Deseja colocar um período de intervalo?</Label>
@@ -124,13 +163,17 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
 
           <div className="mt-6 w-full flex flex-col gap-4 sm:flex-row sm:gap-2">
             <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-              <Label htmlFor="break-begin">Horário de início do intervalo</Label>
+              <Label htmlFor="break-begin">
+                Horário de início do intervalo
+              </Label>
 
               <Select
                 value={selectedAvailability.startIntervalTime}
-                onValueChange={(value) => setAvailability(dayOfWeek, "startIntervalTime", value)}
+                onValueChange={(value) =>
+                  setAvailability(dayOfWeek, "startIntervalTime", value)
+                }
               >
-                <SelectTrigger>
+                <SelectTrigger disabled={isPending}>
                   <SelectValue placeholder="Selecione o horário de início do intervalo" />
                 </SelectTrigger>
 
@@ -164,13 +207,17 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
             </div>
 
             <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-              <Label htmlFor="break-begin">Horário de término do intervalo</Label>
+              <Label htmlFor="break-begin">
+                Horário de término do intervalo
+              </Label>
 
               <Select
                 value={selectedAvailability.endIntervalTime}
-                onValueChange={(value) => setAvailability(dayOfWeek, "endIntervalTime", value)}
+                onValueChange={(value) =>
+                  setAvailability(dayOfWeek, "endIntervalTime", value)
+                }
               >
-                <SelectTrigger>
+                <SelectTrigger disabled={isPending}>
                   <SelectValue placeholder="Selecione o horário de término do intervalo" />
                 </SelectTrigger>
 
@@ -219,17 +266,31 @@ function DaySchedule({ dayOfWeek }: DayScheduleProps) {
   );
 }
 
-export function Availability() {
+export function Availability({ isPending }: AvailabilityProps) {
   const [tab, setTab] = useState<setTabType>("");
 
-  const { dayOff, setDayOff, setAvailability, availability, configurationError } = FirstConfigurationStore();
+  const {
+    dayOff,
+    setDayOff,
+    setAvailability,
+    availability,
+    configurationError,
+  } = FirstConfigurationStore();
 
   useEffect(() => {
     console.log({ availability });
   }, [availability]);
 
   useEffect(() => {
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
 
     days.forEach((day) => {
       if (dayOff === "Weekend") {
@@ -255,7 +316,9 @@ export function Availability() {
 
   return (
     <div className="bg-white rounded-3xl p-6">
-      <h3 className="text-3xl font-bold text-skin-primary mb-4">Disponibilidade</h3>
+      <h3 className="text-3xl font-bold text-skin-primary mb-4">
+        Disponibilidade
+      </h3>
 
       <div className="flex flex-col gap-2 mb-4">
         <h4 className="text-xl font-semibold">Quais dias irá folgar?</h4>
@@ -267,7 +330,7 @@ export function Availability() {
             setTab("");
           }}
         >
-          <SelectTrigger>
+          <SelectTrigger disabled={isPending}>
             <SelectValue placeholder="Selecione os dias" />
           </SelectTrigger>
 
@@ -293,41 +356,72 @@ export function Availability() {
       </div>
 
       <div className="flex flex-col gap-2 mb-4">
-        <h4 className="text-xl font-semibold">Selecione os horários que trabalha</h4>
+        <h4 className="text-xl font-semibold">
+          Selecione os horários que trabalha
+        </h4>
 
-        <Tabs defaultValue="" value={tab} onValueChange={(value) => setTab(value as setTabType)} className="w-full">
+        <Tabs
+          defaultValue=""
+          value={tab}
+          onValueChange={(value) => setTab(value as setTabType)}
+          className="w-full"
+        >
           <TabsList className="w-full flex flex-col h-fit sm:flex-row">
             <TabsTrigger
               value="Sunday"
-              disabled={dayOff === "Weekend" || dayOff === "Sunday"}
+              disabled={
+                isPending || dayOff === "Weekend" || dayOff === "Sunday"
+              }
               className="w-full basis-full"
             >
               Domingo
             </TabsTrigger>
 
-            <TabsTrigger value="Monday" disabled={dayOff === "Monday"} className="w-full basis-full">
+            <TabsTrigger
+              value="Monday"
+              disabled={isPending || dayOff === "Monday"}
+              className="w-full basis-full"
+            >
               Segunda
             </TabsTrigger>
 
-            <TabsTrigger value="Tuesday" disabled={dayOff === "Tuesday"} className="w-full basis-full">
+            <TabsTrigger
+              value="Tuesday"
+              disabled={isPending || dayOff === "Tuesday"}
+              className="w-full basis-full"
+            >
               Terça
             </TabsTrigger>
 
-            <TabsTrigger value="Wednesday" disabled={dayOff === "Wednesday"} className="w-full basis-full">
+            <TabsTrigger
+              value="Wednesday"
+              disabled={isPending || dayOff === "Wednesday"}
+              className="w-full basis-full"
+            >
               Quarta
             </TabsTrigger>
 
-            <TabsTrigger value="Thursday" disabled={dayOff === "Thursday"} className="w-full basis-full">
+            <TabsTrigger
+              value="Thursday"
+              disabled={isPending || dayOff === "Thursday"}
+              className="w-full basis-full"
+            >
               Quinta
             </TabsTrigger>
 
-            <TabsTrigger value="Friday" disabled={dayOff === "Friday"} className="w-full basis-full">
+            <TabsTrigger
+              value="Friday"
+              disabled={isPending || dayOff === "Friday"}
+              className="w-full basis-full"
+            >
               Sexta
             </TabsTrigger>
 
             <TabsTrigger
               value="Saturday"
-              disabled={dayOff === "Weekend" || dayOff === "Saturday"}
+              disabled={
+                isPending || dayOff === "Weekend" || dayOff === "Saturday"
+              }
               className="w-full basis-full"
             >
               Sábado
@@ -335,31 +429,31 @@ export function Availability() {
           </TabsList>
 
           <TabsContent value="Sunday">
-            <DaySchedule dayOfWeek="Sunday" />
+            <DaySchedule dayOfWeek="Sunday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Monday">
-            <DaySchedule dayOfWeek="Monday" />
+            <DaySchedule dayOfWeek="Monday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Tuesday">
-            <DaySchedule dayOfWeek="Tuesday" />
+            <DaySchedule dayOfWeek="Tuesday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Wednesday">
-            <DaySchedule dayOfWeek="Wednesday" />
+            <DaySchedule dayOfWeek="Wednesday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Thursday">
-            <DaySchedule dayOfWeek="Thursday" />
+            <DaySchedule dayOfWeek="Thursday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Friday">
-            <DaySchedule dayOfWeek="Friday" />
+            <DaySchedule dayOfWeek="Friday" isPending={isPending} />
           </TabsContent>
 
           <TabsContent value="Saturday">
-            <DaySchedule dayOfWeek="Saturday" />
+            <DaySchedule dayOfWeek="Saturday" isPending={isPending} />
           </TabsContent>
         </Tabs>
       </div>
