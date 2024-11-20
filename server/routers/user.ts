@@ -430,4 +430,75 @@ export const userRouter = router({
         message: "Dados salvos com sucesso",
       };
     }),
+  submitChangePassword: isUserAuthedProcedure
+    .input(
+      z
+        .object({
+          password: z.string().min(1, "Senha é obrigatória"),
+          newPassword: z
+            .string()
+            .min(1, "Nova Senha é obrigatória")
+            .min(6, "Nova Senha precisa ter no mínimo 6 caracteres"),
+          confirmNewPassword: z.string().min(1, "Confirmar Senha é obrigatória"),
+        })
+        .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
+          if (confirmNewPassword !== newPassword) {
+            ctx.addIssue({
+              code: "custom",
+              message: "A confirmação da senha precisa ser igual a senha criada",
+              path: ["confirmNewPassword"],
+            });
+          }
+        })
+    )
+    .mutation(async (opts) => {
+      const { password, newPassword } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(password, user.password!);
+
+      if (!isPasswordCorrect) {
+        return {
+          error: true,
+          message: "Senha incorreta, verifique e tente novamente",
+        };
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const pwHash = await bcrypt.hash(newPassword, salt);
+
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          password: pwHash,
+        },
+      });
+
+      return {
+        error: false,
+        message: "Senha atualizada com sucesso",
+      };
+    }),
 });
