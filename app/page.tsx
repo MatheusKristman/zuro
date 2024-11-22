@@ -9,14 +9,7 @@ import { useForm } from "react-hook-form";
 import { signIn, useSession } from "next-auth/react";
 import { Loader2, LogIn } from "lucide-react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
@@ -82,33 +75,20 @@ export default function Home() {
   return (
     <main className="w-full min-h-screen flex items-center justify-center bg-skin-primary py-12 px-6">
       <div className="w-full flex flex-col items-center gap-6 bg-white rounded-3xl p-6 max-w-[450px]">
-        <Image
-          src="/logo.svg"
-          alt="Logo"
-          width={80}
-          height={80}
-          className="object-contain object-center"
-        />
+        <Image src="/logo.svg" alt="Logo" width={80} height={80} className="object-contain object-center" />
 
         <div className="w-full flex flex-col items-center gap-6">
-          <h2 className="text-3xl font-bold text-center text-slate-800">
-            Entre na sua conta
-          </h2>
+          <h2 className="text-3xl font-bold text-center text-slate-800">Entre na sua conta</h2>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 w-full"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
               <div className="space-y-4">
                 <FormField
                   name="email"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-600 font-bold">
-                        E-mail
-                      </FormLabel>
+                      <FormLabel className="text-slate-600 font-bold">E-mail</FormLabel>
 
                       <FormControl>
                         <Input
@@ -130,9 +110,7 @@ export default function Home() {
                   render={({ field }) => (
                     <FormItem>
                       <div className="w-full flex items-center justify-between">
-                        <FormLabel className="text-slate-600 font-bold">
-                          Senha
-                        </FormLabel>
+                        <FormLabel className="text-slate-600 font-bold">Senha</FormLabel>
 
                         <Link
                           href="/recuperar-senha"
@@ -158,18 +136,9 @@ export default function Home() {
                 />
               </div>
 
-              <Button
-                disabled={isSubmitting}
-                type="submit"
-                size="xl"
-                className="w-full flex items-center gap-2"
-              >
+              <Button disabled={isSubmitting} type="submit" size="xl" className="w-full flex items-center gap-2">
                 Entrar
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <LogIn />
-                )}
+                {isSubmitting ? <Loader2 className="animate-spin" /> : <LogIn />}
               </Button>
             </form>
           </Form>

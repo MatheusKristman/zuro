@@ -25,7 +25,7 @@ export default function ChangeProfilePhotoPage() {
       <div className="dashboard-container flex flex-col justify-between">
         <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Foto</h2>
 
-        <div className="w-full my-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
+        <div className="w-full m-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
           <div className="w-full flex flex-col items-center gap-4">
             <div className="relative w-36 h-36 shrink-0 rounded-full bg-skin-primary overflow-hidden flex items-center justify-center">
               {data && data.user.image ? (
