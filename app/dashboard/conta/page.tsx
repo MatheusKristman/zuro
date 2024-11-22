@@ -8,7 +8,7 @@ export default function AccountPage() {
       <div className="dashboard-container flex flex-col justify-between">
         <h2 className="text-3xl font-bold text-center text-white mt-10">Configuração da conta</h2>
 
-        <div className="mt-24 w-full flex flex-col gap-6">
+        <div className="my-10 w-full flex flex-col gap-6">
           <div className="bg-white p-4 rounded-xl w-full flex items-center justify-between gap-4">
             <span className="text-xl font-semibold text-skin-primary">Alterar senha</span>
 

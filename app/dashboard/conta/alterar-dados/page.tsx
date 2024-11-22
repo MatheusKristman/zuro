@@ -15,7 +15,7 @@ export default function ChangeAccountDataPage() {
       <div className="dashboard-container flex flex-col justify-between">
         <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Dados</h2>
 
-        <div className="w-full flex flex-col gap-10 mt-10 mb-6">
+        <div className="w-full flex flex-col gap-10 my-10">
           <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-12 sm:flex-row sm:items-end sm:gap-4">
             <div className="space-y-2 w-full">
               <Label htmlFor="name">Nome</Label>

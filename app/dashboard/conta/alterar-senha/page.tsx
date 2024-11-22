@@ -85,7 +85,7 @@ export default function ChangePasswordPage() {
       <div className="dashboard-container flex flex-col justify-between">
         <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Senha</h2>
 
-        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 mt-10">
+        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 my-10">
           <div className="w-full flex flex-col gap-4 xl:flex-row">
             <div className="space-y-2 w-full">
               <Label htmlFor="password">Senha Atual</Label>
