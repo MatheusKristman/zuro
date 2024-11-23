@@ -116,7 +116,7 @@ export default function ScheduleServicePage() {
         />
       )}
 
-      {step === "0" && <ServiceDaySchedule />}
+      {step === "0" && <ServiceDaySchedule user={data?.user} />}
 
       {!!step && (
         <div className="w-full max-w-4xl flex justify-between mt-12">

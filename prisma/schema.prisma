@@ -63,6 +63,7 @@ model User {
   sessions     Session[]
   availability Availability[]
   services     Service[]
+  schedules    Schedule[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -124,11 +125,30 @@ model Availability {
 }
 
 model Service {
-  id      String @id @default(auto()) @map("_id") @db.ObjectId
-  name    String
-  minutes Int
-  price   Float
+  id        String     @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  minutes   Int
+  price     Float
+  schedules Schedule[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
+}
+
+model Schedule {
+  id            String            @id @default(auto()) @map("_id") @db.ObjectId
+  date          String
+  time          String
+  fullName      String
+  email         String
+  tel           String
+  message       String?
+  paymentMethod PaymentPreference
+  receiptUrl    String?
+
+  serviceId String  @db.ObjectId
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  userId String @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

@@ -20,6 +20,7 @@ export const scheduleRouter = router({
         include: {
           availability: true,
           services: true,
+          schedules: true,
         },
       });
 
@@ -31,5 +32,43 @@ export const scheduleRouter = router({
       }
 
       return { user: userSelected };
+    }),
+  getServices: publicProcedure
+    .input(
+      z.object({
+        userId: z.string().min(1, "ID obrigatório"),
+      })
+    )
+    .query(async (opts) => {
+      const { userId } = opts.input;
+
+      const services = await prisma.service.findMany({
+        where: {
+          userId,
+        },
+      });
+
+      return { services };
+    }),
+  getDaySchedule: publicProcedure
+    .input(
+      z.object({
+        date: z.string().min(1, "Data obrigatória"),
+        serviceId: z.string().min(1, "ID obrigatório"),
+      })
+    )
+    .query(async (opts) => {
+      const { date, serviceId } = opts.input;
+
+      console.log({ date });
+
+      const schedules = await prisma.schedule.findMany({
+        where: {
+          serviceId,
+          date,
+        },
+      });
+
+      return { schedules };
     }),
 });

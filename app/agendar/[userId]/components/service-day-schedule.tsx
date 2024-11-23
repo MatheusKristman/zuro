@@ -1,13 +1,53 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { formatPrice } from "@/lib/utils";
+import { ScheduleStore } from "@/stores/schedule-store";
+import { trpc } from "@/lib/trpc-client";
+import { format } from "date-fns";
+import { Availability, Schedule, Service, User } from "@prisma/client";
+import { setEnvironmentData } from "worker_threads";
 
-export function ServiceDaySchedule() {
+interface ServiceDayScheduleProps {
+  user: (User & { services: Service[]; availability: Availability[]; schedules: Schedule[] }) | undefined;
+}
+
+export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const { service, setService, time, setTime } = ScheduleStore();
+
+  const util = trpc.useUtils();
+  const { data, isPending } = trpc.scheduleRouter.getDaySchedule.useQuery({
+    date: format(date!, "dd/MM/yyyy"),
+    serviceId: service,
+  });
+
+  const pending = isPending;
+
+  useEffect(() => {
+    function generateAvailableSlots() {
+      const dateSelected = format(date!, "EEEE");
+      const availabilitySelected = user?.availability.filter((avail) => avail.dayOfWeek === dateSelected)[0];
+      const serviceSelected = user?.services.filter((serv) => serv.id === service)[0];
+      const startHour = availabilitySelected?.startTime;
+      const endHour = availabilitySelected?.endTime;
+      const interval = serviceSelected?.minutes;
+
+      // TODO: criar função para gerar os horários
+    }
+
+    if (service) {
+      util.scheduleRouter.getDaySchedule.invalidate({ date: format(date!, "dd/MM/yyyy"), serviceId: service });
+    }
+  }, [service]);
+
+  useEffect(() => {
+    console.log({ data });
+  }, [data]);
 
   return (
     <div className="w-full max-w-4xl bg-white rounded-3xl p-6 mt-10">
@@ -18,6 +58,7 @@ export function ServiceDaySchedule() {
           mode="single"
           selected={date}
           onSelect={setDate}
+          disabled={pending}
           className="rounded-md border w-full sm:w-fit lg:sticky lg:top-16"
         />
 
@@ -27,17 +68,23 @@ export function ServiceDaySchedule() {
               Serviço
             </Label>
 
-            <Select>
+            <Select value={service} onValueChange={setService} disabled={pending}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o serviço" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="1">Manutenção - {formatPrice(150.25)}</SelectItem>
-
-                <SelectItem value="2">Reforma - {formatPrice(125.25)}</SelectItem>
-
-                <SelectItem value="3">Pintura - {formatPrice(100.25)}</SelectItem>
+                {user && user.services.length > 0 ? (
+                  user.services.map((serv) => (
+                    <SelectItem key={serv.id} value={serv.id}>
+                      {serv.name} - {formatPrice(serv.price)}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem disabled value="0">
+                    Nenhum serviço disponível
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -47,7 +94,7 @@ export function ServiceDaySchedule() {
               Horário disponível
             </Label>
 
-            <Select>
+            <Select value={time} onValueChange={setTime} disabled={service === "" || pending}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o horário" />
               </SelectTrigger>
