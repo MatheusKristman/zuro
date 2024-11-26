@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { trpc } from "@/lib/trpc-client";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { signOut } from "next-auth/react";
 
 export function DashboardNav() {
   const pathname = usePathname();
@@ -130,7 +131,12 @@ export function DashboardNav() {
           </div>
         </div>
 
-        <Button size="xl" variant="secondary" className="flex items-center gap-2">
+        <Button
+          onClick={() => signOut({ redirectTo: "/" })}
+          size="xl"
+          variant="secondary"
+          className="flex items-center gap-2"
+        >
           Sair <LogOut />
         </Button>
       </div>

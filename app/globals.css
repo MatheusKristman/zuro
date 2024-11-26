@@ -80,6 +80,10 @@ body,
   }
 }
 
+.PhoneInputInput {
+  @apply bg-transparent outline-none placeholder:text-muted-foreground;
+}
+
 @layer base {
   * {
     @apply border-border;

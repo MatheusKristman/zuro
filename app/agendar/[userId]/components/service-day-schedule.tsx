@@ -1,57 +1,121 @@
+import { toast } from "sonner";
+import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { Availability, Schedule, Service, User } from "@prisma/client";
 
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
+import { trpc } from "@/lib/trpc-client";
 import { formatPrice } from "@/lib/utils";
 import { ScheduleStore } from "@/stores/schedule-store";
-import { trpc } from "@/lib/trpc-client";
-import { format } from "date-fns";
-import { Availability, Schedule, Service, User } from "@prisma/client";
-import { setEnvironmentData } from "worker_threads";
+
+type dayScheduleType = Schedule & {
+  service: Service;
+};
 
 interface ServiceDayScheduleProps {
-  user: (User & { services: Service[]; availability: Availability[]; schedules: Schedule[] }) | undefined;
+  user:
+    | (User & {
+        services: Service[];
+        availability: Availability[];
+        schedules: Schedule[];
+      })
+    | undefined;
 }
 
 export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
+  const [availableTime, setAvailableTime] = useState<Array<string>>([]);
+  const [daySchedule, setDaySchedule] = useState<dayScheduleType[]>([]);
 
   const { service, setService, time, setTime } = ScheduleStore();
 
-  const util = trpc.useUtils();
-  const { data, isPending } = trpc.scheduleRouter.getDaySchedule.useQuery({
-    date: format(date!, "dd/MM/yyyy"),
-    serviceId: service,
-  });
+  const { mutate: getDaySchedule, isPending } =
+    trpc.scheduleRouter.getDaySchedule.useMutation({
+      onSuccess: (res) => {
+        setDaySchedule(res.schedules);
+      },
+      onError: (error) => {
+        console.error(error);
+      },
+    });
 
   const pending = isPending;
 
   useEffect(() => {
     function generateAvailableSlots() {
       const dateSelected = format(date!, "EEEE");
-      const availabilitySelected = user?.availability.filter((avail) => avail.dayOfWeek === dateSelected)[0];
-      const serviceSelected = user?.services.filter((serv) => serv.id === service)[0];
-      const startHour = availabilitySelected?.startTime;
-      const endHour = availabilitySelected?.endTime;
-      const interval = serviceSelected?.minutes;
+      const availabilitySelected = user?.availability.filter(
+        (avail) => avail.dayOfWeek === dateSelected,
+      )[0];
 
-      // TODO: criar função para gerar os horários
+      if (availabilitySelected === undefined) {
+        toast.error("Sem disponibilidade nesse dia");
+
+        return [];
+      }
+
+      const startHour = Number(availabilitySelected.startTime.split(":")[0]);
+      const endHour = Number(availabilitySelected.endTime.split(":")[0]);
+      const interval = 30;
+
+      const allSlots = [];
+      for (let hour = startHour; hour < endHour; hour++) {
+        for (let minute = 0; minute < 60; minute += interval) {
+          allSlots.push(
+            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
+          );
+        }
+      }
+
+      const occupiedSlots = new Set<string>();
+      daySchedule.forEach(({ time, service: { minutes } }) => {
+        const [startHour, startMinute] = time.split(":").map(Number);
+        const totalDuration = minutes;
+
+        for (let time = 0; time < totalDuration; time += interval) {
+          const selectedDate = new Date(format(date!, "yyyy-MM-dd"));
+
+          selectedDate!.setHours(startHour, startMinute + time);
+
+          const occupiedTime = selectedDate!.toTimeString().substring(0, 5);
+
+          occupiedSlots.add(occupiedTime);
+        }
+      });
+
+      const availableSlots = allSlots.filter(
+        (slot) => !occupiedSlots.has(slot),
+      );
+
+      return availableSlots;
     }
 
     if (service) {
-      util.scheduleRouter.getDaySchedule.invalidate({ date: format(date!, "dd/MM/yyyy"), serviceId: service });
-    }
-  }, [service]);
+      getDaySchedule({
+        date: format(date!, "dd/MM/yyyy"),
+        serviceId: service,
+      });
 
-  useEffect(() => {
-    console.log({ data });
-  }, [data]);
+      const availableSlots = generateAvailableSlots();
+
+      setAvailableTime(availableSlots);
+    }
+  }, [service, date, getDaySchedule, user?.availability]);
 
   return (
     <div className="w-full max-w-4xl bg-white rounded-3xl p-6 mt-10">
-      <h2 className="text-2xl font-semibold text-skin-primary">Selecione o dia e o serviço</h2>
+      <h2 className="text-2xl font-semibold text-skin-primary">
+        Selecione o dia e o serviço
+      </h2>
 
       <div className="w-full flex flex-col items-center gap-12 mt-10">
         <Calendar
@@ -68,7 +132,11 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
               Serviço
             </Label>
 
-            <Select value={service} onValueChange={setService} disabled={pending}>
+            <Select
+              value={service}
+              onValueChange={setService}
+              disabled={pending}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o serviço" />
               </SelectTrigger>
@@ -94,17 +162,21 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
               Horário disponível
             </Label>
 
-            <Select value={time} onValueChange={setTime} disabled={service === "" || pending}>
+            <Select
+              value={time}
+              onValueChange={setTime}
+              disabled={service === "" || pending}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione o horário" />
               </SelectTrigger>
 
               <SelectContent>
-                <SelectItem value="10:00">10:00</SelectItem>
-
-                <SelectItem value="11:00">11:00</SelectItem>
-
-                <SelectItem value="12:00">12:00</SelectItem>
+                {availableTime.map((time) => (
+                  <SelectItem key={time} value={time}>
+                    {time}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

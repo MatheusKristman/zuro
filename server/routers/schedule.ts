@@ -8,7 +8,7 @@ export const scheduleRouter = router({
     .input(
       z.object({
         userId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
     .query(async (opts) => {
       const { userId } = opts.input;
@@ -37,7 +37,7 @@ export const scheduleRouter = router({
     .input(
       z.object({
         userId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
     .query(async (opts) => {
       const { userId } = opts.input;
@@ -55,9 +55,9 @@ export const scheduleRouter = router({
       z.object({
         date: z.string().min(1, "Data obrigatória"),
         serviceId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
-    .query(async (opts) => {
+    .mutation(async (opts) => {
       const { date, serviceId } = opts.input;
 
       console.log({ date });
@@ -66,6 +66,9 @@ export const scheduleRouter = router({
         where: {
           serviceId,
           date,
+        },
+        include: {
+          service: true,
         },
       });
 

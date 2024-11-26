@@ -14,7 +14,7 @@ export const ourFileRouter = {
     .input(
       z.object({
         id: z.string().min(1, "ID inválido"),
-      })
+      }),
     )
     .middleware(async ({ input }) => {
       return { userId: input.id };
@@ -31,6 +31,14 @@ export const ourFileRouter = {
 
       return {};
     }),
+  sendPixReceipt: f({
+    image: {
+      maxFileSize: "4MB",
+      maxFileCount: 1,
+    },
+  }).onUploadComplete(async ({ file }) => {
+    return { receiptUrl: file.url };
+  }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
