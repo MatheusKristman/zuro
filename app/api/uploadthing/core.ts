@@ -32,6 +32,10 @@ export const ourFileRouter = {
       return {};
     }),
   sendPixReceipt: f({
+    pdf: {
+      maxFileSize: "4MB",
+      maxFileCount: 1,
+    },
     image: {
       maxFileSize: "4MB",
       maxFileCount: 1,

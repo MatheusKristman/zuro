@@ -74,4 +74,64 @@ export const scheduleRouter = router({
 
       return { schedules };
     }),
+  submitSchedule: publicProcedure
+    .input(
+      z.object({
+        date: z.string().min(1, "Data é obrigatória"),
+        time: z.string().min(1, "Horário é obrigatório"),
+        fullName: z.string().min(1, "Nome completo é obrigatório"),
+        email: z.string().min(1, "E-mail é obrigatório"),
+        tel: z.string().min(1, "Telefone é obrigatório"),
+        message: z.string(),
+        paymentMethod: z.enum(["before", "after"], {
+          message: "Método de pagamento inválido",
+        }),
+        receiptUrl: z.string(),
+        serviceId: z.string().min(1, "ID do serviço é obrigatório"),
+        userId: z.string().min(1, "ID do profissional é obrigatório"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const {
+        date,
+        time,
+        fullName,
+        email,
+        tel,
+        message,
+        paymentMethod,
+        receiptUrl,
+        serviceId,
+        userId,
+      } = opts.input;
+
+      await prisma.schedule.create({
+        data: {
+          date,
+          time,
+          fullName,
+          email,
+          tel,
+          message,
+          paymentMethod,
+          receiptUrl,
+          service: {
+            connect: {
+              id: serviceId,
+            },
+          },
+          user: {
+            connect: {
+              id: userId,
+            },
+          },
+        },
+        include: {
+          user: true,
+          service: true,
+        },
+      });
+
+      return {};
+    }),
 });

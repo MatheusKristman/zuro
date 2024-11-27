@@ -11,6 +11,8 @@ type errorType = {
 interface ScheduleStoreInter {
   service: string;
   setService: (value: string) => void;
+  date: Date | undefined;
+  setDate: (value: Date | undefined) => void;
   time: string;
   setTime: (value: string) => void;
   fullName: string;
@@ -21,6 +23,8 @@ interface ScheduleStoreInter {
   setTel: (value: string | undefined) => void;
   message: string;
   setMessage: (value: string) => void;
+  isConclude: boolean;
+  setIsConclude: (value: boolean) => void;
   error: errorType;
   setError: (value: errorType) => void;
   resetError: () => void;
@@ -29,6 +33,8 @@ interface ScheduleStoreInter {
 export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   service: "",
   setService: (value) => set({ service: value }),
+  date: undefined,
+  setDate: (value) => set({ date: value }),
   time: "",
   setTime: (value) => set({ time: value }),
   fullName: "",
@@ -39,6 +45,8 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   setTel: (value) => set({ tel: value }),
   message: "",
   setMessage: (value) => set({ message: value }),
+  isConclude: false,
+  setIsConclude: (value) => set({ isConclude: value }),
   error: {
     service: "",
     time: "",

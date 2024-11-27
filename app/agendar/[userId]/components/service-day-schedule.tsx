@@ -32,11 +32,10 @@ interface ServiceDayScheduleProps {
 }
 
 export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
-  const [date, setDate] = useState<Date | undefined>(new Date());
   const [availableTime, setAvailableTime] = useState<Array<string>>([]);
   const [daySchedule, setDaySchedule] = useState<dayScheduleType[]>([]);
 
-  const { service, setService, time, setTime } = ScheduleStore();
+  const { service, setService, time, setTime, date, setDate } = ScheduleStore();
 
   const { mutate: getDaySchedule, isPending } =
     trpc.scheduleRouter.getDaySchedule.useMutation({

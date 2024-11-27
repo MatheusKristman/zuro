@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
 import { ScheduleStore } from "@/stores/schedule-store";
+import { ScheduleResume } from "./components/schedule-resume";
+import { ScheduleFinished } from "./components/schedule-finished";
 
 const clientInformationFormSchema = z.object({
   fullName: z
@@ -34,8 +36,17 @@ export default function ScheduleServicePage() {
   const searchParams = useSearchParams();
   const step = searchParams.get("step");
 
-  const { service, time, fullName, email, tel, setError, error, resetError } =
-    ScheduleStore();
+  const {
+    service,
+    time,
+    fullName,
+    email,
+    tel,
+    setIsConclude,
+    setError,
+    error,
+    resetError,
+  } = ScheduleStore();
 
   const { data, isPending } = trpc.scheduleRouter.getSelectedUser.useQuery({
     userId: params.userId,
@@ -93,11 +104,24 @@ export default function ScheduleServicePage() {
 
       router.push(`/agendar/${params.userId}?step=2`);
     }
+
+    if (step === "2") {
+      router.push(`/agendar/${params.userId}?step=3`);
+    }
+
+    if (step === "3") {
+      setIsConclude(true);
+    }
   }
 
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center gap-10 bg-skin-primary py-12 px-6">
-      <div className="flex flex-col items-center gap-2">
+      <div
+        className={cn(
+          "flex flex-col items-center gap-2",
+          step === "4" && "hidden",
+        )}
+      >
         <h1 className="text-3xl font-bold text-center text-white">
           Agendamento
         </h1>
@@ -244,12 +268,22 @@ export default function ScheduleServicePage() {
 
       {step === "0" && <ServiceDaySchedule user={data?.user} />}
       {step === "1" && <ClientInformationForm />}
-      {step === "2" && (
-        <ServicePayment paymentPreference={data?.user.paymentPreference} />
+      {step === "2" && <ScheduleResume user={data?.user} />}
+      {step === "3" && (
+        <ServicePayment
+          paymentPreference={data?.user.paymentPreference}
+          userId={params.userId}
+        />
       )}
+      {step === "4" && <ScheduleFinished />}
 
       {!!step && (
-        <div className="w-full max-w-4xl flex justify-between mt-12">
+        <div
+          className={cn(
+            "w-full max-w-4xl flex justify-between mt-12",
+            step === "4" && "hidden",
+          )}
+        >
           <Button
             variant="secondary"
             size="xl"
@@ -261,7 +295,7 @@ export default function ScheduleServicePage() {
           </Button>
 
           <Button onClick={handleNext} variant="secondary" size="xl">
-            Próximo
+            {step === "2" ? <>Ir para pagamento</> : <>Próximo</>}
           </Button>
         </div>
       )}
