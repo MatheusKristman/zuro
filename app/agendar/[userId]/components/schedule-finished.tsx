@@ -20,7 +20,7 @@ export function ScheduleFinished() {
               Resumo do agendamento
             </h3>
 
-            <div className="w-full flex flex-col items-center gap-4 bg-black/10 rounded-xl p-4">
+            <div className="relative w-full flex flex-col items-center gap-4 bg-black/10 rounded-xl p-4 sm:grid sm:grid-cols-[1fr_1px_1fr_1px_1fr]">
               <div className="flex flex-col items-center gap-2">
                 <span className="text-lg font-medium text-center">
                   Profissional
@@ -31,7 +31,7 @@ export function ScheduleFinished() {
                 </span>
               </div>
 
-              <div className="w-full h-px bg-foreground/10" />
+              <div className="w-full h-px bg-foreground/10 flex sm:w-px sm:h-full sm:shrink-0" />
 
               <div className="flex flex-col items-center gap-2">
                 <span className="text-lg font-medium text-center">
@@ -43,7 +43,7 @@ export function ScheduleFinished() {
                 </span>
               </div>
 
-              <div className="w-full h-px bg-foreground/10" />
+              <div className="w-full h-px bg-foreground/10 flex sm:w-px sm:h-full sm:shrink-0" />
 
               <div className="flex flex-col items-center gap-2">
                 <span className="text-lg font-medium text-center">Serviço</span>
