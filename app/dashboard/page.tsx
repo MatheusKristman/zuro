@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DateRange } from "react-day-picker";
+import { ptBR } from "date-fns/locale";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,7 +19,6 @@ import {
 
 import { trpc } from "@/lib/trpc-client";
 import { cn } from "@/lib/utils";
-import { ptBR } from "date-fns/locale";
 
 const RobotoFlex = Roboto_Flex({
   subsets: ["latin"],
@@ -37,12 +37,24 @@ export default function Dashboard() {
   const router = useRouter();
 
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
+  const { mutate: getSchedulesByPeriod, isPending: isGetSchedulesPending } =
+    trpc.userRouter.getSchedulesByPeriod.useMutation({
+      onSuccess: (res) => {
+        console.log({ schedules: res.schedules });
+        // TODO: colocar os schedules em um state e filtrar os dados solicitados
+      },
+      onError: (err) => {
+        console.error(err);
+      },
+    });
+
+  const pending = isPending || isGetSchedulesPending;
 
   useEffect(() => {
-    if (isPending) {
+    if (pending) {
       console.log("Carregando com skeletons");
     }
-  }, [isPending]);
+  }, [pending]);
 
   useEffect(() => {
     if (session.status === "unauthenticated") {
@@ -58,7 +70,16 @@ export default function Dashboard() {
     }
   }, [session, data, router]);
 
-  console.log({ data });
+  useEffect(() => {
+    console.log({ from: date?.from, to: date?.to });
+
+    if (date && date.from !== undefined && date.to !== undefined) {
+      getSchedulesByPeriod({
+        from: format(date.from, "yyyy-MM-dd"),
+        to: format(date.to, "yyyy-MM-dd"),
+      });
+    }
+  }, [date?.from, date?.to, getSchedulesByPeriod]);
 
   return (
     <main className="dashboard-main">

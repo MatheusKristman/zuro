@@ -40,6 +40,7 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const { mutate: getDaySchedule, isPending } =
     trpc.scheduleRouter.getDaySchedule.useMutation({
       onSuccess: (res) => {
+        console.log({ daySchedules: res.schedules });
         setDaySchedule(res.schedules);
       },
       onError: (error) => {
@@ -50,10 +51,18 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const pending = isPending;
 
   useEffect(() => {
-    function generateAvailableSlots() {
-      const dateSelected = format(date!, "EEEE");
+    if (service) {
+      getDaySchedule({
+        date: format(date!, "yyyy-MM-dd"),
+        serviceId: service,
+      });
+    }
+  }, [service, getDaySchedule]);
+
+  useEffect(() => {
+    function generateAvailableSlots(dateUsed: string, dayOfWeek: string) {
       const availabilitySelected = user?.availability.filter(
-        (avail) => avail.dayOfWeek === dateSelected,
+        (avail) => avail.dayOfWeek === dayOfWeek,
       )[0];
 
       if (availabilitySelected === undefined) {
@@ -65,8 +74,8 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
       const startHour = Number(availabilitySelected.startTime.split(":")[0]);
       const endHour = Number(availabilitySelected.endTime.split(":")[0]);
       const interval = 30;
-
       const allSlots = [];
+
       for (let hour = startHour; hour < endHour; hour++) {
         for (let minute = 0; minute < 60; minute += interval) {
           allSlots.push(
@@ -76,12 +85,15 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
       }
 
       const occupiedSlots = new Set<string>();
+
       daySchedule.forEach(({ time, service: { minutes } }) => {
         const [startHour, startMinute] = time.split(":").map(Number);
         const totalDuration = minutes;
 
         for (let time = 0; time < totalDuration; time += interval) {
-          const selectedDate = new Date(format(date!, "yyyy-MM-dd"));
+          const selectedDate = new Date(dateUsed);
+
+          console.log({ selectedDate });
 
           selectedDate!.setHours(startHour, startMinute + time);
 
@@ -91,24 +103,27 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
         }
       });
 
+      console.log({ occupiedSlots });
+      console.log({ allSlots });
+
       const availableSlots = allSlots.filter(
         (slot) => !occupiedSlots.has(slot),
       );
 
+      console.log({ availableSlots });
+
       return availableSlots;
     }
 
-    if (service) {
-      getDaySchedule({
-        date: format(date!, "dd/MM/yyyy"),
-        serviceId: service,
-      });
-
-      const availableSlots = generateAvailableSlots();
+    if (daySchedule) {
+      const availableSlots = generateAvailableSlots(
+        format(date!, "yyyy-MM-dd"),
+        format(date!, "EEEE"),
+      );
 
       setAvailableTime(availableSlots);
     }
-  }, [service, date, getDaySchedule, user?.availability]);
+  }, [daySchedule]);
 
   return (
     <div className="w-full max-w-4xl bg-white rounded-3xl p-6 mt-10">

@@ -45,6 +45,11 @@ enum Days {
   Saturday
 }
 
+enum ScheduleStatus {
+  confirmed
+  cancelled
+}
+
 model User {
   id                     String             @id @default(auto()) @map("_id") @db.ObjectId
   name                   String?
@@ -145,6 +150,7 @@ model Schedule {
   message       String?
   paymentMethod PaymentPreference
   receiptUrl    String?
+  status        ScheduleStatus    @default(confirmed)
 
   serviceId String  @db.ObjectId
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)

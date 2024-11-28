@@ -63,7 +63,7 @@ export function ServicePayment({
     {
       onClientUploadComplete: (res) => {
         submitSchedule({
-          date: format(date!, "dd/MM/yyyy"),
+          date: format(date!, "yyyy-MM-dd"),
           email,
           message,
           time,
@@ -111,7 +111,7 @@ export function ServicePayment({
         }
       } else {
         submitSchedule({
-          date: format(date!, "dd/MM/yyyy"),
+          date: format(date!, "yyyy-MM-dd"),
           email,
           message,
           time,

@@ -2,6 +2,9 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { generate } from "generate-password";
 import { TRPCError } from "@trpc/server";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { ScheduleStatus } from "@prisma/client";
 
 import { isUserAuthedProcedure, publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
@@ -54,7 +57,7 @@ export const userRouter = router({
           })
           .min(1, "E-mail é obrigatório")
           .email("E-mail inválido"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -112,7 +115,7 @@ export const userRouter = router({
           })
           .min(1, "Este campo é obrigatório")
           .min(6, { message: "Este campo precisa ter no mínimo 6 caracteres" }),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -144,7 +147,9 @@ export const userRouter = router({
         })
         .superRefine(({ paymentPreference, pixKey }, ctx) => {
           if (
-            (!paymentPreference || paymentPreference === "before_after" || paymentPreference === "before") &&
+            (!paymentPreference ||
+              paymentPreference === "before_after" ||
+              paymentPreference === "before") &&
             !pixKey
           ) {
             ctx.addIssue({
@@ -153,7 +158,7 @@ export const userRouter = router({
               path: ["pixKey"],
             });
           }
-        })
+        }),
     )
     .mutation(async (opts) => {
       const { paymentPreference, pixKey } = opts.input;
@@ -222,10 +227,27 @@ export const userRouter = router({
   submitAvailability: isUserAuthedProcedure
     .input(
       z.object({
-        dayOff: z.enum(["Weekend", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+        dayOff: z.enum([
+          "Weekend",
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+        ]),
         availability: z
           .object({
-            dayOfWeek: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+            dayOfWeek: z.enum([
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ]),
             startTime: z.string(),
             endTime: z.string(),
             hasInterval: z.boolean(),
@@ -234,7 +256,7 @@ export const userRouter = router({
           })
           .array()
           .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { availability, dayOff } = opts.input;
@@ -284,7 +306,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            })
+            }),
           );
 
           await Promise.all(availabilityDeletePromise);
@@ -306,7 +328,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          })
+          }),
         );
 
         await Promise.all(availabilityDeletePromise);
@@ -339,10 +361,10 @@ export const userRouter = router({
               name: z.string().min(1, "Nome é obrigatório"),
               minutes: z.number().gt(0, "Minutos inválidos"),
               price: z.number().gt(0, "Valor inválido"),
-            })
+            }),
           )
           .min(1, "É preciso ter ao menos um serviço registrado"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { services } = opts.input;
@@ -393,7 +415,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            })
+            }),
           );
 
           await Promise.all(servicesDeletePromise);
@@ -415,7 +437,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          })
+          }),
         );
 
         await Promise.all(servicesDeletePromise);
@@ -439,17 +461,20 @@ export const userRouter = router({
             .string()
             .min(1, "Nova Senha é obrigatória")
             .min(6, "Nova Senha precisa ter no mínimo 6 caracteres"),
-          confirmNewPassword: z.string().min(1, "Confirmar Senha é obrigatória"),
+          confirmNewPassword: z
+            .string()
+            .min(1, "Confirmar Senha é obrigatória"),
         })
         .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
           if (confirmNewPassword !== newPassword) {
             ctx.addIssue({
               code: "custom",
-              message: "A confirmação da senha precisa ser igual a senha criada",
+              message:
+                "A confirmação da senha precisa ser igual a senha criada",
               path: ["confirmNewPassword"],
             });
           }
-        })
+        }),
     )
     .mutation(async (opts) => {
       const { password, newPassword } = opts.input;
@@ -500,5 +525,136 @@ export const userRouter = router({
         error: false,
         message: "Senha atualizada com sucesso",
       };
+    }),
+  getSchedulesByDate: isUserAuthedProcedure
+    .input(
+      z.object({
+        date: z.string().min(1, "Data é obrigatória"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { date } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          schedules: [],
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          schedules: [],
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const schedules = await prisma.schedule.findMany({
+        where: {
+          userId: user.id,
+          date,
+        },
+        orderBy: {
+          time: "asc",
+        },
+        include: {
+          service: true,
+        },
+      });
+
+      return { schedules, error: false, message: "" };
+    }),
+  cancelSchedule: isUserAuthedProcedure
+    .input(
+      z.object({
+        scheduleId: z.string().min(1, "ID do agendamento é obrigatório"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { scheduleId } = opts.input;
+
+      await prisma.schedule.update({
+        where: {
+          id: scheduleId,
+        },
+        data: {
+          status: ScheduleStatus.cancelled,
+        },
+      });
+
+      return { message: "Agendamento cancelado" };
+    }),
+  getSchedulesByPeriod: isUserAuthedProcedure
+    .input(
+      z.object({
+        from: z.string().min(1, "Data de início é obrigatório"),
+        to: z.string().min(1, "Data de término é obrigatório"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { from, to } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      console.log({ from });
+      console.log({ to });
+
+      if (!email) {
+        return {
+          schedules: [],
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          schedules: [],
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const startDateFormatted = format(
+        parse(from, "yyyy-MM-dd", new Date(), { locale: ptBR }),
+        "yyyy-MM-dd",
+      );
+      const endDateFormatted = format(
+        parse(to, "yyyy-MM-dd", new Date(), { locale: ptBR }),
+        "yyyy-MM-dd",
+      );
+
+      const schedules = await prisma.schedule.findMany({
+        where: {
+          userId: user.id,
+          date: {
+            gte: startDateFormatted,
+            lte: endDateFormatted,
+          },
+        },
+        include: {
+          service: true,
+        },
+      });
+
+      const schedulesFiltered = schedules.filter(
+        (schedule) => schedule.status === ScheduleStatus.confirmed,
+      );
+
+      return { schedules: schedulesFiltered, error: false, message: "" };
     }),
 });

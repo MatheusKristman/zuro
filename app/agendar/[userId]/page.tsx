@@ -52,6 +52,10 @@ export default function ScheduleServicePage() {
     userId: params.userId,
   });
 
+  function handleBack() {
+    router.push(`/agendar/${params.userId}?step=${Number(step) - 1}`);
+  }
+
   function handleNext() {
     if (step === "0") {
       let serviceErrorMessage = "";
@@ -265,7 +269,6 @@ export default function ScheduleServicePage() {
           isLoading={isPending}
         />
       )}
-
       {step === "0" && <ServiceDaySchedule user={data?.user} />}
       {step === "1" && <ClientInformationForm />}
       {step === "2" && <ScheduleResume user={data?.user} />}
@@ -289,7 +292,7 @@ export default function ScheduleServicePage() {
             size="xl"
             disabled={step === "0"}
             className={cn(step === "0" && "!opacity-0")}
-            // onClick={handleBack}
+            onClick={handleBack}
           >
             Voltar
           </Button>
