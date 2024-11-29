@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input";
 
 import { trpc } from "@/lib/trpc-client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 const formSchema = z
   .object({
@@ -48,7 +49,7 @@ const formSchema = z
     }
   });
 
-export default function NewPasswordPage() {
+function NewPasswordComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("token");
@@ -174,5 +175,13 @@ export default function NewPasswordPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function NewPasswordPage() {
+  return (
+    <Suspense>
+      <NewPasswordComponent />
+    </Suspense>
   );
 }
