@@ -110,12 +110,19 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
         }
       });
 
-      console.log({ occupiedSlots });
-      console.log({ allSlots });
+      const now = new Date();
+      const today = now.toISOString().split("T")[0];
 
-      const availableSlots = allSlots.filter(
-        (slot) => !occupiedSlots.has(slot),
-      );
+      const availableSlots = allSlots.filter((slot) => {
+        const [hour, minute] = slot.split(":").map(Number);
+
+        const slotDate = new Date(dateUsed);
+        slotDate.setHours(hour, minute, 0, 0);
+
+        return (
+          !occupiedSlots.has(slot) && (dateUsed !== today || slotDate >= now)
+        );
+      });
 
       console.log({ availableSlots });
 
