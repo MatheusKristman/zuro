@@ -1,16 +1,26 @@
 "use client";
 
 // TODO: verificar se o usuário concluiu a configuração da conta para permitir acessar a página
-import { useState } from "react";
-import { Copy } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Copy, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
+
+import { trpc } from "@/lib/trpc-client";
 
 export default function ShareLinkPage() {
   // TODO: criar função para gerar o link de compartilhamento
-  const [shareLink, setShareLink] = useState<string>("http://localhost:3000/dashboard/link-de-compartilhamento");
+  const [shareLink, setShareLink] = useState<string>("");
+  const { data, isPending } = trpc.userRouter.getUser.useQuery();
+
+  useEffect(() => {
+    if (data && data.user.id) {
+      console.log("Tem dados");
+      setShareLink(`${window.location.origin}/agendar/${data.user.id}`);
+    }
+  }, [data]);
 
   function copyToClipboard() {
     if (!navigator.clipboard) {
@@ -39,7 +49,7 @@ export default function ShareLinkPage() {
         (err) => {
           console.error("Erro ao copiar o link: ", err);
           toast.error("Não foi possível copiar o link.");
-        }
+        },
       );
     }
   }
@@ -47,7 +57,9 @@ export default function ShareLinkPage() {
   return (
     <main className="dashboard-main">
       <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">Link de compartilhamento</h2>
+        <h2 className="text-3xl font-bold text-center text-white mt-10">
+          Link de compartilhamento
+        </h2>
 
         <div className="w-full p-4 rounded-3xl bg-white mt-10">
           <div className="w-full flex flex-col gap-4 sm:flex-row">
@@ -57,15 +69,21 @@ export default function ShareLinkPage() {
               className="disabled:cursor-not-allowed disabled:opacity-100 pointer-events-none"
             />
 
-            <Button size="xl" onClick={copyToClipboard}>
-              <Copy className="w-4 h-4" />
+            <Button size="xl" disabled={isPending} onClick={copyToClipboard}>
+              {isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
               Copiar
             </Button>
           </div>
 
           <span className="block text-foreground/70 text-sm text-center mt-4 sm:text-left">
-            Este link foi criado para facilitar o agendamento com seus clientes. Ao compartilhá-lo, seus clientes
-            poderão acessar sua agenda e escolher o melhor horário disponível para eles, de forma prática e rápida.
+            Este link foi criado para facilitar o agendamento com seus clientes.
+            Ao compartilhá-lo, seus clientes poderão acessar sua agenda e
+            escolher o melhor horário disponível para eles, de forma prática e
+            rápida.
           </span>
         </div>
       </div>
