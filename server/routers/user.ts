@@ -593,7 +593,7 @@ export const userRouter = router({
 
       return { message: "Agendamento cancelado" };
     }),
-  getSchedulesByPeriod: isUserAuthedProcedure
+  getPeriodStatistics: isUserAuthedProcedure
     .input(
       z.object({
         from: z.string().min(1, "Data de início é obrigatório"),
@@ -604,12 +604,13 @@ export const userRouter = router({
       const { from, to } = opts.input;
       const { email } = opts.ctx.user.user;
 
-      console.log({ from });
-      console.log({ to });
-
       if (!email) {
         return {
           schedules: [],
+          totalEarned: 0,
+          clientsAttended: 0,
+          mostFrequentService: "",
+          mostFrequentDate: "",
           error: true,
           message: "Usuário não encontrado",
         };
@@ -624,6 +625,10 @@ export const userRouter = router({
       if (!user) {
         return {
           schedules: [],
+          totalEarned: 0,
+          clientsAttended: 0,
+          mostFrequentService: "",
+          mostFrequentDate: "",
           error: true,
           message: "Usuário não encontrado",
         };
@@ -655,6 +660,45 @@ export const userRouter = router({
         (schedule) => schedule.status === ScheduleStatus.confirmed,
       );
 
-      return { schedules: schedulesFiltered, error: false, message: "" };
+      const clientsAttended = schedulesFiltered.length;
+      const totalEarned = schedulesFiltered.reduce((total, obj) => {
+        return total + obj.service.price;
+      }, 0);
+      const serviceCount = schedulesFiltered.reduce(
+        (acc: Record<string, number>, obj) => {
+          const serviceName = obj.service.name;
+
+          acc[serviceName] = (acc[serviceName] || 0) + 1;
+
+          return acc;
+        },
+        {} as Record<string, number>,
+      );
+      const datesCount = schedulesFiltered.reduce(
+        (acc: Record<string, number>, obj) => {
+          acc[obj.date] = (acc[obj.date] || 0) + 1;
+
+          return acc;
+        },
+        {},
+      );
+      const mostFrequentService = Object.entries(serviceCount).reduce(
+        (a, b) => (b[1] > a[1] ? b : a),
+        ["", 0] as [string, number],
+      );
+      const mostFrequentDate = Object.entries(datesCount).reduce(
+        (a, b) => (b[1] > a[1] ? b : a),
+        ["", 0] as [string, number],
+      );
+
+      return {
+        schedules: schedulesFiltered,
+        totalEarned,
+        clientsAttended,
+        mostFrequentService: mostFrequentService[0],
+        mostFrequentDate: mostFrequentDate[0],
+        error: false,
+        message: "",
+      };
     }),
 });

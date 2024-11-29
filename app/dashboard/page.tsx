@@ -18,7 +18,12 @@ import {
 } from "@/components/ui/popover";
 
 import { trpc } from "@/lib/trpc-client";
-import { cn } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
+import { Schedule, Service } from "@prisma/client";
+
+type SchedulesWithService = Schedule & {
+  service: Service;
+};
 
 const RobotoFlex = Roboto_Flex({
   subsets: ["latin"],
@@ -32,16 +37,23 @@ export default function Dashboard() {
     from: new Date(today.getFullYear(), today.getMonth(), 1),
     to: new Date(today.getFullYear(), today.getMonth() + 1, 0),
   });
+  const [clientsAttended, setClientsAttended] = useState<number>(0);
+  const [mostFrequentService, setMostFrequentService] = useState<string>("");
+  const [mostFrequentDate, setMostFrequentDate] = useState<string>("");
+  const [totalEarned, setTotalEarned] = useState<number>(0);
 
   const session = useSession();
   const router = useRouter();
 
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
-  const { mutate: getSchedulesByPeriod, isPending: isGetSchedulesPending } =
-    trpc.userRouter.getSchedulesByPeriod.useMutation({
+  const { mutate: getPeriodStatistics, isPending: isGetSchedulesPending } =
+    trpc.userRouter.getPeriodStatistics.useMutation({
       onSuccess: (res) => {
-        console.log({ schedules: res.schedules });
-        // TODO: colocar os schedules em um state e filtrar os dados solicitados
+        console.log(res);
+        setClientsAttended(res.clientsAttended);
+        setMostFrequentService(res.mostFrequentService);
+        setMostFrequentDate(res.mostFrequentDate);
+        setTotalEarned(res.totalEarned);
       },
       onError: (err) => {
         console.error(err);
@@ -49,6 +61,7 @@ export default function Dashboard() {
     });
 
   const pending = isPending || isGetSchedulesPending;
+  const hasDate = date && date.from !== undefined && date.to !== undefined;
 
   useEffect(() => {
     if (pending) {
@@ -74,12 +87,12 @@ export default function Dashboard() {
     console.log({ from: date?.from, to: date?.to });
 
     if (date && date.from !== undefined && date.to !== undefined) {
-      getSchedulesByPeriod({
+      getPeriodStatistics({
         from: format(date.from, "yyyy-MM-dd"),
         to: format(date.to, "yyyy-MM-dd"),
       });
     }
-  }, [date?.from, date?.to, getSchedulesByPeriod]);
+  }, [date?.from, date?.to, getPeriodStatistics]);
 
   return (
     <main className="dashboard-main">
@@ -117,7 +130,7 @@ export default function Dashboard() {
 
           <div className="w-full mt-10">
             <div className="w-full flex flex-col items-center gap-6">
-              <span className="text-3xl uppercase tracking-wider text-skin-primary">
+              <span className="text-3xl uppercase tracking-wider text-skin-primary text-center">
                 {date && date.from
                   ? format(date.from, "MMMM | yyyy", { locale: ptBR })
                   : "Selecione o período que deseja visualizar"}
@@ -132,7 +145,9 @@ export default function Dashboard() {
                 <small className="text-base text-skin-primary font-bold">
                   R$
                 </small>{" "}
-                2500,50
+                {hasDate
+                  ? formatPrice(totalEarned).substring(3)
+                  : formatPrice(0).substring(3)}
               </span>
             </div>
 
@@ -143,7 +158,9 @@ export default function Dashboard() {
                 </span>
 
                 <span className="text-2xl font-bold text-white text-center">
-                  3
+                  {hasDate && clientsAttended
+                    ? clientsAttended
+                    : "Sem clientes"}
                 </span>
               </div>
 
@@ -152,8 +169,10 @@ export default function Dashboard() {
                   Serviço Preferido
                 </span>
 
-                <span className="text-2xl font-bold text-white text-center">
-                  Manutenção
+                <span className="text-2xl font-bold text-white text-center capitalize">
+                  {hasDate && mostFrequentService
+                    ? mostFrequentService
+                    : "Sem Serviço"}
                 </span>
               </div>
 
@@ -162,8 +181,10 @@ export default function Dashboard() {
                   Dia mais agendado
                 </span>
 
-                <span className="text-2xl font-bold text-white text-center">
-                  Segunda feira
+                <span className="text-2xl font-bold text-white text-center capitalize">
+                  {hasDate && mostFrequentDate
+                    ? format(mostFrequentDate, "EEEE", { locale: ptBR })
+                    : "Sem data"}
                 </span>
               </div>
             </div>
