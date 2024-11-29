@@ -526,6 +526,50 @@ export const userRouter = router({
         message: "Senha atualizada com sucesso",
       };
     }),
+  updateName: isUserAuthedProcedure
+    .input(
+      z.object({
+        newName: z.string().min(1, "Novo nome é obrigatório"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { newName } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          name: newName,
+        },
+      });
+
+      return {
+        error: false,
+        message: "Nome atualizado com sucesso",
+      };
+    }),
   getSchedulesByDate: isUserAuthedProcedure
     .input(
       z.object({
