@@ -1,18 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useDropzone } from "@uploadthing/react";
-import { generateClientDropzoneAccept } from "uploadthing/client";
 import Image from "next/image";
-import { Trash2, Upload, UserRound } from "lucide-react";
-
-import { UploadButton, useUploadThing } from "@/lib/uploadthing";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { OurFileRouter } from "@/app/api/uploadthing/core";
-import { trpc } from "@/lib/trpc-client";
+import { UserRound } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+
+import { UploadButton } from "@/lib/uploadthing";
+import { trpc } from "@/lib/trpc-client";
 
 export default function ChangeProfilePhotoPage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -23,13 +20,20 @@ export default function ChangeProfilePhotoPage() {
   return (
     <main className="dashboard-main">
       <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Foto</h2>
+        <h2 className="text-3xl font-bold text-center text-white mt-10">
+          Alterar Foto
+        </h2>
 
         <div className="w-full m-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
           <div className="w-full flex flex-col items-center gap-4">
             <div className="relative w-36 h-36 shrink-0 rounded-full bg-skin-primary overflow-hidden flex items-center justify-center">
               {data && data.user.image ? (
-                <Image src={data.user.image} alt="Imagem selecionada" fill className="object-center object-cover" />
+                <Image
+                  src={data.user.image}
+                  alt="Imagem selecionada"
+                  fill
+                  className="object-center object-cover"
+                />
               ) : (
                 <div className="flex items-center justify-center size-24 bg-skin-primary rounded-full">
                   <UserRound color="#FFF" className="size-12" />
@@ -63,7 +67,9 @@ export default function ChangeProfilePhotoPage() {
                 console.error(`UPLOADTHING ERROR! ${error.message}`);
               }}
               onBeforeUploadBegin={(files) => {
-                return files.map((f) => new File([f], f.name, { type: f.type }));
+                return files.map(
+                  (f) => new File([f], f.name, { type: f.type }),
+                );
               }}
               onUploadBegin={() => {
                 setIsSubmitting(true);
