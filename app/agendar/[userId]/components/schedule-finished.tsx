@@ -1,6 +1,57 @@
+import { Skeleton } from "@/components/ui/skeleton";
+import { ScheduleStore } from "@/stores/schedule-store";
+import { Service } from "@prisma/client";
+import { format } from "date-fns";
 import { Check } from "lucide-react";
 
-export function ScheduleFinished() {
+interface ScheduleFinishedProps {
+  professionalName: string | null | undefined;
+  services: Service[] | null | undefined;
+}
+
+export function ScheduleFinished({
+  professionalName,
+  services,
+}: ScheduleFinishedProps) {
+  const { time, date, service } = ScheduleStore();
+
+  if (
+    !professionalName ||
+    !time ||
+    date === undefined ||
+    !service ||
+    !services
+  ) {
+    return (
+      <div className="w-full max-w-4xl bg-white rounded-3xl p-6">
+        <div className="w-full flex flex-col items-center gap-12">
+          <div className="w-full flex flex-col items-center gap-6">
+            <div className="w-full flex flex-col items-center gap-4">
+              <Skeleton className="w-24 h-24 rounded-full" />
+
+              <Skeleton className="h-10 w-48" />
+            </div>
+
+            <div className="w-full flex flex-col items-center gap-4">
+              <Skeleton className="h-10 w-36" />
+
+              <Skeleton className="h-32 w-full" />
+            </div>
+
+            <Skeleton className="h-16 w-full" />
+          </div>
+
+          {/* TODO: confirmar se tem como salvar o agendamento no google calendar de graça */}
+          {/* <Button size="xl" className="w-full"> */}
+          {/*   Salvar no Google Agenda */}
+          {/* </Button> */}
+        </div>
+      </div>
+    );
+  }
+
+  const serviceName = services.filter((serv) => serv.id === service)[0].name;
+
   return (
     <div className="w-full max-w-4xl bg-white rounded-3xl p-6">
       <div className="w-full flex flex-col items-center gap-12">
@@ -26,8 +77,8 @@ export function ScheduleFinished() {
                   Profissional
                 </span>
 
-                <span className="text-2xl font-bold text-center">
-                  Nome teste
+                <span className="text-2xl font-bold text-center capitalize">
+                  {professionalName}
                 </span>
               </div>
 
@@ -39,7 +90,7 @@ export function ScheduleFinished() {
                 </span>
 
                 <span className="text-2xl font-bold text-center">
-                  23/10/2024 às 10:30
+                  {format(date, "dd/MM/yyyy")} às {time}
                 </span>
               </div>
 
@@ -48,8 +99,8 @@ export function ScheduleFinished() {
               <div className="flex flex-col items-center gap-2">
                 <span className="text-lg font-medium text-center">Serviço</span>
 
-                <span className="text-2xl font-bold text-center">
-                  Manutenção
+                <span className="text-2xl font-bold text-center capitalize">
+                  {serviceName}
                 </span>
               </div>
             </div>

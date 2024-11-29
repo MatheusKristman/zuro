@@ -291,7 +291,12 @@ function ScheduleServiceComponent() {
           pixCode={data?.user.pixKey}
         />
       )}
-      {step === "4" && <ScheduleFinished />}
+      {step === "4" && (
+        <ScheduleFinished
+          professionalName={data?.user.name}
+          services={data?.user.services}
+        />
+      )}
 
       {!!step && (
         <div
