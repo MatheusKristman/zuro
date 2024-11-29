@@ -95,7 +95,9 @@ export function Services({ isPending }: ServicesProps) {
       <div className="w-full flex flex-col gap-10">
         <div className="w-full flex flex-col gap-4 sm:grid sm:grid-cols-3 sm:gap-2">
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="service-name">Nome do serviço</Label>
+            <Label className="text-base font-semibold" htmlFor="service-name">
+              Nome do serviço
+            </Label>
 
             <Input
               id="service-name"
@@ -113,7 +115,12 @@ export function Services({ isPending }: ServicesProps) {
           </div>
 
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="service-minutes">Tempo em Minutos</Label>
+            <Label
+              className="text-base font-semibold"
+              htmlFor="service-minutes"
+            >
+              Tempo em Minutos
+            </Label>
 
             <Input
               id="service-minutes"
@@ -131,7 +138,9 @@ export function Services({ isPending }: ServicesProps) {
           </div>
 
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="service-price">Preço</Label>
+            <Label className="text-base font-semibold" htmlFor="service-price">
+              Preço
+            </Label>
 
             <CurrencyInput
               className="flex h-12 w-full rounded-xl border border-skin-primary/40 bg-background px-3 py-2 text-sm ring-0 ring-offset-0 outline-none transition file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0 focus-visible:border-skin-primary disabled:cursor-not-allowed disabled:opacity-50"

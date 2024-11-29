@@ -19,11 +19,6 @@ import {
 
 import { trpc } from "@/lib/trpc-client";
 import { cn, formatPrice } from "@/lib/utils";
-import { Schedule, Service } from "@prisma/client";
-
-type SchedulesWithService = Schedule & {
-  service: Service;
-};
 
 const RobotoFlex = Roboto_Flex({
   subsets: ["latin"],

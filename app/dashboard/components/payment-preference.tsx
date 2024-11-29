@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 import { cn } from "@/lib/utils";
 
@@ -73,9 +74,12 @@ export function PaymentPreference({ isPending }: PaymentPreferenceProps) {
       {(paymentPreference === "before_after" ||
         paymentPreference === "before") && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-xl font-semibold">Chave Pix</h4>
+          <Label className="text-xl font-semibold" htmlFor="pixCode">
+            Chave Pix
+          </Label>
 
           <Input
+            id="pixCode"
             placeholder="Cadastre a sua chave pix"
             className={cn(
               configurationError.pixKey !== "" && "border-destructive",
