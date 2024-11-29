@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { ScheduleStore } from "@/stores/schedule-store";
 import { ScheduleResume } from "./components/schedule-resume";
 import { ScheduleFinished } from "./components/schedule-finished";
+import { Suspense } from "react";
 
 const clientInformationFormSchema = z.object({
   fullName: z
@@ -30,7 +31,7 @@ const clientInformationFormSchema = z.object({
   tel: z.string().min(14, "Telefone inválido"),
 });
 
-export default function ScheduleServicePage() {
+function ScheduleServiceComponent() {
   const router = useRouter();
   const params = useParams<{ userId: string }>();
   const searchParams = useSearchParams();
@@ -315,5 +316,13 @@ export default function ScheduleServicePage() {
         </div>
       )}
     </main>
+  );
+}
+
+export default function ScheduleServicePage() {
+  return (
+    <Suspense>
+      <ScheduleServiceComponent />
+    </Suspense>
   );
 }
