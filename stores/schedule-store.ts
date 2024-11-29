@@ -1,6 +1,7 @@
 import { create } from "zustand";
 
 type errorType = {
+  date: string;
   service: string;
   time: string;
   fullName: string;
@@ -33,7 +34,7 @@ interface ScheduleStoreInter {
 export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   service: "",
   setService: (value) => set({ service: value }),
-  date: undefined,
+  date: new Date(),
   setDate: (value) => set({ date: value }),
   time: "",
   setTime: (value) => set({ time: value }),
@@ -48,6 +49,7 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   isConclude: false,
   setIsConclude: (value) => set({ isConclude: value }),
   error: {
+    date: "",
     service: "",
     time: "",
     fullName: "",
@@ -58,6 +60,7 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   resetError: () =>
     set({
       error: {
+        date: "",
         service: "",
         time: "",
         fullName: "",

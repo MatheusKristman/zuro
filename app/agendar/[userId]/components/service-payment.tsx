@@ -19,11 +19,13 @@ import { format } from "date-fns";
 interface ServicePaymentProps {
   paymentPreference: PaymentPreference | null | undefined;
   userId: string;
+  pixCode: string | null | undefined;
 }
 
 export function ServicePayment({
   paymentPreference,
   userId,
+  pixCode,
 }: ServicePaymentProps) {
   const router = useRouter();
 
@@ -31,6 +33,7 @@ export function ServicePayment({
   const [paymentMethod, setPaymentMethod] = useState<string>(
     paymentPreference ?? "",
   );
+  const [pixKey] = useState<string>(pixCode ?? "");
 
   const {
     isConclude,
@@ -128,6 +131,38 @@ export function ServicePayment({
     }
   }, [isConclude, setIsConclude, startUpload]);
 
+  function copyToClipboard() {
+    if (!navigator.clipboard) {
+      // Fallback para navegadores que não suportam o Clipboard API
+      const textArea = document.createElement("textarea");
+      textArea.value = pixKey;
+      textArea.style.position = "fixed"; // Evita que o textarea afete o layout
+      textArea.style.opacity = "0"; // Torna invisível
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        toast.success("Código do pix copiado com sucesso!");
+      } catch (err) {
+        console.error("Erro ao copiar o código do pix: ", err);
+        toast.error("Não foi possível copiar o código do pix.");
+      }
+
+      document.body.removeChild(textArea);
+    } else {
+      // Uso moderno do Clipboard API
+      navigator.clipboard.writeText(pixKey).then(
+        () => toast.success("Código do pix copiado com sucesso!"),
+        (err) => {
+          console.error("Erro ao copiar o código do pix: ", err);
+          toast.error("Não foi possível copiar o código do pix.");
+        },
+      );
+    }
+  }
+
   function handleCancelFile() {
     setReceipt(null);
   }
@@ -183,10 +218,7 @@ export function ServicePayment({
                 </span>
 
                 <div className="w-full aspect-square max-w-56">
-                  <QRCodeCanvas
-                    value="https://reactjs.org/"
-                    className="!w-full !h-full"
-                  />
+                  <QRCodeCanvas value={pixKey} className="!w-full !h-full" />
                 </div>
               </div>
 
@@ -207,13 +239,18 @@ export function ServicePayment({
                   </span>
 
                   <Textarea
-                    value="https://reactjs.org/"
+                    value={pixKey}
                     disabled
                     className="resize-none disabled:opacity-100 disabled:border-skin-primary"
                   />
                 </div>
 
-                <Button disabled={pending} size="xl" className="w-full">
+                <Button
+                  disabled={pending}
+                  onClick={copyToClipboard}
+                  size="xl"
+                  className="w-full"
+                >
                   <Copy />
                   Copiar
                 </Button>

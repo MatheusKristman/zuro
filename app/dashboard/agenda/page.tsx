@@ -67,6 +67,13 @@ export default function SchedulePage() {
             mode="single"
             selected={date}
             onSelect={setDate}
+            disabled={(date) => {
+              const today = new Date();
+
+              today.setHours(0, 0, 0, 0);
+
+              return date < today;
+            }}
             className="rounded-md border w-full sm:w-fit lg:sticky lg:top-16"
           />
 

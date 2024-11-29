@@ -35,7 +35,8 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const [availableTime, setAvailableTime] = useState<Array<string>>([]);
   const [daySchedule, setDaySchedule] = useState<dayScheduleType[]>([]);
 
-  const { service, setService, time, setTime, date, setDate } = ScheduleStore();
+  const { service, setService, time, setTime, date, setDate, error } =
+    ScheduleStore();
 
   const { mutate: getDaySchedule, isPending } =
     trpc.scheduleRouter.getDaySchedule.useMutation({
@@ -51,13 +52,17 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   const pending = isPending;
 
   useEffect(() => {
-    if (service) {
+    console.log({ error });
+  }, [error]);
+
+  useEffect(() => {
+    if (service && date !== undefined) {
       getDaySchedule({
         date: format(date!, "yyyy-MM-dd"),
         serviceId: service,
       });
     }
-  }, [service, getDaySchedule]);
+  }, [service, getDaySchedule, date]);
 
   useEffect(() => {
     function generateAvailableSlots(dateUsed: string, dayOfWeek: string) {
@@ -83,6 +88,8 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
           );
         }
       }
+
+      console.log({ allSlots });
 
       const occupiedSlots = new Set<string>();
 
@@ -115,13 +122,14 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
       return availableSlots;
     }
 
-    if (daySchedule) {
+    if (date !== undefined) {
       const availableSlots = generateAvailableSlots(
         format(date!, "yyyy-MM-dd"),
         format(date!, "EEEE"),
       );
 
       setAvailableTime(availableSlots);
+      setTime("");
     }
   }, [daySchedule]);
 
@@ -132,13 +140,25 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
       </h2>
 
       <div className="w-full flex flex-col items-center gap-12 mt-10">
-        <Calendar
-          mode="single"
-          selected={date}
-          onSelect={setDate}
-          disabled={pending}
-          className="rounded-md border w-full sm:w-fit lg:sticky lg:top-16"
-        />
+        <div className="w-full flex flex-col items-center gap-2">
+          <Calendar
+            mode="single"
+            selected={date}
+            onSelect={setDate}
+            disabled={(date) => {
+              const today = new Date();
+
+              today.setHours(0, 0, 0, 0);
+
+              return date < today || pending;
+            }}
+            className="rounded-md border w-full sm:w-fit lg:sticky lg:top-16"
+          />
+
+          {error.date && (
+            <span className="text-sm text-destructive">{error.date}</span>
+          )}
+        </div>
 
         <div className="w-full flex flex-col gap-4 sm:flex-row">
           <div className="flex flex-col gap-2 sm:w-full">
@@ -169,6 +189,10 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
                 )}
               </SelectContent>
             </Select>
+
+            {error.service && (
+              <span className="text-sm text-destructive">{error.service}</span>
+            )}
           </div>
 
           <div className="flex flex-col gap-2 sm:w-full">
@@ -186,13 +210,27 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
               </SelectTrigger>
 
               <SelectContent>
-                {availableTime.map((time) => (
-                  <SelectItem key={time} value={time}>
-                    {time}
+                {availableTime.length > 0 ? (
+                  availableTime.map((time) => (
+                    <SelectItem key={time} value={time}>
+                      {time}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem
+                    key="No-Availability"
+                    value="No-Availability"
+                    disabled
+                  >
+                    Sem horário disponível
                   </SelectItem>
-                ))}
+                )}
               </SelectContent>
             </Select>
+
+            {error.time && (
+              <span className="text-sm text-destructive">{error.time}</span>
+            )}
           </div>
         </div>
       </div>

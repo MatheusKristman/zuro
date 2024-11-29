@@ -37,6 +37,7 @@ export default function ScheduleServicePage() {
   const step = searchParams.get("step");
 
   const {
+    date,
     service,
     time,
     fullName,
@@ -58,8 +59,13 @@ export default function ScheduleServicePage() {
 
   function handleNext() {
     if (step === "0") {
+      let dateErrorMessage = "";
       let serviceErrorMessage = "";
       let timeErrorMessage = "";
+
+      if (!date || date === undefined) {
+        dateErrorMessage = "Selecione uma data para agendar";
+      }
 
       if (!service) {
         serviceErrorMessage = "Selecione um serviço para agendar";
@@ -69,9 +75,14 @@ export default function ScheduleServicePage() {
         timeErrorMessage = "Selecione um horário para agendar";
       }
 
-      if (serviceErrorMessage !== "" || timeErrorMessage !== "") {
+      if (
+        dateErrorMessage !== "" ||
+        serviceErrorMessage !== "" ||
+        timeErrorMessage !== ""
+      ) {
         setError({
           ...error,
+          date: dateErrorMessage,
           service: serviceErrorMessage,
           time: timeErrorMessage,
         });
@@ -203,7 +214,7 @@ export default function ScheduleServicePage() {
                 side="bottom"
                 className="text-skin-primary text-lg font-semibold rounded-xl"
               >
-                Pagamento do serviço
+                Resumo
               </TooltipContent>
             </Tooltip>
 
@@ -228,7 +239,7 @@ export default function ScheduleServicePage() {
                 side="bottom"
                 className="text-skin-primary text-lg font-semibold rounded-xl"
               >
-                Resumo
+                Pagamento do serviço
               </TooltipContent>
             </Tooltip>
 
@@ -276,6 +287,7 @@ export default function ScheduleServicePage() {
         <ServicePayment
           paymentPreference={data?.user.paymentPreference}
           userId={params.userId}
+          pixCode={data?.user.pixKey}
         />
       )}
       {step === "4" && <ScheduleFinished />}
