@@ -26,7 +26,11 @@ const clientInformationFormSchema = z.object({
   fullName: z
     .string()
     .min(1, "Nome é obrigatório")
-    .min(6, "Nome precisa ter no mínimo 6 caracteres"),
+    .min(6, "Nome precisa ter no mínimo 6 caracteres")
+    .regex(
+      /^[A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)+$/,
+      "Nome inválido, insira o sobrenome",
+    ),
   email: z.string().email("E-mail inválido"),
   tel: z.string().min(14, "Telefone inválido"),
 });
