@@ -26,6 +26,12 @@ export default function ChangeProfilePhotoPage() {
 
         <div className="w-full m-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
           <div className="w-full flex flex-col items-center gap-4">
+            <p className="bg-muted p-3 rounded-xl block text-base font-medium text-muted-foreground text-center w-full max-w-md">
+              A foto selecionada será exibida para os clientes no momento do
+              agendamento, ajudando a identificar seu perfil de forma
+              personalizada.
+            </p>
+
             <div className="relative w-36 h-36 shrink-0 rounded-full bg-skin-primary overflow-hidden flex items-center justify-center">
               {data && data.user.image ? (
                 <Image
