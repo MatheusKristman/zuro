@@ -240,6 +240,11 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
             )}
           </div>
         </div>
+
+        <span className="text-sm font-medium text-muted-foreground text-center">
+          Para agendar seu horário, selecione o serviço desejado, escolha a data
+          e horário disponíveis.
+        </span>
       </div>
     </div>
   );
