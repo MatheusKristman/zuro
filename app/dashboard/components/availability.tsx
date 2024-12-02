@@ -11,13 +11,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { cn } from "@/lib/utils";
 import {
   dayOffType,
   FirstConfigurationStore,
 } from "@/stores/first-configuration-store";
+import { Button } from "@/components/ui/button";
 
 type setTabType =
   | ""
@@ -278,11 +285,11 @@ export function Availability({ isPending }: AvailabilityProps) {
   } = FirstConfigurationStore();
 
   useEffect(() => {
-    console.log({ availability });
-  }, [availability]);
+    console.log({ dayOff });
+  }, [dayOff]);
 
   useEffect(() => {
-    const days = [
+    const days: dayOffType[] = [
       "Sunday",
       "Monday",
       "Tuesday",
@@ -293,18 +300,7 @@ export function Availability({ isPending }: AvailabilityProps) {
     ];
 
     days.forEach((day) => {
-      if (dayOff === "Weekend") {
-        setAvailability("Sunday", "startTime", "");
-        setAvailability("Sunday", "endTime", "");
-        setAvailability("Sunday", "hasInterval", false);
-        setAvailability("Sunday", "startIntervalTime", "");
-        setAvailability("Sunday", "endIntervalTime", "");
-        setAvailability("Saturday", "startTime", "");
-        setAvailability("Saturday", "endTime", "");
-        setAvailability("Saturday", "hasInterval", false);
-        setAvailability("Saturday", "startIntervalTime", "");
-        setAvailability("Saturday", "endIntervalTime", "");
-      } else if (dayOff === day) {
+      if (dayOff.includes(day)) {
         setAvailability(day, "startTime", "");
         setAvailability(day, "endTime", "");
         setAvailability(day, "hasInterval", false);
@@ -323,28 +319,85 @@ export function Availability({ isPending }: AvailabilityProps) {
       <div className="flex flex-col gap-2 mb-4">
         <h4 className="text-xl font-semibold">Quais dias irá folgar?</h4>
 
-        <Select
-          value={dayOff}
-          onValueChange={(value) => {
-            setDayOff(value as dayOffType);
-            setTab("");
-          }}
-        >
-          <SelectTrigger disabled={isPending}>
-            <SelectValue placeholder="Selecione os dias" />
-          </SelectTrigger>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button size="xl" variant="outline" className="w-fit">
+              Selecione os dias de folga
+            </Button>
+          </PopoverTrigger>
 
-          <SelectContent>
-            <SelectItem value="Weekend">Final de Semana</SelectItem>
-            <SelectItem value="Sunday">Domingos</SelectItem>
-            <SelectItem value="Monday">Segundas</SelectItem>
-            <SelectItem value="Tuesday">Terças</SelectItem>
-            <SelectItem value="Wednesday">Quartas</SelectItem>
-            <SelectItem value="Thursday">Quintas</SelectItem>
-            <SelectItem value="Friday">Sextas</SelectItem>
-            <SelectItem value="Saturday">Sábados</SelectItem>
-          </SelectContent>
-        </Select>
+          <PopoverContent className="w-80 h-auto" align="start">
+            <ToggleGroup
+              value={dayOff}
+              onValueChange={setDayOff}
+              type="multiple"
+              className="grid grid-cols-1 gap-4"
+            >
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Monday"
+                aria-label="Toggle Weekend"
+              >
+                Segunda-Feira
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Tuesday"
+                aria-label="Toggle Weekend"
+              >
+                Terça-Feira
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Wednesday"
+                aria-label="Toggle Weekend"
+              >
+                Quarta-Feira
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Thursday"
+                aria-label="Toggle Weekend"
+              >
+                Quinta-Feira
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Friday"
+                aria-label="Toggle Weekend"
+              >
+                Sexta-Feira
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Saturday"
+                aria-label="Toggle Weekend"
+              >
+                Sábado
+              </ToggleGroupItem>
+
+              <ToggleGroupItem
+                size="xl"
+                variant="outline"
+                value="Sunday"
+                aria-label="Toggle Weekend"
+              >
+                Domingo
+              </ToggleGroupItem>
+            </ToggleGroup>
+          </PopoverContent>
+        </Popover>
 
         <span
           className={cn("text-sm text-destructive hidden", {
@@ -369,9 +422,7 @@ export function Availability({ isPending }: AvailabilityProps) {
           <TabsList className="w-full flex flex-col h-fit sm:flex-row">
             <TabsTrigger
               value="Sunday"
-              disabled={
-                isPending || dayOff === "Weekend" || dayOff === "Sunday"
-              }
+              disabled={isPending || dayOff.includes("Sunday")}
               className="w-full basis-full"
             >
               Domingo
@@ -379,7 +430,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Monday"
-              disabled={isPending || dayOff === "Monday"}
+              disabled={isPending || dayOff.includes("Monday")}
               className="w-full basis-full"
             >
               Segunda
@@ -387,7 +438,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Tuesday"
-              disabled={isPending || dayOff === "Tuesday"}
+              disabled={isPending || dayOff.includes("Tuesday")}
               className="w-full basis-full"
             >
               Terça
@@ -395,7 +446,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Wednesday"
-              disabled={isPending || dayOff === "Wednesday"}
+              disabled={isPending || dayOff.includes("Wednesday")}
               className="w-full basis-full"
             >
               Quarta
@@ -403,7 +454,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Thursday"
-              disabled={isPending || dayOff === "Thursday"}
+              disabled={isPending || dayOff.includes("Thursday")}
               className="w-full basis-full"
             >
               Quinta
@@ -411,7 +462,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Friday"
-              disabled={isPending || dayOff === "Friday"}
+              disabled={isPending || dayOff.includes("Friday")}
               className="w-full basis-full"
             >
               Sexta
@@ -419,9 +470,7 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Saturday"
-              disabled={
-                isPending || dayOff === "Weekend" || dayOff === "Saturday"
-              }
+              disabled={isPending || dayOff.includes("Saturday")}
               className="w-full basis-full"
             >
               Sábado
