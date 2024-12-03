@@ -25,7 +25,6 @@ enum PaymentPreference {
 }
 
 enum DayOff {
-  Weekend
   Sunday
   Monday
   Tuesday
@@ -62,7 +61,7 @@ model User {
   firstConfigurationStep Int                @default(0)
   paymentPreference      PaymentPreference?
   pixKey                 String?
-  dayOff                 DayOff?
+  dayOff                 DayOff[]
 
   accounts     Account[]
   sessions     Session[]
@@ -117,13 +116,9 @@ model VerificationToken {
 }
 
 model Availability {
-  id                String  @id @default(auto()) @map("_id") @db.ObjectId
-  dayOfWeek         Days
-  startTime         String
-  endTime           String
-  hasInterval       Boolean @default(false)
-  startIntervalTime String?
-  endIntervalTime   String?
+  id             String           @id @default(auto()) @map("_id") @db.ObjectId
+  dayOfWeek      Days
+  availableTimes AvailableTimes[]
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId String @db.ObjectId
@@ -157,4 +152,13 @@ model Schedule {
 
   userId String @db.ObjectId
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AvailableTimes {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  startTime String
+  endTime   String
+
+  availabilityId String       @db.ObjectId
+  availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
 }

@@ -26,7 +26,11 @@ export const userRouter = router({
         email,
       },
       include: {
-        availability: true,
+        availability: {
+          include: {
+            availableTimes: true,
+          },
+        },
         services: true,
       },
     });
@@ -227,16 +231,17 @@ export const userRouter = router({
   submitAvailability: isUserAuthedProcedure
     .input(
       z.object({
-        dayOff: z.enum([
-          "Weekend",
-          "Sunday",
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-        ]),
+        dayOff: z
+          .enum([
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ])
+          .array(),
         availability: z
           .object({
             dayOfWeek: z.enum([
@@ -248,11 +253,12 @@ export const userRouter = router({
               "Friday",
               "Saturday",
             ]),
-            startTime: z.string(),
-            endTime: z.string(),
-            hasInterval: z.boolean(),
-            startIntervalTime: z.string(),
-            endIntervalTime: z.string(),
+            availableTimes: z
+              .object({
+                startTime: z.string(),
+                endTime: z.string(),
+              })
+              .array(),
           })
           .array()
           .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
@@ -261,6 +267,8 @@ export const userRouter = router({
     .mutation(async (opts) => {
       const { availability, dayOff } = opts.input;
       const { email } = opts.ctx.user.user;
+
+      // TODO: criar função para submit do availability
 
       if (!email) {
         return {
@@ -286,7 +294,7 @@ export const userRouter = router({
       }
 
       const availabilityFiltered = availability
-        .filter((item) => item.startTime !== "" || item.endTime !== "")
+        .filter((item) => !dayOff.includes(item.dayOfWeek))
         .map((item) => ({ ...item, userId: user.id }));
 
       if (user.firstConfigurationStep === 1) {

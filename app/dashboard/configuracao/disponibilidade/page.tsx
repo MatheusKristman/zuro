@@ -19,6 +19,7 @@ export default function AvailabilityPage() {
     setDayOff,
     availability,
     setAvailability,
+    setDefaultAvailability,
     setConfigurationError,
     configurationError,
     resetConfigurationError,
@@ -43,116 +44,95 @@ export default function AvailabilityPage() {
 
   const pending: boolean = isPending || isAvailabilityPending;
 
-  // TODO: alterar para o novo formato do dayoff em array, para funcionar com o availability
-  // useEffect(() => {
-  //   if (data) {
-  //     if (data.user.dayOff) {
-  //       setDayOff(data.user.dayOff);
-  //     }
-  //
-  //     if (data.user.availability.length > 0) {
-  //       data.user.availability.forEach((newItem) => {
-  //         const original = availability.find((item) => item.dayOfWeek === newItem.dayOfWeek);
-  //
-  //         if (original) {
-  //           setAvailability(newItem.dayOfWeek, "startTime", newItem.startTime);
-  //           setAvailability(newItem.dayOfWeek, "endTime", newItem.endTime);
-  //           setAvailability(newItem.dayOfWeek, "hasInterval", newItem.hasInterval);
-  //           setAvailability(
-  //             newItem.dayOfWeek,
-  //             "startIntervalTime",
-  //             newItem.startIntervalTime ? newItem.startIntervalTime : ""
-  //           );
-  //           setAvailability(
-  //             newItem.dayOfWeek,
-  //             "endIntervalTime",
-  //             newItem.endIntervalTime ? newItem.endIntervalTime : ""
-  //           );
-  //         }
-  //       });
-  //     }
-  //   }
-  // }, [data, setAvailability, setDayOff]);
+  useEffect(() => {
+    if (data) {
+      if (data.user.dayOff) {
+        setDayOff(data.user.dayOff);
+      }
 
-  // function handleSubmit() {
-  //   let dayOffErrorMessage = "";
-  //   const availabilityErrorMessage: string[] = [];
-  //
-  //   if (!dayOff) {
-  //     dayOffErrorMessage = "Selecione uma das opções para prosseguir!";
-  //   }
-  //
-  //   const daysOfWeek = [
-  //     { day: "Sunday", label: "Domingo" },
-  //     { day: "Monday", label: "Segunda" },
-  //     { day: "Tuesday", label: "Terça" },
-  //     { day: "Wednesday", label: "Quarta" },
-  //     { day: "Thursday", label: "Quinta" },
-  //     { day: "Friday", label: "Sexta" },
-  //     { day: "Saturday", label: "Sábado" },
-  //   ];
-  //
-  //   daysOfWeek.forEach((dayObj, index) => {
-  //     const { day, label } = dayObj;
-  //
-  //     if (
-  //       (dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) ||
-  //       dayOff === day
-  //     ) {
-  //       return;
-  //     }
-  //
-  //     const {
-  //       startTime,
-  //       endTime,
-  //       hasInterval,
-  //       startIntervalTime,
-  //       endIntervalTime,
-  //     } = availability[index];
-  //
-  //     if (startTime === "") {
-  //       availabilityErrorMessage.push(
-  //         `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`,
-  //       );
-  //     }
-  //
-  //     if (endTime === "") {
-  //       availabilityErrorMessage.push(
-  //         `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`,
-  //       );
-  //     }
-  //
-  //     if (hasInterval) {
-  //       if (startIntervalTime === "") {
-  //         availabilityErrorMessage.push(
-  //           `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
-  //         );
-  //       }
-  //
-  //       if (endIntervalTime === "") {
-  //         availabilityErrorMessage.push(
-  //           `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
-  //         );
-  //       }
-  //     }
-  //   });
-  //
-  //   if (dayOffErrorMessage !== "" || availabilityErrorMessage.length !== 0) {
-  //     setConfigurationError({
-  //       ...configurationError,
-  //       dayOff: dayOffErrorMessage,
-  //       availability: availabilityErrorMessage,
-  //     });
-  //
-  //     return;
-  //   }
-  //
-  //   resetConfigurationError();
-  //
-  //   submitAvailability({ availability, dayOff });
-  //
-  //   return;
-  // }
+      if (data.user.availability.length > 0) {
+        data.user.availability.forEach((newItem) => {
+          const original = availability.find(
+            (item) => item.dayOfWeek === newItem.dayOfWeek,
+          );
+
+          if (original) {
+            setDefaultAvailability(newItem.dayOfWeek, newItem.availableTimes);
+          }
+        });
+      }
+    }
+  }, [data, setAvailability, setDayOff]);
+
+  function handleSubmit() {
+    let dayOffErrorMessage = "";
+    const availabilityErrorMessage: string[] = [];
+
+    if (!dayOff) {
+      dayOffErrorMessage = "Selecione uma das opções para prosseguir!";
+    }
+
+    const daysOfWeek = [
+      { day: "Sunday", label: "Domingo" },
+      { day: "Monday", label: "Segunda" },
+      { day: "Tuesday", label: "Terça" },
+      { day: "Wednesday", label: "Quarta" },
+      { day: "Thursday", label: "Quinta" },
+      { day: "Friday", label: "Sexta" },
+      { day: "Saturday", label: "Sábado" },
+    ];
+
+    daysOfWeek.forEach((dayObj, index) => {
+      const { day, label } = dayObj;
+
+      if (
+        dayOff.includes(
+          day as
+            | "Sunday"
+            | "Monday"
+            | "Tuesday"
+            | "Wednesday"
+            | "Thursday"
+            | "Friday"
+            | "Saturday",
+        )
+      ) {
+        return;
+      }
+
+      const { availableTimes } = availability[index];
+
+      availableTimes.forEach((time, idx) => {
+        if (time.startTime === "") {
+          availabilityErrorMessage.push(
+            `O campo "Horário de início - ${idx}" na aba "${label}" precisa ter uma opção selecionada`,
+          );
+        }
+
+        if (time.endTime === "") {
+          availabilityErrorMessage.push(
+            `O campo "Horário de término - ${idx}" na aba "${label}" precisa ter uma opção selecionada`,
+          );
+        }
+      });
+    });
+
+    if (dayOffErrorMessage !== "" || availabilityErrorMessage.length !== 0) {
+      setConfigurationError({
+        ...configurationError,
+        dayOff: dayOffErrorMessage,
+        availability: availabilityErrorMessage,
+      });
+
+      return;
+    }
+
+    resetConfigurationError();
+
+    submitAvailability({ availability, dayOff });
+
+    return;
+  }
 
   return (
     <main className="dashboard-main">
@@ -174,7 +154,7 @@ export default function AvailabilityPage() {
             variant="secondary"
             size="xl"
             disabled={pending}
-            // onClick={handleSubmit}
+            onClick={handleSubmit}
           >
             Salvar
           </Button>
