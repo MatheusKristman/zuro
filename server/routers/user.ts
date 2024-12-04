@@ -268,8 +268,6 @@ export const userRouter = router({
       const { availability, dayOff } = opts.input;
       const { email } = opts.ctx.user.user;
 
-      // TODO: criar função para submit do availability
-
       if (!email) {
         return {
           error: true,
@@ -320,8 +318,31 @@ export const userRouter = router({
           await Promise.all(availabilityDeletePromise);
         }
 
-        await prisma.availability.createMany({
-          data: availabilityFiltered,
+        async function CreateAvailabilities() {
+          for (const day of availabilityFiltered) {
+            await prisma.availability.create({
+              data: {
+                userId: day.userId,
+                dayOfWeek: day.dayOfWeek,
+                availableTimes: {
+                  create: day.availableTimes.map((time) => ({
+                    startTime: time.startTime,
+                    endTime: time.endTime,
+                  })),
+                },
+              },
+            });
+          }
+        }
+
+        CreateAvailabilities().catch((err) => {
+          console.error(err);
+
+          return {
+            error: true,
+            message:
+              "Ocorreu um erro ao registrar as disponibilidades do usuário",
+          };
         });
 
         return {
@@ -351,8 +372,31 @@ export const userRouter = router({
         },
       });
 
-      await prisma.availability.createMany({
-        data: availabilityFiltered,
+      async function CreateAvailabilities() {
+        for (const day of availabilityFiltered) {
+          await prisma.availability.create({
+            data: {
+              userId: day.userId,
+              dayOfWeek: day.dayOfWeek,
+              availableTimes: {
+                create: day.availableTimes.map((time) => ({
+                  startTime: time.startTime,
+                  endTime: time.endTime,
+                })),
+              },
+            },
+          });
+        }
+      }
+
+      CreateAvailabilities().catch((err) => {
+        console.error(err);
+
+        return {
+          error: true,
+          message:
+            "Ocorreu um erro ao registrar as disponibilidades do usuário",
+        };
       });
 
       return {

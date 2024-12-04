@@ -41,6 +41,7 @@ function FirstConfigurationComponent() {
     setConfigurationError,
     configurationError,
     resetConfigurationError,
+    setDefaultAvailability,
   } = FirstConfigurationStore();
 
   const util = trpc.useUtils();
@@ -143,23 +144,7 @@ function FirstConfigurationComponent() {
           );
 
           if (original) {
-            setAvailability(newItem.dayOfWeek, "startTime", newItem.startTime);
-            setAvailability(newItem.dayOfWeek, "endTime", newItem.endTime);
-            setAvailability(
-              newItem.dayOfWeek,
-              "hasInterval",
-              newItem.hasInterval,
-            );
-            setAvailability(
-              newItem.dayOfWeek,
-              "startIntervalTime",
-              newItem.startIntervalTime ? newItem.startIntervalTime : "",
-            );
-            setAvailability(
-              newItem.dayOfWeek,
-              "endIntervalTime",
-              newItem.endIntervalTime ? newItem.endIntervalTime : "",
-            );
+            setDefaultAvailability(newItem.dayOfWeek, newItem.availableTimes);
           }
         });
       }
@@ -240,45 +225,35 @@ function FirstConfigurationComponent() {
         const { day, label } = dayObj;
 
         if (
-          (dayOff === "Weekend" && (day === "Saturday" || day === "Sunday")) ||
-          dayOff === day
+          dayOff.includes(
+            day as
+              | "Sunday"
+              | "Monday"
+              | "Tuesday"
+              | "Wednesday"
+              | "Thursday"
+              | "Friday"
+              | "Saturday",
+          )
         ) {
           return;
         }
 
-        const {
-          startTime,
-          endTime,
-          hasInterval,
-          startIntervalTime,
-          endIntervalTime,
-        } = availability[index];
+        const { availableTimes } = availability[index];
 
-        if (startTime === "") {
-          availabilityErrorMessage.push(
-            `O campo "Horário de início" na aba "${label}" precisa ter uma opção selecionada`,
-          );
-        }
-
-        if (endTime === "") {
-          availabilityErrorMessage.push(
-            `O campo "Horário de término" na aba "${label}" precisa ter uma opção selecionada`,
-          );
-        }
-
-        if (hasInterval) {
-          if (startIntervalTime === "") {
+        availableTimes.forEach((time, idx) => {
+          if (time.startTime === "") {
             availabilityErrorMessage.push(
-              `O campo "Horário de início do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+              `O campo "Horário de início - ${idx}" na aba "${label}" precisa ter uma opção selecionada`,
             );
           }
 
-          if (endIntervalTime === "") {
+          if (time.endTime === "") {
             availabilityErrorMessage.push(
-              `O campo "Horário de término do intervalo" na aba "${label}" precisa ter uma opção selecionada`,
+              `O campo "Horário de término - ${idx}" na aba "${label}" precisa ter uma opção selecionada`,
             );
           }
-        }
+        });
       });
 
       if (dayOffErrorMessage !== "" || availabilityErrorMessage.length !== 0) {
