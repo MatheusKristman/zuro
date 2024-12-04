@@ -258,7 +258,36 @@ export const userRouter = router({
                 startTime: z.string(),
                 endTime: z.string(),
               })
-              .array(),
+              .array()
+              .refine(
+                (times) => {
+                  const sortedTimes = [...times].sort(
+                    (a, b) =>
+                      parseInt(a.startTime.replace(":", ""), 10) -
+                      parseInt(b.startTime.replace(":", ""), 10),
+                  );
+
+                  for (let i = 0; i < sortedTimes.length - 1; i++) {
+                    const currentEndTime = parseInt(
+                      sortedTimes[i].endTime.replace(":", ""),
+                      10,
+                    );
+                    const nextStartTime = parseInt(
+                      sortedTimes[i + 1].startTime.replace(":", ""),
+                      10,
+                    );
+
+                    if (currentEndTime > nextStartTime) {
+                      return false;
+                    }
+                  }
+
+                  return true;
+                },
+                {
+                  message: "Os horários estão sobrepostos.",
+                },
+              ),
           })
           .array()
           .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
