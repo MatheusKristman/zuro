@@ -18,7 +18,11 @@ export const scheduleRouter = router({
           id: userId,
         },
         include: {
-          availability: true,
+          availability: {
+            include: {
+              availableTimes: true,
+            },
+          },
           services: true,
           schedules: true,
         },

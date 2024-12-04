@@ -1,7 +1,13 @@
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { Availability, Schedule, Service, User } from "@prisma/client";
+import {
+  Availability,
+  AvailableTimes,
+  Schedule,
+  Service,
+  User,
+} from "@prisma/client";
 
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
@@ -21,11 +27,15 @@ type dayScheduleType = Schedule & {
   service: Service;
 };
 
+type AvailabilityType = Availability & {
+  availableTimes: AvailableTimes[];
+};
+
 interface ServiceDayScheduleProps {
   user:
     | (User & {
         services: Service[];
-        availability: Availability[];
+        availability: AvailabilityType[];
         schedules: Schedule[];
       })
     | undefined;
@@ -76,18 +86,29 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
         return [];
       }
 
-      const startHour = Number(availabilitySelected.startTime.split(":")[0]);
-      const endHour = Number(availabilitySelected.endTime.split(":")[0]);
       const interval = 30;
-      const allSlots = [];
+      const allSlots: string[] = [];
 
-      for (let hour = startHour; hour < endHour; hour++) {
-        for (let minute = 0; minute < 60; minute += interval) {
-          allSlots.push(
-            `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`,
-          );
+      availabilitySelected.availableTimes.forEach(({ startTime, endTime }) => {
+        const startHour = Number(startTime.split(":")[0]);
+        const startMinute = Number(startTime.split(":")[1]);
+        const endHour = Number(endTime.split(":")[0]);
+        const endMinute = Number(endTime.split(":")[1]);
+
+        const start = new Date(dateUsed);
+        start.setHours(startHour, startMinute, 0, 0);
+
+        const end = new Date(dateUsed);
+        end.setHours(endHour, endMinute, 0, 0);
+
+        for (
+          let time = new Date(start);
+          time < end;
+          time.setMinutes(time.getMinutes() + interval)
+        ) {
+          allSlots.push(time.toTimeString().substring(0, 5));
         }
-      }
+      });
 
       console.log({ allSlots });
 
@@ -97,12 +118,10 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
         const [startHour, startMinute] = time.split(":").map(Number);
         const totalDuration = minutes;
 
-        for (let time = 0; time < totalDuration; time += interval) {
+        for (let elapsed = 0; elapsed < totalDuration; elapsed += interval) {
           const selectedDate = new Date(dateUsed);
 
-          console.log({ selectedDate });
-
-          selectedDate!.setHours(startHour, startMinute + time);
+          selectedDate!.setHours(startHour, startMinute + elapsed);
 
           const occupiedTime = selectedDate!.toTimeString().substring(0, 5);
 
@@ -157,7 +176,7 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
 
               today.setHours(0, 0, 0, 0);
 
-              return date < today || pending;
+              return date <= today || pending;
             }}
             className="rounded-md border w-full sm:w-fit lg:sticky lg:top-16"
           />
@@ -218,8 +237,8 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
 
               <SelectContent>
                 {availableTime.length > 0 ? (
-                  availableTime.map((time) => (
-                    <SelectItem key={time} value={time}>
+                  availableTime.map((time, index) => (
+                    <SelectItem key={`${index} - time: ${time}`} value={time}>
                       {time}
                     </SelectItem>
                   ))
