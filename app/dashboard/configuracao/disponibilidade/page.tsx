@@ -115,6 +115,29 @@ export default function AvailabilityPage() {
           );
         }
       });
+
+      const sortedTimes = [...availableTimes].sort(
+        (a, b) =>
+          parseInt(a.startTime.replace(":", ""), 10) -
+          parseInt(b.startTime.replace(":", ""), 10),
+      );
+
+      for (let i = 0; i < sortedTimes.length - 1; i++) {
+        const currentEndTime = parseInt(
+          sortedTimes[i].endTime.replace(":", ""),
+          10,
+        );
+        const nextStartTime = parseInt(
+          sortedTimes[i + 1].startTime.replace(":", ""),
+          10,
+        );
+
+        if (currentEndTime > nextStartTime) {
+          availabilityErrorMessage.push(
+            `Os horários "${sortedTimes[i].startTime} - ${sortedTimes[i].endTime}" e "${sortedTimes[i + 1].startTime} - ${sortedTimes[i + 1].endTime}" na aba "${label}" estão sobrepostos.`,
+          );
+        }
+      }
     });
 
     if (dayOffErrorMessage !== "" || availabilityErrorMessage.length !== 0) {
