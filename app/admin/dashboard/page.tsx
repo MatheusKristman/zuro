@@ -5,15 +5,15 @@ import { ChartSpline, LogIn, Settings } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logins } from "./components/logins";
-
-import { cn } from "@/lib/utils";
+import { Statistics } from "./components/statistics";
+import { Configuration } from "./components/configuration";
 
 export default function AdminDashboardPage() {
   const [tabSelected, setTabSelected] = useState<string>("logins");
 
   return (
     <main className="w-full min-h-screen bg-skin-primary">
-      <div className="w-full flex flex-col items-center px-6 pt-10 sm:px-16 lg:container lg:mx-auto">
+      <div className="w-full flex flex-col items-center px-6 pt-10 sm:px-16 lg:max-w-4xl lg:mx-auto">
         <h1 className="text-3xl font-bold text-center text-white">
           Administração
         </h1>
@@ -31,12 +31,7 @@ export default function AdminDashboardPage() {
             >
               <LogIn color="#FFF" className="shrink-0" />
 
-              <span
-                className={cn(
-                  "font-bold text-base text-white",
-                  tabSelected !== "logins" && "hidden sm:block",
-                )}
-              >
+              <span className="font-bold text-base text-white hidden sm:block">
                 Logins
               </span>
             </TabsTrigger>
@@ -47,12 +42,7 @@ export default function AdminDashboardPage() {
             >
               <ChartSpline color="#FFF" className="shrink-0" />
 
-              <span
-                className={cn(
-                  "font-bold text-base text-white",
-                  tabSelected !== "statistics" && "hidden sm:block",
-                )}
-              >
+              <span className="font-bold text-base text-white hidden sm:block">
                 Estatísticas
               </span>
             </TabsTrigger>
@@ -63,12 +53,7 @@ export default function AdminDashboardPage() {
             >
               <Settings color="#FFF" className="shrink-0" />
 
-              <span
-                className={cn(
-                  "font-bold text-base text-white",
-                  tabSelected !== "configuration" && "hidden sm:block",
-                )}
-              >
+              <span className="font-bold text-base text-white hidden sm:block">
                 Configurações
               </span>
             </TabsTrigger>
@@ -78,9 +63,13 @@ export default function AdminDashboardPage() {
             <Logins />
           </TabsContent>
 
-          <TabsContent value="statistics">Estatísticas</TabsContent>
+          <TabsContent value="statistics">
+            <Statistics />
+          </TabsContent>
 
-          <TabsContent value="configuration">Configurações</TabsContent>
+          <TabsContent value="configuration">
+            <Configuration />
+          </TabsContent>
         </Tabs>
       </div>
     </main>
