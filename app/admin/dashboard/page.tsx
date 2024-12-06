@@ -14,16 +14,9 @@ export default function AdminDashboardPage() {
   return (
     <main className="w-full min-h-screen bg-skin-primary">
       <div className="w-full flex flex-col items-center px-6 pt-10 sm:px-16 lg:max-w-4xl lg:mx-auto">
-        <h1 className="text-3xl font-bold text-center text-white">
-          Administração
-        </h1>
+        <h1 className="text-3xl font-bold text-center text-white">Administração</h1>
 
-        <Tabs
-          defaultValue="logins"
-          value={tabSelected}
-          onValueChange={setTabSelected}
-          className="w-full mt-6"
-        >
+        <Tabs defaultValue="logins" value={tabSelected} onValueChange={setTabSelected} className="w-full mt-6">
           <TabsList className="h-auto grid w-full grid-cols-3 bg-black/20 rounded-xl">
             <TabsTrigger
               value="logins"
@@ -31,9 +24,7 @@ export default function AdminDashboardPage() {
             >
               <LogIn color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">
-                Logins
-              </span>
+              <span className="font-bold text-base text-white hidden sm:block">Logins</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -42,9 +33,7 @@ export default function AdminDashboardPage() {
             >
               <ChartSpline color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">
-                Estatísticas
-              </span>
+              <span className="font-bold text-base text-white hidden sm:block">Estatísticas</span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -53,9 +42,7 @@ export default function AdminDashboardPage() {
             >
               <Settings color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">
-                Configurações
-              </span>
+              <span className="font-bold text-base text-white hidden sm:block">Configurações</span>
             </TabsTrigger>
           </TabsList>
 
