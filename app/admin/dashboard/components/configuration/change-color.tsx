@@ -15,6 +15,7 @@ const formSchema = z.object({
   newColor: z.string().min(1, "Código da cor nova obrigatória").max(7, "Cor inválida"),
 });
 
+// TODO: verificar pois está mudando para branco em todas as cores
 export function ChangeColor() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
