@@ -135,7 +135,7 @@ export const adminRouter = router({
 
       return {
         error: false,
-        message: "E-mail atualizado com sucesso",
+        message: "E-mail atualizado com sucesso, realize o login novamente",
       };
     }),
 });

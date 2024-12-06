@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn, formatPrice } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { toast } from "sonner";
 
 const RobotoFlex = Roboto_Flex({
   subsets: ["latin"],
@@ -45,6 +46,8 @@ export function Statistics() {
       },
       onError: (err) => {
         console.error(err);
+
+        toast.error("Ocorreu um erro ao resgatar as informações");
       },
     });
 

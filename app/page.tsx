@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   email: z
@@ -61,8 +62,12 @@ export default function Home() {
       } else {
         if (res.error === "Configuration") {
           console.log("E-mail ou Senha inválidos");
+
+          toast.error("E-mail ou Senha inválidos");
         } else {
           console.log("Ocorreu um erro, tente novamente mais tarde");
+
+          toast.error("Ocorreu um erro, tente novamente mais tarde");
         }
       }
     } catch (error) {

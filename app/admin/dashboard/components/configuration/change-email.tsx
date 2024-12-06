@@ -3,13 +3,15 @@
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { signOut } from "next-auth/react";
+import { toast } from "sonner";
+import { Loader2, Save } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Loader2, Save } from "lucide-react";
+
 import { trpc } from "@/lib/trpc-client";
-import { toast } from "sonner";
 
 const formSchema = z
   .object({
@@ -46,6 +48,8 @@ export function ChangeEmail() {
       }
 
       toast.success(res.message);
+
+      signOut({ redirectTo: "/" });
     },
     onError: (err) => {
       console.log(err);
