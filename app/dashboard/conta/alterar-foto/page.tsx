@@ -24,7 +24,7 @@ export default function ChangeProfilePhotoPage() {
           Alterar Foto
         </h2>
 
-        <div className="w-full m-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
+        <div className="w-full mt-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
           <div className="w-full flex flex-col items-center gap-4">
             <p className="bg-muted p-3 rounded-xl block text-base font-medium text-muted-foreground text-center w-full max-w-md">
               A foto selecionada será exibida para os clientes no momento do
