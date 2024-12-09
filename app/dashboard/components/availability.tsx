@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ReactSelect from "react-select";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -10,13 +11,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+// import {
+//   Popover,
+//   PopoverContent,
+//   PopoverTrigger,
+// } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+// import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { cn } from "@/lib/utils";
 import {
@@ -36,6 +37,11 @@ type setTabType =
   | "Friday"
   | "Saturday";
 
+type dayOffOptions = {
+  label: string;
+  value: string;
+};
+
 interface DayScheduleProps {
   dayOfWeek:
     | "Sunday"
@@ -47,6 +53,16 @@ interface DayScheduleProps {
     | "Saturday";
   isPending: boolean;
 }
+
+const dayOffOptions: dayOffType[] = [
+  { value: "Monday", label: "Segunda-feira" },
+  { value: "Tuesday", label: "Terça-feira" },
+  { value: "Wednesday", label: "Quarta-feira" },
+  { value: "Thursday", label: "Quinta-feira" },
+  { value: "Friday", label: "Sexta-feira" },
+  { value: "Saturday", label: "Sábado" },
+  { value: "Sunday", label: "Domingo" },
+];
 
 interface AvailabilityProps {
   isPending: boolean;
@@ -195,21 +211,17 @@ function DaySchedule({ dayOfWeek, isPending }: DayScheduleProps) {
 
 export function Availability({ isPending }: AvailabilityProps) {
   const [tab, setTab] = useState<setTabType>("");
+  const [hydrated, setHydrated] = useState<boolean>(false);
 
-  const {
-    dayOff,
-    setDayOff,
-    resetAvailableTime,
-    availability,
-    configurationError,
-  } = FirstConfigurationStore();
+  const { dayOff, setDayOff, resetAvailableTime, configurationError } =
+    FirstConfigurationStore();
 
   useEffect(() => {
-    console.log({ availability });
-  }, [availability]);
+    setHydrated(true);
+  }, []);
 
   useEffect(() => {
-    const days: dayOffType[] = [
+    const days: string[] = [
       "Sunday",
       "Monday",
       "Tuesday",
@@ -220,11 +232,24 @@ export function Availability({ isPending }: AvailabilityProps) {
     ];
 
     days.forEach((day) => {
-      if (dayOff.includes(day)) {
-        resetAvailableTime(day);
+      if (dayOff.find((d) => d.value === day) !== undefined) {
+        resetAvailableTime(
+          day as
+            | "Sunday"
+            | "Monday"
+            | "Tuesday"
+            | "Wednesday"
+            | "Thursday"
+            | "Friday"
+            | "Saturday",
+        );
       }
     });
   }, [dayOff, resetAvailableTime]);
+
+  if (!hydrated) {
+    return null;
+  }
 
   return (
     <div className="bg-white rounded-3xl p-6">
@@ -235,85 +260,20 @@ export function Availability({ isPending }: AvailabilityProps) {
       <div className="flex flex-col gap-2 mb-4">
         <h4 className="text-xl font-semibold">Quais dias irá folgar?</h4>
 
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button size="xl" variant="outline" className="w-fit">
-              Selecione os dias de folga
-            </Button>
-          </PopoverTrigger>
-
-          <PopoverContent className="w-80 h-auto" align="start">
-            <ToggleGroup
-              value={dayOff}
-              onValueChange={setDayOff}
-              type="multiple"
-              className="grid grid-cols-1 gap-4"
-            >
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Monday"
-                aria-label="Toggle Weekend"
-              >
-                Segunda-Feira
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Tuesday"
-                aria-label="Toggle Weekend"
-              >
-                Terça-Feira
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Wednesday"
-                aria-label="Toggle Weekend"
-              >
-                Quarta-Feira
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Thursday"
-                aria-label="Toggle Weekend"
-              >
-                Quinta-Feira
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Friday"
-                aria-label="Toggle Weekend"
-              >
-                Sexta-Feira
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Saturday"
-                aria-label="Toggle Weekend"
-              >
-                Sábado
-              </ToggleGroupItem>
-
-              <ToggleGroupItem
-                size="xl"
-                variant="outline"
-                value="Sunday"
-                aria-label="Toggle Weekend"
-              >
-                Domingo
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </PopoverContent>
-        </Popover>
+        <ReactSelect
+          isMulti
+          value={dayOff}
+          onChange={(selectedOptions) =>
+            setDayOff(selectedOptions as dayOffType[])
+          }
+          options={dayOffOptions}
+          classNames={{
+            control: () =>
+              "!flex !h-12 !w-full !items-center !justify-between !rounded-xl !border !border-skin-primary/40 !bg-background !outline-none !transition focus:!border-skin-primary disabled:!cursor-not-allowed disabled:!opacity-50",
+            multiValue: () => "!bg-skin-primary !text-white",
+            multiValueLabel: () => "!text-white",
+          }}
+        />
 
         <span
           className={cn("text-sm text-destructive hidden", {
@@ -338,7 +298,10 @@ export function Availability({ isPending }: AvailabilityProps) {
           <TabsList className="w-full flex flex-col h-fit sm:flex-row">
             <TabsTrigger
               value="Sunday"
-              disabled={isPending || dayOff.includes("Sunday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Sunday") !== undefined
+              }
               className="w-full basis-full"
             >
               Domingo
@@ -346,7 +309,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Monday"
-              disabled={isPending || dayOff.includes("Monday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Monday") !== undefined
+              }
               className="w-full basis-full"
             >
               Segunda
@@ -354,7 +320,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Tuesday"
-              disabled={isPending || dayOff.includes("Tuesday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Tuesday") !== undefined
+              }
               className="w-full basis-full"
             >
               Terça
@@ -362,7 +331,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Wednesday"
-              disabled={isPending || dayOff.includes("Wednesday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Wednesday") !== undefined
+              }
               className="w-full basis-full"
             >
               Quarta
@@ -370,7 +342,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Thursday"
-              disabled={isPending || dayOff.includes("Thursday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Thursday") !== undefined
+              }
               className="w-full basis-full"
             >
               Quinta
@@ -378,7 +353,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Friday"
-              disabled={isPending || dayOff.includes("Friday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Friday") !== undefined
+              }
               className="w-full basis-full"
             >
               Sexta
@@ -386,7 +364,10 @@ export function Availability({ isPending }: AvailabilityProps) {
 
             <TabsTrigger
               value="Saturday"
-              disabled={isPending || dayOff.includes("Saturday")}
+              disabled={
+                isPending ||
+                dayOff.find((d) => d.value === "Saturday") !== undefined
+              }
               className="w-full basis-full"
             >
               Sábado

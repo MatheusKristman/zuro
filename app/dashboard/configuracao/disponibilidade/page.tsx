@@ -8,7 +8,10 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Availability } from "../../components/availability";
 
-import { FirstConfigurationStore } from "@/stores/first-configuration-store";
+import {
+  dayOffType,
+  FirstConfigurationStore,
+} from "@/stores/first-configuration-store";
 import { trpc } from "@/lib/trpc-client";
 
 export default function AvailabilityPage() {
@@ -47,7 +50,35 @@ export default function AvailabilityPage() {
   useEffect(() => {
     if (data) {
       if (data.user.dayOff) {
-        setDayOff(data.user.dayOff);
+        const newDayOffs: dayOffType[] = [];
+
+        data.user.dayOff.forEach((day) => {
+          switch (day) {
+            case "Sunday":
+              newDayOffs.push({ value: "Sunday", label: "Domingo" });
+              break;
+            case "Monday":
+              newDayOffs.push({ value: "Monday", label: "Segunda-Feira" });
+              break;
+            case "Tuesday":
+              newDayOffs.push({ value: "Tuesday", label: "Terça-Feira" });
+              break;
+            case "Wednesday":
+              newDayOffs.push({ value: "Wednesday", label: "Quarta-Feira" });
+              break;
+            case "Thursday":
+              newDayOffs.push({ value: "Thursday", label: "Quinta-Feira" });
+              break;
+            case "Friday":
+              newDayOffs.push({ value: "Friday", label: "Sexta-Feira" });
+              break;
+            case "Saturday":
+              newDayOffs.push({ value: "Saturday", label: "Sábado" });
+              break;
+          }
+        });
+
+        setDayOff(newDayOffs);
       }
 
       if (data.user.availability.length > 0) {
@@ -85,18 +116,7 @@ export default function AvailabilityPage() {
     daysOfWeek.forEach((dayObj, index) => {
       const { day, label } = dayObj;
 
-      if (
-        dayOff.includes(
-          day as
-            | "Sunday"
-            | "Monday"
-            | "Tuesday"
-            | "Wednesday"
-            | "Thursday"
-            | "Friday"
-            | "Saturday",
-        )
-      ) {
+      if (dayOff.find((d) => d.value === day) !== undefined) {
         return;
       }
 
@@ -152,7 +172,18 @@ export default function AvailabilityPage() {
 
     resetConfigurationError();
 
-    submitAvailability({ availability, dayOff });
+    submitAvailability({
+      availability,
+      dayOff: dayOff.map((d) => d.value) as Array<
+        | "Sunday"
+        | "Monday"
+        | "Tuesday"
+        | "Wednesday"
+        | "Thursday"
+        | "Friday"
+        | "Saturday"
+      >,
+    });
 
     return;
   }

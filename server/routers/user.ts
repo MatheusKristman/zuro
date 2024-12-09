@@ -297,6 +297,8 @@ export const userRouter = router({
       const { availability, dayOff } = opts.input;
       const { email } = opts.ctx.user.user;
 
+      console.log(dayOff);
+
       if (!email) {
         return {
           error: true,
