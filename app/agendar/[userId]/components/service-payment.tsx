@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
-import { Copy, FileCheck2, Upload } from "lucide-react";
+import { Copy, FileCheck2, Loader2, Upload } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { PaymentPreference } from "@prisma/client";
 
@@ -15,6 +15,7 @@ import { ScheduleStore } from "@/stores/schedule-store";
 import { trpc } from "@/lib/trpc-client";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface ServicePaymentProps {
   paymentPreference: PaymentPreference | null | undefined;
@@ -168,7 +169,22 @@ export function ServicePayment({
   }
 
   return (
-    <div className="w-full max-w-4xl bg-white rounded-3xl p-6 mt-10">
+    <div className="relative w-full max-w-4xl bg-white rounded-3xl p-6 mt-10">
+      <div
+        className={cn(
+          "absolute z-40 top-0 bottom-0 left-0 right-0 w-full h-full rounded-3xl bg-white/70 backdrop-blur-sm flex flex-col items-center justify-center gap-4 animate-fade-in",
+          {
+            hidden: !isPending && !isUploading,
+          },
+        )}
+      >
+        <Loader2 size={70} className="animate-spin text-skin-primary" />
+
+        <span className="text-2xl text-center text-skin-primary font-semibold">
+          Enviando comprovante...
+        </span>
+      </div>
+
       <h2 className="text-2xl font-semibold text-skin-primary text-center sm:text-left">
         Pagamento do serviço
       </h2>
