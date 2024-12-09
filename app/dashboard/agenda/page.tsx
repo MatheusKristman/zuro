@@ -39,7 +39,7 @@ export default function SchedulePage() {
     trpc.userRouter.cancelSchedule.useMutation({
       onSuccess: () => {
         if (date !== undefined) {
-          getSchedulesByDate({ date: format(date, "dd/MM/yyyy") });
+          getSchedulesByDate({ date: format(date, "yyyy-MM-dd") });
         }
       },
       onError: (err) => {
@@ -55,7 +55,7 @@ export default function SchedulePage() {
 
   useEffect(() => {
     if (date !== undefined) {
-      getSchedulesByDate({ date: format(date, "dd/MM/yyyy") });
+      getSchedulesByDate({ date: format(date, "yyyy-MM-dd") });
     }
   }, [date, getSchedulesByDate]);
 

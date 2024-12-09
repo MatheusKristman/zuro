@@ -696,6 +696,8 @@ export const userRouter = router({
         },
       });
 
+      console.log({ schedules });
+
       return { schedules, error: false, message: "" };
     }),
   cancelSchedule: isUserAuthedProcedure
