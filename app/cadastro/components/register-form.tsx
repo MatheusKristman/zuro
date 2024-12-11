@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, LogIn } from "lucide-react";
 import { z } from "zod";
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
 import { useSearchParams } from "next/navigation";
 
@@ -60,7 +60,7 @@ const animation = {
   },
 };
 
-export function RegisterForm() {
+function RegisterFormComponent() {
   const { setRegistered } = RegisterStore();
 
   const searchParams = useSearchParams();
@@ -153,5 +153,13 @@ export function RegisterForm() {
         </form>
       </Form>
     </motion.div>
+  );
+}
+
+export function RegisterForm() {
+  return (
+    <Suspense>
+      <RegisterFormComponent />
+    </Suspense>
   );
 }
