@@ -162,3 +162,8 @@ model AvailableTimes {
   availabilityId String       @db.ObjectId
   availability   Availability @relation(fields: [availabilityId], references: [id], onDelete: Cascade)
 }
+
+model PrimaryColor {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  colorCode String
+}

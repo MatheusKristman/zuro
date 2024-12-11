@@ -1,29 +1,69 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc-client";
+import { WebsiteStore } from "@/stores/website-store";
 
 const formSchema = z.object({
   actualColor: z.string().min(1, "Cor atual obrigatório").max(7, "Cor inválida"),
   newColor: z.string().min(1, "Código da cor nova obrigatória").max(7, "Cor inválida"),
 });
 
-// TODO: verificar pois está mudando para branco em todas as cores
 export function ChangeColor() {
+  const [textColor, setTextColor] = useState<string>("text-white");
+
+  const { setColor } = WebsiteStore();
+
+  const { data, isPending: getColorPending } = trpc.websiteRouter.getColor.useQuery();
+  const { mutate: updateColor, isPending: updateColorPending } = trpc.websiteRouter.updateColor.useMutation({
+    onSuccess: (res) => {
+      setColor(res.colorUpdated.colorCode);
+    },
+    onError: (err) => {
+      console.error(err);
+
+      toast.error("Ocorreu um erro ao atualizar a cor principal do site");
+    },
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      actualColor: "#5171e1",
+      actualColor: data?.color ?? "#5171e1",
       newColor: "",
     },
   });
+
+  const pending: boolean = getColorPending || updateColorPending;
+
+  const getTextColor = (backgroundColorHex: string) => {
+    const hex = backgroundColorHex.replace("#", "");
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+
+    return brightness > 128 ? "text-foreground" : "text-white";
+  };
+
+  useEffect(() => {
+    if (data !== undefined) {
+      const tColor = getTextColor(data.color);
+
+      setTextColor(tColor);
+    }
+  }, [data]);
 
   function hexToRgb(hex: string) {
     hex = hex.replace(/^#/, "");
@@ -33,17 +73,21 @@ export function ChangeColor() {
     const g = (bigint >> 8) & 255;
     const b = bigint & 255;
 
-    return `${r}, ${g}, ${b}`;
+    return `${r} ${g} ${b}`;
   }
 
   function updatePrimaryColor(hex: string) {
     const root = document.documentElement;
     const rgb = hexToRgb(hex);
-    root.style.setProperty("--color-primary", rgb);
+    root.style.setProperty("--bg-primary", rgb);
+    const tColor = getTextColor(hex);
+
+    setTextColor(tColor);
+    updateColor({ colorId: data!.id, newColor: hex });
+    form.setValue("actualColor", hex);
   }
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // TODO: comentar com o cliente sobre o problema e se ele quiser manter, adicionar função de salvar o valor no banco de dados e atualizar a cor ao carregar a página
     updatePrimaryColor(values.newColor);
   }
 
@@ -59,7 +103,7 @@ export function ChangeColor() {
                 <FormLabel>Cor Principal Atual</FormLabel>
 
                 <FormControl>
-                  <Input disabled {...field} className={cn("bg-skin-primary disabled:opacity-100")} />
+                  <Input disabled {...field} className={cn("bg-skin-background disabled:opacity-100", textColor)} />
                 </FormControl>
 
                 <FormMessage />
@@ -75,7 +119,7 @@ export function ChangeColor() {
                 <FormLabel>Código da cor nova</FormLabel>
 
                 <FormControl>
-                  <Input maxLength={7} placeholder="Insira o código da cor nova" {...field} />
+                  <Input maxLength={7} disabled={pending} placeholder="Insira o código da cor nova" {...field} />
                 </FormControl>
 
                 <FormMessage />
@@ -84,7 +128,9 @@ export function ChangeColor() {
           />
         </div>
 
-        <Button size="xl">Atualizar</Button>
+        <Button size="xl" disabled={pending}>
+          Atualizar
+        </Button>
       </form>
     </Form>
   );

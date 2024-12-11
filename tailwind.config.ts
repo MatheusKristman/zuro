@@ -12,6 +12,7 @@ const config: Config = {
     extend: {
       colors: {
         skin: {
+          background: "rgb(var(--bg-primary) / <alpha-value>)",
           primary: "rgb(var(--color-primary) / <alpha-value>)",
         },
         background: "hsl(var(--background))",

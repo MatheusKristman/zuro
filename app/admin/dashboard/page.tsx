@@ -14,7 +14,7 @@ export default function AdminDashboardPage() {
   const [tabSelected, setTabSelected] = useState<string>("logins");
 
   return (
-    <main className="w-full min-h-screen bg-skin-primary">
+    <main className="w-full min-h-screen bg-skin-background">
       <div className="w-full flex flex-col items-center px-6 py-10 sm:px-16 lg:max-w-4xl lg:mx-auto">
         <div className="w-full flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:items-end">
           <h1 className="text-3xl font-bold text-center text-white">Administração</h1>

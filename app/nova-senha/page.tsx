@@ -7,14 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2 } from "lucide-react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -60,18 +53,17 @@ function NewPasswordComponent() {
     router.replace("/");
   }
 
-  const { mutate: newPassword, isPending } =
-    trpc.userRouter.newPassword.useMutation({
-      onSuccess: () => {
-        toast.success("Senha atualizada com sucesso");
-        router.replace("/");
-      },
-      onError: (error) => {
-        console.error(error);
+  const { mutate: newPassword, isPending } = trpc.userRouter.newPassword.useMutation({
+    onSuccess: () => {
+      toast.success("Senha atualizada com sucesso");
+      router.replace("/");
+    },
+    onError: (error) => {
+      console.error(error);
 
-        toast.error("Ocorreu um erro ao criar a conta");
-      },
-    });
+      toast.error("Ocorreu um erro ao criar a conta");
+    },
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -92,42 +84,25 @@ function NewPasswordComponent() {
   }
 
   return (
-    <main className="w-full min-h-screen flex items-center justify-center bg-skin-primary py-12 px-6">
+    <main className="w-full min-h-screen flex items-center justify-center bg-skin-background py-12 px-6">
       <div className="w-full flex flex-col items-center gap-6 bg-white overflow-hidden rounded-3xl p-6 max-w-[450px]">
-        <Image
-          src="/logo.svg"
-          alt="Logo"
-          width={80}
-          height={80}
-          className="object-contain object-center"
-        />
+        <Image src="/logo.svg" alt="Logo" width={80} height={80} className="object-contain object-center" />
 
         <div className="w-full flex flex-col items-center gap-6">
-          <h2 className="text-3xl font-bold text-center text-slate-800">
-            Crie sua nova senha
-          </h2>
+          <h2 className="text-3xl font-bold text-center text-slate-800">Crie sua nova senha</h2>
 
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-6 w-full"
-            >
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
               <div className="space-y-4">
                 <FormField
                   name="password"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-600 font-bold">
-                        Nova Senha
-                      </FormLabel>
+                      <FormLabel className="text-slate-600 font-bold">Nova Senha</FormLabel>
 
                       <FormControl>
-                        <Input
-                          placeholder="Insira a sua nova senha"
-                          className="text-slate-800"
-                          {...field}
-                        />
+                        <Input placeholder="Insira a sua nova senha" className="text-slate-800" {...field} />
                       </FormControl>
 
                       <FormMessage />
@@ -140,16 +115,10 @@ function NewPasswordComponent() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-slate-600 font-bold">
-                        Confirmar Nova Senha
-                      </FormLabel>
+                      <FormLabel className="text-slate-600 font-bold">Confirmar Nova Senha</FormLabel>
 
                       <FormControl>
-                        <Input
-                          placeholder="Confirme sua senha nova"
-                          className="text-slate-800"
-                          {...field}
-                        />
+                        <Input placeholder="Confirme sua senha nova" className="text-slate-800" {...field} />
                       </FormControl>
 
                       <FormMessage />
@@ -158,17 +127,9 @@ function NewPasswordComponent() {
                 />
               </div>
 
-              <Button
-                type="submit"
-                size="xl"
-                className="w-full flex items-center gap-2"
-              >
+              <Button type="submit" size="xl" className="w-full flex items-center gap-2">
                 Enviar
-                {isPending ? (
-                  <Loader2 className="animate-spin" />
-                ) : (
-                  <ArrowRight />
-                )}
+                {isPending ? <Loader2 className="animate-spin" /> : <ArrowRight />}
               </Button>
             </form>
           </Form>
