@@ -61,11 +61,17 @@ export const userRouter = router({
           })
           .min(1, "E-mail é obrigatório")
           .email("E-mail inválido"),
-      }),
+        planId: z
+          .string({
+            required_error: "ID do plano é obrigatório",
+            invalid_type_error: "O valor enviado para o ID do plano é inválido",
+          })
+          .min(1, "ID do plano é obrigatório"),
+      })
     )
     .mutation(async (opts) => {
       const { input } = opts;
-      const { email, name } = input;
+      const { email, name, planId } = input;
 
       const accountExists = await prisma.user.findUnique({
         where: {
@@ -89,13 +95,18 @@ export const userRouter = router({
       const pwHash = await bcrypt.hash(generatedPassword, salt);
 
       // TODO: enviar no e-mail a senha para o usuário
-      console.log(generatedPassword);
+      console.log({ generatedPassword });
 
       await prisma.user.create({
         data: {
           name,
           email,
           password: pwHash,
+          plan: {
+            connect: {
+              id: planId,
+            },
+          },
         },
       });
 
@@ -119,7 +130,7 @@ export const userRouter = router({
           })
           .min(1, "Este campo é obrigatório")
           .min(6, { message: "Este campo precisa ter no mínimo 6 caracteres" }),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -151,9 +162,7 @@ export const userRouter = router({
         })
         .superRefine(({ paymentPreference, pixKey }, ctx) => {
           if (
-            (!paymentPreference ||
-              paymentPreference === "before_after" ||
-              paymentPreference === "before") &&
+            (!paymentPreference || paymentPreference === "before_after" || paymentPreference === "before") &&
             !pixKey
           ) {
             ctx.addIssue({
@@ -162,7 +171,7 @@ export const userRouter = router({
               path: ["pixKey"],
             });
           }
-        }),
+        })
     )
     .mutation(async (opts) => {
       const { paymentPreference, pixKey } = opts.input;
@@ -231,28 +240,10 @@ export const userRouter = router({
   submitAvailability: isUserAuthedProcedure
     .input(
       z.object({
-        dayOff: z
-          .enum([
-            "Sunday",
-            "Monday",
-            "Tuesday",
-            "Wednesday",
-            "Thursday",
-            "Friday",
-            "Saturday",
-          ])
-          .array(),
+        dayOff: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]).array(),
         availability: z
           .object({
-            dayOfWeek: z.enum([
-              "Sunday",
-              "Monday",
-              "Tuesday",
-              "Wednesday",
-              "Thursday",
-              "Friday",
-              "Saturday",
-            ]),
+            dayOfWeek: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
             availableTimes: z
               .object({
                 startTime: z.string(),
@@ -262,20 +253,12 @@ export const userRouter = router({
               .refine(
                 (times) => {
                   const sortedTimes = [...times].sort(
-                    (a, b) =>
-                      parseInt(a.startTime.replace(":", ""), 10) -
-                      parseInt(b.startTime.replace(":", ""), 10),
+                    (a, b) => parseInt(a.startTime.replace(":", ""), 10) - parseInt(b.startTime.replace(":", ""), 10)
                   );
 
                   for (let i = 0; i < sortedTimes.length - 1; i++) {
-                    const currentEndTime = parseInt(
-                      sortedTimes[i].endTime.replace(":", ""),
-                      10,
-                    );
-                    const nextStartTime = parseInt(
-                      sortedTimes[i + 1].startTime.replace(":", ""),
-                      10,
-                    );
+                    const currentEndTime = parseInt(sortedTimes[i].endTime.replace(":", ""), 10);
+                    const nextStartTime = parseInt(sortedTimes[i + 1].startTime.replace(":", ""), 10);
 
                     if (currentEndTime > nextStartTime) {
                       return false;
@@ -286,12 +269,12 @@ export const userRouter = router({
                 },
                 {
                   message: "Os horários estão sobrepostos.",
-                },
+                }
               ),
           })
           .array()
           .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { availability, dayOff } = opts.input;
@@ -343,7 +326,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            }),
+            })
           );
 
           await Promise.all(availabilityDeletePromise);
@@ -371,8 +354,7 @@ export const userRouter = router({
 
           return {
             error: true,
-            message:
-              "Ocorreu um erro ao registrar as disponibilidades do usuário",
+            message: "Ocorreu um erro ao registrar as disponibilidades do usuário",
           };
         });
 
@@ -388,7 +370,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          }),
+          })
         );
 
         await Promise.all(availabilityDeletePromise);
@@ -425,8 +407,7 @@ export const userRouter = router({
 
         return {
           error: true,
-          message:
-            "Ocorreu um erro ao registrar as disponibilidades do usuário",
+          message: "Ocorreu um erro ao registrar as disponibilidades do usuário",
         };
       });
 
@@ -444,10 +425,10 @@ export const userRouter = router({
               name: z.string().min(1, "Nome é obrigatório"),
               minutes: z.number().gt(0, "Minutos inválidos"),
               price: z.number().gt(0, "Valor inválido"),
-            }),
+            })
           )
           .min(1, "É preciso ter ao menos um serviço registrado"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { services } = opts.input;
@@ -498,7 +479,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            }),
+            })
           );
 
           await Promise.all(servicesDeletePromise);
@@ -520,7 +501,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          }),
+          })
         );
 
         await Promise.all(servicesDeletePromise);
@@ -544,20 +525,17 @@ export const userRouter = router({
             .string()
             .min(1, "Nova Senha é obrigatória")
             .min(6, "Nova Senha precisa ter no mínimo 6 caracteres"),
-          confirmNewPassword: z
-            .string()
-            .min(1, "Confirmar Senha é obrigatória"),
+          confirmNewPassword: z.string().min(1, "Confirmar Senha é obrigatória"),
         })
         .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
           if (confirmNewPassword !== newPassword) {
             ctx.addIssue({
               code: "custom",
-              message:
-                "A confirmação da senha precisa ser igual a senha criada",
+              message: "A confirmação da senha precisa ser igual a senha criada",
               path: ["confirmNewPassword"],
             });
           }
-        }),
+        })
     )
     .mutation(async (opts) => {
       const { password, newPassword } = opts.input;
@@ -613,7 +591,7 @@ export const userRouter = router({
     .input(
       z.object({
         newName: z.string().min(1, "Novo nome é obrigatório"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { newName } = opts.input;
@@ -657,7 +635,7 @@ export const userRouter = router({
     .input(
       z.object({
         date: z.string().min(1, "Data é obrigatória"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { date } = opts.input;
@@ -706,7 +684,7 @@ export const userRouter = router({
     .input(
       z.object({
         scheduleId: z.string().min(1, "ID do agendamento é obrigatório"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { scheduleId } = opts.input;
@@ -727,7 +705,7 @@ export const userRouter = router({
       z.object({
         from: z.string().min(1, "Data de início é obrigatório"),
         to: z.string().min(1, "Data de término é obrigatório"),
-      }),
+      })
     )
     .mutation(async (opts) => {
       const { from, to } = opts.input;
@@ -763,14 +741,8 @@ export const userRouter = router({
         };
       }
 
-      const startDateFormatted = format(
-        parse(from, "yyyy-MM-dd", new Date(), { locale: ptBR }),
-        "yyyy-MM-dd",
-      );
-      const endDateFormatted = format(
-        parse(to, "yyyy-MM-dd", new Date(), { locale: ptBR }),
-        "yyyy-MM-dd",
-      );
+      const startDateFormatted = format(parse(from, "yyyy-MM-dd", new Date(), { locale: ptBR }), "yyyy-MM-dd");
+      const endDateFormatted = format(parse(to, "yyyy-MM-dd", new Date(), { locale: ptBR }), "yyyy-MM-dd");
 
       const schedules = await prisma.schedule.findMany({
         where: {
@@ -785,40 +757,32 @@ export const userRouter = router({
         },
       });
 
-      const schedulesFiltered = schedules.filter(
-        (schedule) => schedule.status === ScheduleStatus.confirmed,
-      );
+      const schedulesFiltered = schedules.filter((schedule) => schedule.status === ScheduleStatus.confirmed);
 
       const clientsAttended = schedulesFiltered.length;
       const totalEarned = schedulesFiltered.reduce((total, obj) => {
         return total + obj.service.price;
       }, 0);
-      const serviceCount = schedulesFiltered.reduce(
-        (acc: Record<string, number>, obj) => {
-          const serviceName = obj.service.name;
+      const serviceCount = schedulesFiltered.reduce((acc: Record<string, number>, obj) => {
+        const serviceName = obj.service.name;
 
-          acc[serviceName] = (acc[serviceName] || 0) + 1;
+        acc[serviceName] = (acc[serviceName] || 0) + 1;
 
-          return acc;
-        },
-        {} as Record<string, number>,
-      );
-      const datesCount = schedulesFiltered.reduce(
-        (acc: Record<string, number>, obj) => {
-          acc[obj.date] = (acc[obj.date] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      const datesCount = schedulesFiltered.reduce((acc: Record<string, number>, obj) => {
+        acc[obj.date] = (acc[obj.date] || 0) + 1;
 
-          return acc;
-        },
-        {},
-      );
-      const mostFrequentService = Object.entries(serviceCount).reduce(
-        (a, b) => (b[1] > a[1] ? b : a),
-        ["", 0] as [string, number],
-      );
-      const mostFrequentDate = Object.entries(datesCount).reduce(
-        (a, b) => (b[1] > a[1] ? b : a),
-        ["", 0] as [string, number],
-      );
+        return acc;
+      }, {});
+      const mostFrequentService = Object.entries(serviceCount).reduce((a, b) => (b[1] > a[1] ? b : a), ["", 0] as [
+        string,
+        number
+      ]);
+      const mostFrequentDate = Object.entries(datesCount).reduce((a, b) => (b[1] > a[1] ? b : a), ["", 0] as [
+        string,
+        number
+      ]);
 
       return {
         schedules: schedulesFiltered,

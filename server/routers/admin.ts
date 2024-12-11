@@ -6,6 +6,7 @@ import { ptBR } from "date-fns/locale/pt-BR";
 
 import { adminProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
 
 export const adminRouter = router({
   getUsers: adminProcedure
@@ -137,5 +138,45 @@ export const adminRouter = router({
         error: false,
         message: "E-mail atualizado com sucesso, realize o login novamente",
       };
+    }),
+  getCoupons: adminProcedure.query(async () => {
+    const coupons = await stripe.coupons.list();
+
+    return { coupons };
+  }),
+  createCoupon: adminProcedure
+    .input(
+      z.object({
+        name: z.string().min(1, "Nome do cupom é obrigatório").min(4, "O nome precisa ter no mínimo 4 caracteres"),
+        percentage: z.coerce
+          .number()
+          .gte(0, "Valor precisa ser maior ou igual à zero")
+          .lte(100, "Valor precisa ser menor ou igual á cem"),
+        monthly: z.enum(["once", "forever"], { message: "Valor inválido" }),
+      })
+    )
+    .mutation(async (opts) => {
+      const { name, percentage, monthly } = opts.input;
+
+      await stripe.coupons.create({
+        duration: monthly,
+        name,
+        percent_off: percentage,
+      });
+
+      return { message: "Cupom criado com sucesso!" };
+    }),
+  deleteCoupon: adminProcedure
+    .input(
+      z.object({
+        couponId: z.string().min(1, "ID do cupom é obrigatório"),
+      })
+    )
+    .mutation(async (opts) => {
+      const { couponId } = opts.input;
+
+      await stripe.coupons.del(couponId);
+
+      return { message: "Cupom deletado com sucesso" };
     }),
 });

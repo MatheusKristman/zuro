@@ -69,6 +69,9 @@ model User {
   services     Service[]
   schedules    Schedule[]
 
+  planId String? @db.ObjectId
+  plan   Plan?   @relation(fields: [planId], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -166,4 +169,11 @@ model AvailableTimes {
 model PrimaryColor {
   id        String @id @default(auto()) @map("_id") @db.ObjectId
   colorCode String
+}
+
+model Plan {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  priceId String
+
+  users User[]
 }

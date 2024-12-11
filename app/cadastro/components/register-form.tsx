@@ -3,20 +3,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, LogIn } from "lucide-react";
 import { z } from "zod";
 import { motion } from "framer-motion";
+import { useEffect } from "react";
+import { toast } from "sonner";
+import { useSearchParams } from "next/navigation";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
 import { RegisterStore } from "@/stores/register-store";
 import { trpc } from "@/lib/trpc-client";
-import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z
@@ -33,6 +29,12 @@ const formSchema = z.object({
     })
     .min(1, "E-mail é obrigatório")
     .email("E-mail inválido"),
+  planId: z
+    .string({
+      required_error: "ID do plano é obrigatório",
+      invalid_type_error: "O valor enviado para o ID do plano é inválido",
+    })
+    .min(1, "ID do plano é obrigatório"),
 });
 
 const animation = {
@@ -60,13 +62,24 @@ const animation = {
 
 export function RegisterForm() {
   const { setRegistered } = RegisterStore();
+
+  const searchParams = useSearchParams();
+  const planId = searchParams.get("plan");
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
+      planId: planId ?? "",
     },
   });
+
+  useEffect(() => {
+    if (planId) {
+      form.setValue("planId", planId);
+    }
+  }, [planId]);
 
   const { mutate: register, isPending } = trpc.userRouter.register.useMutation({
     onSuccess: () => {
@@ -95,31 +108,20 @@ export function RegisterForm() {
       variants={animation}
       className="w-full flex flex-col items-center gap-6"
     >
-      <h2 className="text-3xl font-bold text-center text-slate-800">
-        Faça o seu cadastro
-      </h2>
+      <h2 className="text-3xl font-bold text-center text-slate-800">Faça o seu cadastro</h2>
 
       <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="space-y-6 w-full"
-        >
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
           <div className="space-y-4">
             <FormField
               name="name"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-600 font-bold">
-                    Nome
-                  </FormLabel>
+                  <FormLabel className="text-slate-600 font-bold">Nome</FormLabel>
 
                   <FormControl>
-                    <Input
-                      placeholder="Insira o seu nome completo"
-                      className="text-slate-800"
-                      {...field}
-                    />
+                    <Input placeholder="Insira o seu nome completo" className="text-slate-800" {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -132,16 +134,10 @@ export function RegisterForm() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-600 font-bold">
-                    E-mail
-                  </FormLabel>
+                  <FormLabel className="text-slate-600 font-bold">E-mail</FormLabel>
 
                   <FormControl>
-                    <Input
-                      placeholder="Insira o seu e-mail"
-                      className="text-slate-800"
-                      {...field}
-                    />
+                    <Input placeholder="Insira o seu e-mail" className="text-slate-800" {...field} />
                   </FormControl>
 
                   <FormMessage />
@@ -150,11 +146,7 @@ export function RegisterForm() {
             />
           </div>
 
-          <Button
-            type="submit"
-            size="xl"
-            className="w-full flex items-center gap-2"
-          >
+          <Button type="submit" size="xl" className="w-full flex items-center gap-2">
             Cadastrar
             {isPending ? <Loader2 className="animate-spin" /> : <LogIn />}
           </Button>
