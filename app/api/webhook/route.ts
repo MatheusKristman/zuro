@@ -1,3 +1,4 @@
+import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 import Stripe from "stripe";
 
@@ -19,7 +20,20 @@ export async function POST(req: Request) {
 
   try {
     switch (event.type) {
-      case "checkout.session.completed":
+      case "customer.subscription.trial_will_end":
+        // TODO: adicionar aviso pelo e-mail que o período gratuito vai acabar
+        break;
+      case "customer.subscription.deleted":
+        const subscriptionId = event.data.object.id;
+
+        await prisma.subscription.delete({
+          where: {
+            stripeSubscriptionId: subscriptionId,
+          },
+        });
+
+        break;
+      default:
         break;
     }
     console.log(event.type);

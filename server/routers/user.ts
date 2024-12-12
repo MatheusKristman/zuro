@@ -87,6 +87,12 @@ export const userRouter = router({
         });
       }
 
+      const plan = await prisma.plan.findFirst();
+
+      if (!plan) {
+        return new Response("Plano não encontrado", { status: 404 });
+      }
+
       const generatedPassword = generate({
         length: 10,
         numbers: true,
@@ -105,6 +111,11 @@ export const userRouter = router({
           name,
           email,
           password: pwHash,
+          plan: {
+            connect: {
+              id: plan.id,
+            },
+          },
         },
       });
 
@@ -118,6 +129,11 @@ export const userRouter = router({
       await prisma.subscription.create({
         data: {
           stripeSubscriptionId: checkoutResult.subscription as string,
+          plan: {
+            connect: {
+              id: plan.id,
+            },
+          },
           user: {
             connect: {
               id: createdUser.id,

@@ -179,15 +179,19 @@ model Plan {
   priceId   String
   productId String
 
-  users User[]
+  users         User[]
+  subscriptions Subscription[]
 }
 
 model Subscription {
   id                   String @id @default(auto()) @map("_id") @db.ObjectId
-  stripeSubscriptionId String
+  stripeSubscriptionId String @unique
 
   userId String @unique @db.ObjectId
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId String @db.ObjectId
+  plan   Plan   @relation(fields: [planId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 }
