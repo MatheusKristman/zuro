@@ -26,6 +26,8 @@ export async function POST() {
       cancel_url: `https://zuroagenda.com/`,
     });
 
+    console.log({ value: session });
+
     return Response.json({ url: session.url! });
   } catch (error) {
     console.log(`[ERROR_CREATE_CHECKOUT_SESSION]: ${error}`);

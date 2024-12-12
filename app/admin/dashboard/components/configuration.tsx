@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Coupon } from "./configuration/coupon";
 import { ChangeEmail } from "./configuration/change-email";
+import { ConfirmationPassword } from "./configuration/confirmation-password";
 import { ChangeColor } from "./configuration/change-color";
 
 export function Configuration() {
@@ -16,7 +17,7 @@ export function Configuration() {
         onValueChange={setTabSelected}
         className="w-full"
       >
-        <TabsList className="h-auto grid w-full grid-cols-1 gap-1 sm:grid-cols-3 bg-skin-primary/20 rounded-xl">
+        <TabsList className="h-auto grid w-full grid-cols-1 gap-1 lg:grid-cols-4 bg-skin-primary/20 rounded-xl">
           <TabsTrigger
             value="coupon"
             className="rounded-lg flex flex-col items-center gap-2 transition-none font-bold text-base text-skin-primary data-[state=active]:text-white sm:transition-all sm:flex-row"
@@ -29,6 +30,13 @@ export function Configuration() {
             className="rounded-lg flex flex-col items-center gap-2 transition-none font-bold text-base text-skin-primary data-[state=active]:text-white sm:transition-all sm:flex-row"
           >
             Alterar E-mail
+          </TabsTrigger>
+
+          <TabsTrigger
+            value="confirmation-password"
+            className="rounded-lg flex flex-col items-center gap-2 transition-none font-bold text-base text-skin-primary data-[state=active]:text-white sm:transition-all sm:flex-row"
+          >
+            Senha de confirmação
           </TabsTrigger>
 
           <TabsTrigger
@@ -45,6 +53,10 @@ export function Configuration() {
 
         <TabsContent value="email">
           <ChangeEmail />
+        </TabsContent>
+
+        <TabsContent value="confirmation-password">
+          <ConfirmationPassword />
         </TabsContent>
 
         <TabsContent value="color">

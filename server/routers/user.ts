@@ -8,6 +8,7 @@ import { ScheduleStatus } from "@prisma/client";
 
 import { isUserAuthedProcedure, publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
+import { stripe } from "@/lib/stripe";
 
 export const userRouter = router({
   getUser: isUserAuthedProcedure.query(async (opts) => {
@@ -794,4 +795,52 @@ export const userRouter = router({
         message: "",
       };
     }),
+  getPlanDetails: isUserAuthedProcedure.query(async (opts) => {
+    const { email } = opts.ctx.user.user;
+
+    if (!email) {
+      return {
+        error: true,
+        message: "Usuário não encontrado",
+        plan: null,
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+      include: {
+        plan: true,
+      },
+    });
+
+    if (!user) {
+      return {
+        error: true,
+        message: "Usuário não encontrado",
+        plan: null,
+      };
+    }
+
+    if (!user.plan) {
+      return {
+        error: true,
+        message: "Plano não encontrado",
+        plan: null,
+      };
+    }
+
+    const plan = await stripe.products.retrieve(user.plan.productId);
+    const price = await stripe.prices.retrieve(user.plan.priceId);
+
+    return {
+      error: false,
+      message: "",
+      plan: {
+        name: plan.name,
+        price: price.unit_amount as number,
+      },
+    };
+  }),
 });
