@@ -29,12 +29,12 @@ const formSchema = z.object({
     })
     .min(1, "E-mail é obrigatório")
     .email("E-mail inválido"),
-  planId: z
+  checkoutId: z
     .string({
-      required_error: "ID do plano é obrigatório",
-      invalid_type_error: "O valor enviado para o ID do plano é inválido",
+      required_error: "ID do checkout é obrigatório",
+      invalid_type_error: "O valor enviado para o ID do checkout é inválido",
     })
-    .min(1, "ID do plano é obrigatório"),
+    .min(1, "ID do checkout é obrigatório"),
 });
 
 const animation = {
@@ -64,22 +64,22 @@ function RegisterFormComponent() {
   const { setRegistered } = RegisterStore();
 
   const searchParams = useSearchParams();
-  const planId = searchParams.get("plan");
+  const checkoutId = searchParams.get("checkout");
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       email: "",
-      planId: planId ?? "",
+      checkoutId: checkoutId ?? "",
     },
   });
 
   useEffect(() => {
-    if (planId) {
-      form.setValue("planId", planId);
+    if (checkoutId) {
+      form.setValue("checkoutId", checkoutId);
     }
-  }, [planId]);
+  }, [checkoutId]);
 
   const { mutate: register, isPending } = trpc.userRouter.register.useMutation({
     onSuccess: () => {

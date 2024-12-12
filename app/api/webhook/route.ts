@@ -18,6 +18,10 @@ export async function POST(req: Request) {
   }
 
   try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        break;
+    }
     console.log(event.type);
   } catch (error) {
     console.log(`[ERROR_WEBHOOK_HANDLER]: ${error}`);

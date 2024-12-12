@@ -62,17 +62,17 @@ export const userRouter = router({
           })
           .min(1, "E-mail é obrigatório")
           .email("E-mail inválido"),
-        planId: z
+        checkoutId: z
           .string({
-            required_error: "ID do plano é obrigatório",
-            invalid_type_error: "O valor enviado para o ID do plano é inválido",
+            required_error: "ID do checkout é obrigatório",
+            invalid_type_error: "O valor enviado para o ID do checkout é inválido",
           })
-          .min(1, "ID do plano é obrigatório"),
+          .min(1, "ID do checkout é obrigatório"),
       })
     )
     .mutation(async (opts) => {
       const { input } = opts;
-      const { email, name, planId } = input;
+      const { email, name, checkoutId } = input;
 
       const accountExists = await prisma.user.findUnique({
         where: {
@@ -98,18 +98,17 @@ export const userRouter = router({
       // TODO: enviar no e-mail a senha para o usuário
       console.log({ generatedPassword });
 
-      await prisma.user.create({
-        data: {
-          name,
-          email,
-          password: pwHash,
-          plan: {
-            connect: {
-              id: planId,
-            },
-          },
-        },
-      });
+      const checkoutResult = await stripe.checkout.sessions.retrieve(checkoutId);
+
+      console.log(checkoutResult);
+
+      // await prisma.user.create({
+      //   data: {
+      //     name,
+      //     email,
+      //     password: pwHash,
+      //   },
+      // });
 
       return { message: "Cadastro realizado com sucesso!" };
     }),
