@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function PlanPage() {
   const { data, isPending } = trpc.userRouter.getPlanDetails.useQuery();
@@ -28,7 +29,7 @@ export default function PlanPage() {
         router.replace("/dashboard/conta");
       }
     }
-  }, []);
+  }, [data]);
 
   if (isPending) {
     return (
@@ -37,39 +38,20 @@ export default function PlanPage() {
           <h2 className="text-3xl font-bold text-center text-white mt-10">Informações do plano</h2>
 
           <div className="w-full mt-10 mb-10 p-6 bg-white rounded-3xl flex flex-col gap-12">
-            <div className="w-full flex flex-col items-center gap-4">
-              <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
-                <span className="text-lg text-white font-semibold text-center">teste</span>
+            <div className="w-full flex flex-col items-center gap-4 md:flex-row">
+              <Skeleton className="h-24 rounded-2xl w-full" />
 
-                <span className="text-xl text-white font-bold text-center">{formatPrice(1200)}</span>
-              </div>
+              <Skeleton className="h-24 rounded-2xl w-full" />
 
-              <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
-                <span className="text-lg text-white font-semibold text-center">Lucro Mensal</span>
-
-                <span className="text-xl text-white font-bold text-center">{formatPrice(1000)}</span>
-              </div>
-
-              <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
-                <span className="text-lg text-white font-semibold text-center">Tempo Economizado em Média Mensal</span>
-
-                <span className="text-xl text-white font-bold text-center">1200 Hrs</span>
-              </div>
+              <Skeleton className="h-24 rounded-2xl w-full" />
             </div>
 
-            <div className="w-full flex flex-col items-center gap-4">
-              <Button size="xl" variant="outline" className="w-full" asChild>
-                <Link href="/dashboard/conta">Voltar</Link>
-              </Button>
+            <div className="w-full flex flex-col items-center gap-4 md:grid md:grid-cols-2">
+              <Skeleton className="w-full h-12 rounded-xl" />
 
-              {/* TODO: adicionar link do whatsapp para suporte */}
-              <Button size="xl" className="w-full">
-                Suporte
-              </Button>
+              <Skeleton className="w-full h-12 rounded-xl" />
 
-              <Button size="xl" variant="destructive" className="w-full">
-                Cancelar plano
-              </Button>
+              <Skeleton className="w-full h-12 rounded-xl md:col-span-2" />
             </div>
 
             <div className="w-full flex flex-col gap-4">
@@ -113,7 +95,7 @@ export default function PlanPage() {
         <h2 className="text-3xl font-bold text-center text-white mt-10">Informações do plano</h2>
 
         <div className="w-full mt-10 mb-10 p-6 bg-white rounded-3xl flex flex-col gap-12">
-          <div className="w-full flex flex-col items-center gap-4">
+          <div className="w-full flex flex-col items-center gap-4 md:flex-row">
             <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
               <span className="text-lg text-white font-semibold text-center">{data.plan.name}</span>
 
@@ -121,28 +103,29 @@ export default function PlanPage() {
             </div>
 
             <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
-              <span className="text-lg text-white font-semibold text-center">Lucro Mensal</span>
+              <span className="text-lg text-white font-semibold text-center">Data de contratação</span>
 
-              <span className="text-xl text-white font-bold text-center">{formatPrice(1000)}</span>
+              <span className="text-xl text-white font-bold text-center">{data.plan.hiredDate}</span>
             </div>
 
             <div className="w-full bg-skin-primary p-4 rounded-2xl flex flex-col gap-1">
-              <span className="text-lg text-white font-semibold text-center">Tempo Economizado em Média Mensal</span>
+              <span className="text-lg text-white font-semibold text-center">Proximo pagamento</span>
 
-              <span className="text-xl text-white font-bold text-center">1200 Hrs</span>
+              <span className="text-xl text-white font-bold text-center">{data.plan.nextPayment}</span>
             </div>
           </div>
 
-          <div className="w-full flex flex-col items-center gap-4">
+          <div className="w-full flex flex-col items-center gap-4 md:grid md:grid-cols-2">
             <Button size="xl" variant="outline" className="w-full" asChild>
               <Link href="/dashboard/conta">Voltar</Link>
             </Button>
 
             {/* TODO: adicionar link do whatsapp para suporte */}
-            <Button size="xl" className="w-full">
+            <Button size="xl" className="w-full md:order-3 md:col-span-2">
               Suporte
             </Button>
 
+            {/* TODO: confirmar se ira deletar a conta */}
             <Button size="xl" variant="destructive" className="w-full">
               Cancelar plano
             </Button>

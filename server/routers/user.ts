@@ -842,7 +842,11 @@ export const userRouter = router({
         email,
       },
       include: {
-        plan: true,
+        subscription: {
+          include: {
+            plan: true,
+          },
+        },
       },
     });
 
@@ -854,16 +858,19 @@ export const userRouter = router({
       };
     }
 
-    if (!user.plan) {
+    if (!user.subscription) {
       return {
         error: true,
-        message: "Plano não encontrado",
+        message: "Assinatura não encontrada",
         plan: null,
       };
     }
 
-    const plan = await stripe.products.retrieve(user.plan.productId);
-    const price = await stripe.prices.retrieve(user.plan.priceId);
+    const plan = await stripe.products.retrieve(user.subscription.plan.productId);
+    const price = await stripe.prices.retrieve(user.subscription.plan.priceId);
+    const subscription = await stripe.subscriptions.retrieve(user.subscription.stripeSubscriptionId);
+    const hiredDate = format(new Date(user.subscription.createdAt), "dd/MM/yyyy");
+    const nextPayment = format(new Date(subscription.current_period_end * 1000), "dd/MM/yyyy");
 
     return {
       error: false,
@@ -871,6 +878,8 @@ export const userRouter = router({
       plan: {
         name: plan.name,
         price: price.unit_amount as number,
+        hiredDate,
+        nextPayment,
       },
     };
   }),
