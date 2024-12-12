@@ -22,7 +22,7 @@ export async function POST() {
       subscription_data: {
         trial_period_days: 30,
       },
-      success_url: `http://localhost:3000/cadastro?plan=${plan.id}`,
+      success_url: `https://zuro.vercel.app/cadastro?plan=${plan.id}`,
       cancel_url: `https://zuroagenda.com/`,
     });
 
