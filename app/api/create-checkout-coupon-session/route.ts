@@ -23,7 +23,9 @@ export async function POST() {
         trial_period_days: 30,
       },
       allow_promotion_codes: true,
-      success_url: `https://zuro.vercel.app/cadastro?checkout={CHECKOUT_SESSION_ID}`,
+      success_url: `${
+        process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://zuro.vercel.app"
+      }/cadastro?checkout={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://zuroagenda.com/`,
     });
 

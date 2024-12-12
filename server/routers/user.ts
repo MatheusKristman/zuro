@@ -100,15 +100,31 @@ export const userRouter = router({
 
       const checkoutResult = await stripe.checkout.sessions.retrieve(checkoutId);
 
-      console.log(checkoutResult);
+      const createdUser = await prisma.user.create({
+        data: {
+          name,
+          email,
+          password: pwHash,
+        },
+      });
 
-      // await prisma.user.create({
-      //   data: {
-      //     name,
-      //     email,
-      //     password: pwHash,
-      //   },
-      // });
+      if (!checkoutResult.subscription) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "ID da assinatura não encontrado",
+        });
+      }
+
+      await prisma.subscription.create({
+        data: {
+          stripeSubscriptionId: checkoutResult.subscription as string,
+          user: {
+            connect: {
+              id: createdUser.id,
+            },
+          },
+        },
+      });
 
       return { message: "Cadastro realizado com sucesso!" };
     }),

@@ -73,6 +73,8 @@ model User {
   planId String? @db.ObjectId
   plan   Plan?   @relation(fields: [planId], references: [id])
 
+  subscription Subscription?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -178,4 +180,14 @@ model Plan {
   productId String
 
   users User[]
+}
+
+model Subscription {
+  id                   String @id @default(auto()) @map("_id") @db.ObjectId
+  stripeSubscriptionId String
+
+  userId String @unique @db.ObjectId
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
 }
