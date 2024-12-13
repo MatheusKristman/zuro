@@ -1027,4 +1027,71 @@ export const userRouter = router({
 
       return { error: false, message: "Plano reativado com sucesso" };
     }),
+  getVacationMode: isUserAuthedProcedure.query(async (opts) => {
+    const { email } = opts.ctx.user.user;
+
+    if (!email) {
+      return {
+        error: true,
+        message: "Usuário não encontrado",
+        vacationMode: null,
+      };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) {
+      return {
+        error: true,
+        message: "Usuário não encontrado",
+        vacationMode: null,
+      };
+    }
+
+    return {
+      error: false,
+      message: "",
+      vacationMode: user.vacationMode,
+    };
+  }),
+  handleVacationMode: isUserAuthedProcedure
+    .input(
+      z.object({
+        vacationMode: z.boolean({
+          invalid_type_error: "Valor inválido",
+          required_error: "Valor do modo férias é obrigatório",
+          message: "Valor inválido",
+        }),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { vacationMode } = opts.input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+          vacationMode: null,
+        };
+      }
+
+      await prisma.user.update({
+        where: {
+          email,
+        },
+        data: {
+          vacationMode,
+        },
+      });
+
+      return {
+        error: false,
+        message: `Modo férias ${vacationMode ? "ativado" : "desativado"} com sucesso`,
+      };
+    }),
 });

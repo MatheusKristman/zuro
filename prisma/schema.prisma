@@ -63,6 +63,7 @@ model User {
   pixKey                 String?
   dayOff                 DayOff[]
   confirmationPassword   String?
+  vacationMode           Boolean            @default(false)
 
   accounts     Account[]
   sessions     Session[]

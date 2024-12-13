@@ -8,7 +8,12 @@ import { ScheduleHome } from "./components/schedule-home";
 import { ServiceDaySchedule } from "./components/service-day-schedule";
 import { ClientInformationForm } from "./components/client-information-form";
 import { ServicePayment } from "./components/service-payment";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +27,10 @@ const clientInformationFormSchema = z.object({
     .string()
     .min(1, "Nome é obrigatório")
     .min(6, "Nome precisa ter no mínimo 6 caracteres")
-    .regex(/^[A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)+$/, "Nome inválido, insira o sobrenome"),
+    .regex(
+      /^[A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)+$/,
+      "Nome inválido, insira o sobrenome",
+    ),
   email: z.string().email("E-mail inválido"),
   tel: z.string().min(14, "Telefone inválido"),
 });
@@ -33,7 +41,18 @@ function ScheduleServiceComponent() {
   const searchParams = useSearchParams();
   const step = searchParams.get("step");
 
-  const { date, service, time, fullName, email, tel, setIsConclude, setError, error, resetError } = ScheduleStore();
+  const {
+    date,
+    service,
+    time,
+    fullName,
+    email,
+    tel,
+    setIsConclude,
+    setError,
+    error,
+    resetError,
+  } = ScheduleStore();
 
   const { data, isPending } = trpc.scheduleRouter.getSelectedUser.useQuery({
     userId: params.userId,
@@ -61,7 +80,11 @@ function ScheduleServiceComponent() {
         timeErrorMessage = "Selecione um horário para agendar";
       }
 
-      if (dateErrorMessage !== "" || serviceErrorMessage !== "" || timeErrorMessage !== "") {
+      if (
+        dateErrorMessage !== "" ||
+        serviceErrorMessage !== "" ||
+        timeErrorMessage !== ""
+      ) {
         setError({
           ...error,
           date: dateErrorMessage,
@@ -113,23 +136,39 @@ function ScheduleServiceComponent() {
 
   return (
     <main className="w-full min-h-screen flex flex-col items-center justify-center gap-10 bg-skin-background py-12 px-6">
-      <div className={cn("flex flex-col items-center gap-2", step === "4" && "hidden")}>
-        <h1 className="text-3xl font-bold text-center text-white">Agendamento</h1>
+      <div
+        className={cn(
+          "flex flex-col items-center gap-2",
+          step === "4" && "hidden",
+        )}
+      >
+        <h1 className="text-3xl font-bold text-center text-white">
+          Agendamento
+        </h1>
 
         <div className="w-full flex items-center justify-between gap-2 max-w-[250px]">
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger disabled={false}>
                 <div
-                  className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
-                    "border-white": data && data.user.firstConfigurationStep >= 0,
-                  })}
+                  className={cn(
+                    "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
+                    {
+                      "border-white":
+                        data && data.user.firstConfigurationStep >= 0,
+                    },
+                  )}
                 >
-                  {step === "0" && <div className="bg-white size-4 rounded-full" />}
+                  {step === "0" && (
+                    <div className="bg-white size-4 rounded-full" />
+                  )}
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
+              <TooltipContent
+                side="bottom"
+                className="text-skin-primary text-lg font-semibold rounded-xl"
+              >
                 Selecione o dia e o serviço
               </TooltipContent>
             </Tooltip>
@@ -137,15 +176,24 @@ function ScheduleServiceComponent() {
             <Tooltip>
               <TooltipTrigger disabled={false}>
                 <div
-                  className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
-                    "border-white": data && data.user.firstConfigurationStep >= 1,
-                  })}
+                  className={cn(
+                    "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
+                    {
+                      "border-white":
+                        data && data.user.firstConfigurationStep >= 1,
+                    },
+                  )}
                 >
-                  {step === "1" && <div className="bg-white size-4 rounded-full" />}
+                  {step === "1" && (
+                    <div className="bg-white size-4 rounded-full" />
+                  )}
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
+              <TooltipContent
+                side="bottom"
+                className="text-skin-primary text-lg font-semibold rounded-xl"
+              >
                 Preencha os dados
               </TooltipContent>
             </Tooltip>
@@ -153,15 +201,24 @@ function ScheduleServiceComponent() {
             <Tooltip>
               <TooltipTrigger disabled={false}>
                 <div
-                  className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
-                    "border-white": data && data.user.firstConfigurationStep >= 2,
-                  })}
+                  className={cn(
+                    "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
+                    {
+                      "border-white":
+                        data && data.user.firstConfigurationStep >= 2,
+                    },
+                  )}
                 >
-                  {step === "2" && <div className="bg-white size-4 rounded-full" />}
+                  {step === "2" && (
+                    <div className="bg-white size-4 rounded-full" />
+                  )}
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
+              <TooltipContent
+                side="bottom"
+                className="text-skin-primary text-lg font-semibold rounded-xl"
+              >
                 Resumo
               </TooltipContent>
             </Tooltip>
@@ -169,15 +226,24 @@ function ScheduleServiceComponent() {
             <Tooltip>
               <TooltipTrigger disabled={false}>
                 <div
-                  className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
-                    "border-white": data && data.user.firstConfigurationStep >= 3,
-                  })}
+                  className={cn(
+                    "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
+                    {
+                      "border-white":
+                        data && data.user.firstConfigurationStep >= 3,
+                    },
+                  )}
                 >
-                  {step === "3" && <div className="bg-white size-4 rounded-full" />}
+                  {step === "3" && (
+                    <div className="bg-white size-4 rounded-full" />
+                  )}
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
+              <TooltipContent
+                side="bottom"
+                className="text-skin-primary text-lg font-semibold rounded-xl"
+              >
                 Pagamento do serviço
               </TooltipContent>
             </Tooltip>
@@ -185,15 +251,24 @@ function ScheduleServiceComponent() {
             <Tooltip>
               <TooltipTrigger disabled={false}>
                 <div
-                  className={cn("size-6 rounded-full border-2 border-white/50 flex items-center justify-center", {
-                    "border-white": data && data.user.firstConfigurationStep >= 3,
-                  })}
+                  className={cn(
+                    "size-6 rounded-full border-2 border-white/50 flex items-center justify-center",
+                    {
+                      "border-white":
+                        data && data.user.firstConfigurationStep >= 3,
+                    },
+                  )}
                 >
-                  {step === "4" && <div className="bg-white size-4 rounded-full" />}
+                  {step === "4" && (
+                    <div className="bg-white size-4 rounded-full" />
+                  )}
                 </div>
               </TooltipTrigger>
 
-              <TooltipContent side="bottom" className="text-skin-primary text-lg font-semibold rounded-xl">
+              <TooltipContent
+                side="bottom"
+                className="text-skin-primary text-lg font-semibold rounded-xl"
+              >
                 Concluído
               </TooltipContent>
             </Tooltip>
@@ -207,6 +282,7 @@ function ScheduleServiceComponent() {
           hasImage={data && data.user.image !== null}
           imageSrc={data?.user.image ?? ""}
           userName={data?.user.name}
+          vacationMode={data?.user.vacationMode}
           isLoading={isPending}
         />
       )}
@@ -220,10 +296,20 @@ function ScheduleServiceComponent() {
           pixCode={data?.user.pixKey}
         />
       )}
-      {step === "4" && <ScheduleFinished professionalName={data?.user.name} services={data?.user.services} />}
+      {step === "4" && (
+        <ScheduleFinished
+          professionalName={data?.user.name}
+          services={data?.user.services}
+        />
+      )}
 
       {!!step && (
-        <div className={cn("w-full max-w-4xl flex justify-between mt-12", step === "4" && "hidden")}>
+        <div
+          className={cn(
+            "w-full max-w-4xl flex justify-between mt-12",
+            step === "4" && "hidden",
+          )}
+        >
           <Button
             variant="secondary"
             size="xl"
