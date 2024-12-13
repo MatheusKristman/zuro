@@ -36,7 +36,6 @@ export async function POST(req: Request) {
       default:
         break;
     }
-    console.log(event.type);
   } catch (error) {
     console.log(`[ERROR_WEBHOOK_HANDLER]: ${error}`);
 

@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
 
-// Plano 127,90
+// TODO: ajustar urls para a url de produção
 
 export async function POST() {
   try {
@@ -24,7 +24,9 @@ export async function POST() {
       },
       allow_promotion_codes: true,
       success_url: `${
-        process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://zuro.vercel.app"
+        process.env.NODE_ENV === "development"
+          ? "http://localhost:3000"
+          : "https://zuro.vercel.app"
       }/cadastro?checkout={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://zuroagenda.com/`,
     });

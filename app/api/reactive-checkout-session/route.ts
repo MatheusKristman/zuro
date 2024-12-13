@@ -26,13 +26,13 @@ export async function POST() {
         process.env.NODE_ENV === "development"
           ? "http://localhost:3000"
           : "https://zuro.vercel.app"
-      }/cadastro?checkout={CHECKOUT_SESSION_ID}`,
+      }/dashboard/conta/plano?checkout={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://zuroagenda.com/`,
     });
 
     console.log({ value: session });
 
-    return Response.json({ url: session.url! });
+    return Response.redirect(session.url as string);
   } catch (error) {
     console.log(`[ERROR_CREATE_CHECKOUT_SESSION]: ${error}`);
 
