@@ -188,7 +188,7 @@ export const userRouter = router({
     .input(
       z
         .object({
-          paymentPreference: z.enum(["", "before_after", "before", "after"], {
+          paymentPreference: z.enum(["", "before_after", "before", "after", "no_payment"], {
             message: "Dados inválidos",
           }),
           pixKey: z.string(),

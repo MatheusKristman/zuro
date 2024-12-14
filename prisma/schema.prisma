@@ -22,6 +22,7 @@ enum PaymentPreference {
   before_after
   before
   after
+  no_payment
 }
 
 enum DayOff {

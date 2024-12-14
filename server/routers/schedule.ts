@@ -90,7 +90,7 @@ export const scheduleRouter = router({
         email: z.string().min(1, "E-mail é obrigatório"),
         tel: z.string().min(1, "Telefone é obrigatório"),
         message: z.string(),
-        paymentMethod: z.enum(["before", "after"], {
+        paymentMethod: z.enum(["before", "after", "no_payment"], {
           message: "Método de pagamento inválido",
         }),
         receiptUrl: z.string(),
