@@ -3,19 +3,19 @@ import { useEffect, useState } from "react";
 import { Copy, FileCheck2, Loader2, Upload } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 import { PaymentPreference } from "@prisma/client";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
+import { useDropzone } from "@uploadthing/react";
+import { generateClientDropzoneAccept } from "uploadthing/client";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
-import { useUploadThing } from "@/lib/uploadthing";
-import { useDropzone } from "@uploadthing/react";
-import { generateClientDropzoneAccept } from "uploadthing/client";
-import { ScheduleStore } from "@/stores/schedule-store";
-import { trpc } from "@/lib/trpc-client";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { trpc } from "@/lib/trpc-client";
+import { useUploadThing } from "@/lib/uploadthing";
+import { ScheduleStore } from "@/stores/schedule-store";
 
 interface ServicePaymentProps {
   paymentPreference: PaymentPreference | null | undefined;
@@ -104,6 +104,10 @@ export function ServicePayment({
     },
     accept: fileTypes ? generateClientDropzoneAccept(fileTypes) : undefined,
   });
+
+  useEffect(() => {
+    console.log({ paymentPreference, paymentMethod });
+  }, [paymentPreference, paymentMethod]);
 
   useEffect(() => {
     if (isConclude) {
@@ -224,112 +228,107 @@ export function ServicePayment({
         </div>
       )}
 
-      {paymentPreference === "before" ||
-        (paymentMethod === "before" && (
-          <div className="w-full flex flex-col gap-6 mt-10">
-            <div className="w-full flex flex-col gap-6 sm:flex-row">
-              <div className="w-full flex flex-col items-center gap-2">
-                <span className="text-xl font-semibold text-center">
-                  Escaneie o QR Code do Pix
-                </span>
-
-                <div className="w-full aspect-square max-w-56">
-                  <QRCodeCanvas value={pixKey} className="!w-full !h-full" />
-                </div>
-              </div>
-
-              <div className="w-full flex items-center justify-between gap-1 sm:flex-col sm:w-fit">
-                <div className="w-full h-px bg-skin-primary sm:w-px sm:h-full" />
-
-                <span className="text-skin-primary text-lg text-center">
-                  OU
-                </span>
-
-                <div className="w-full h-px bg-skin-primary sm:w-px sm:h-full" />
-              </div>
-
-              <div className="w-full flex flex-col items-center gap-4">
-                <div className="w-full flex flex-col items-center gap-2">
-                  <span className="text-xl font-semibold text-center">
-                    Copie o código Pix
-                  </span>
-
-                  <Textarea
-                    value={pixKey}
-                    disabled
-                    className="resize-none disabled:opacity-100 disabled:border-skin-primary"
-                  />
-                </div>
-
-                <Button
-                  disabled={pending}
-                  onClick={copyToClipboard}
-                  size="xl"
-                  className="w-full"
-                >
-                  <Copy />
-                  Copiar
-                </Button>
-              </div>
-            </div>
-
+      {(paymentPreference === "before" || paymentMethod === "before") && (
+        <div className="w-full flex flex-col gap-6 mt-10">
+          <div className="w-full flex flex-col gap-6 sm:flex-row">
             <div className="w-full flex flex-col items-center gap-2">
-              <span className="text-lg font-medium text-center max-w-sm">
-                Para confirmar seu agendamento, por favor, realize a
-                transferência via PIX para a chave indicada e envie o
-                comprovante abaixo.
+              <span className="text-xl font-semibold text-center">
+                Escaneie o QR Code do Pix
               </span>
 
-              <div
-                className="w-full rounded-xl border-2 border-dashed border-skin-primary/40 aspect-video flex flex-col gap-2 items-center justify-center max-w-xs"
-                {...getRootProps()}
-              >
-                <input disabled={pending} {...getInputProps()} />
-                {receipt ? (
-                  <>
-                    <FileCheck2 size={30} className="text-skin-primary" />
+              <div className="w-full aspect-square max-w-56">
+                <QRCodeCanvas value={pixKey} className="!w-full !h-full" />
+              </div>
+            </div>
 
-                    <span className="text-sm text-skin-primary text-center max-w-40">
-                      {receipt[0].name}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <Upload size={30} className="text-skin-primary" />
+            <div className="w-full flex items-center justify-between gap-1 sm:flex-col sm:w-fit">
+              <div className="w-full h-px bg-skin-primary sm:w-px sm:h-full" />
 
-                    <span className="text-sm text-skin-primary text-center max-w-40">
-                      Arraste ou clique para enviar o arquivo
-                    </span>
-                  </>
-                )}
+              <span className="text-skin-primary text-lg text-center">OU</span>
+
+              <div className="w-full h-px bg-skin-primary sm:w-px sm:h-full" />
+            </div>
+
+            <div className="w-full flex flex-col items-center gap-4">
+              <div className="w-full flex flex-col items-center gap-2">
+                <span className="text-xl font-semibold text-center">
+                  Copie o código Pix
+                </span>
+
+                <Textarea
+                  value={pixKey}
+                  disabled
+                  className="resize-none disabled:opacity-100 disabled:border-skin-primary"
+                />
               </div>
 
-              {receipt && (
-                <Button
-                  disabled={pending}
-                  variant="destructive"
-                  size="xl"
-                  onClick={handleCancelFile}
-                  className="w-full max-w-xs"
-                >
-                  Deletar arquivo
-                </Button>
-              )}
+              <Button
+                disabled={pending}
+                onClick={copyToClipboard}
+                size="xl"
+                className="w-full"
+              >
+                <Copy />
+                Copiar
+              </Button>
             </div>
           </div>
-        ))}
 
-      {paymentPreference === "after" ||
-        (paymentMethod === "after" && (
-          <div className="w-full mt-10 p-4 bg-black/10 rounded-xl">
-            <p className="block font-medium text-center">
-              Após realizar o agendamento, não se esqueça de efetuar o pagamento{" "}
-              <strong>diretamente com o profissional</strong>. Isso garante a
-              confirmação e a realização do serviço com toda a segurança e
-              qualidade que você merece!
-            </p>
+          <div className="w-full flex flex-col items-center gap-2">
+            <span className="text-lg font-medium text-center max-w-sm">
+              Para confirmar seu agendamento, por favor, realize a transferência
+              via PIX para a chave indicada e envie o comprovante abaixo.
+            </span>
+
+            <div
+              className="w-full rounded-xl border-2 border-dashed border-skin-primary/40 aspect-video flex flex-col gap-2 items-center justify-center max-w-xs"
+              {...getRootProps()}
+            >
+              <input disabled={pending} {...getInputProps()} />
+              {receipt ? (
+                <>
+                  <FileCheck2 size={30} className="text-skin-primary" />
+
+                  <span className="text-sm text-skin-primary text-center max-w-40">
+                    {receipt[0].name}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Upload size={30} className="text-skin-primary" />
+
+                  <span className="text-sm text-skin-primary text-center max-w-40">
+                    Arraste ou clique para enviar o arquivo
+                  </span>
+                </>
+              )}
+            </div>
+
+            {receipt && (
+              <Button
+                disabled={pending}
+                variant="destructive"
+                size="xl"
+                onClick={handleCancelFile}
+                className="w-full max-w-xs"
+              >
+                Deletar arquivo
+              </Button>
+            )}
           </div>
-        ))}
+        </div>
+      )}
+
+      {(paymentPreference === "after" || paymentMethod === "after") && (
+        <div className="w-full mt-10 p-4 bg-black/10 rounded-xl">
+          <p className="block font-medium text-center">
+            Após realizar o agendamento, não se esqueça de efetuar o pagamento{" "}
+            <strong>diretamente com o profissional</strong>. Isso garante a
+            confirmação e a realização do serviço com toda a segurança e
+            qualidade que você merece!
+          </p>
+        </div>
+      )}
     </div>
   );
 }

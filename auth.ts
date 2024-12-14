@@ -45,8 +45,6 @@ export const {
   ],
   callbacks: {
     async session({ session, token }) {
-      console.log({ token, session });
-
       session.user.role = token.role;
 
       return session;

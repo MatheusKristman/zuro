@@ -4,19 +4,29 @@ import { Role } from "@prisma/client";
 import { JWT } from "next-auth/jwt";
 
 declare module "next-auth" {
+  interface Account {
+    id?: string;
+  }
+
   interface Session {
     user: {
       role: Role;
+      googleId?: string | null;
+      accessToken?: string | null;
     } & DefaultSession["user"];
   }
 
   interface User extends DefaultUser {
     role: Role;
+    googleId?: string | null;
+    accessToken?: string | null;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     role: Role;
+    googleId?: string | null;
+    accessToken?: string | null;
   }
 }

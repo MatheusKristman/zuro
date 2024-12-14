@@ -64,6 +64,7 @@ model User {
   dayOff                 DayOff[]
   confirmationPassword   String?
   vacationMode           Boolean            @default(false)
+  googleRefreshToken     String?
 
   accounts     Account[]
   sessions     Session[]
@@ -86,8 +87,8 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.ObjectId
-  access_token      String? @db.ObjectId
+  refresh_token     String? @db.String
+  access_token      String? @db.String
   expires_at        Int?
   token_type        String?
   scope             String?
@@ -153,6 +154,7 @@ model Schedule {
   paymentMethod PaymentPreference
   receiptUrl    String?
   status        ScheduleStatus    @default(confirmed)
+  googleEventId String?
 
   serviceId String  @db.ObjectId
   service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
