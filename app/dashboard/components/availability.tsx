@@ -269,7 +269,7 @@ export function Availability({ isPending }: AvailabilityProps) {
           options={dayOffOptions}
           classNames={{
             control: () =>
-              "!flex !h-12 !w-full !items-center !justify-between !rounded-xl !border !border-skin-primary/40 !bg-background !outline-none !transition focus:!border-skin-primary disabled:!cursor-not-allowed disabled:!opacity-50",
+              "!flex !py-[5px] !w-full !items-center !justify-between !rounded-xl !border !border-skin-primary/40 !bg-background !outline-none !transition focus:!border-skin-primary disabled:!cursor-not-allowed disabled:!opacity-50",
             multiValue: () => "!bg-skin-primary !text-white",
             multiValueLabel: () => "!text-white",
           }}
