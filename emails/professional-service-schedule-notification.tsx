@@ -18,16 +18,34 @@ const imageUrl =
     : "/static/logo.svg";
 
 interface Props {
+  service: string;
+  date: string;
   name: string;
+  clientName: string;
+  clientContact: string;
+  time: string;
+  message: string | null;
   url: string;
 }
 
-export default function RecoverPasswordEmail({ name, url }: Props) {
+export default function ProfessionalServiceSchedulesNotification({
+  service,
+  date,
+  name,
+  clientName,
+  clientContact,
+  time,
+  message,
+  url,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
 
-      <Preview>Redefina sua senha no Zuro</Preview>
+      <Preview>
+        Serviço {service ?? "Serviço teste"} agendado para o dia{" "}
+        {date ?? "01/01/2025"}
+      </Preview>
 
       <Body style={main}>
         <Container style={container}>
@@ -35,23 +53,63 @@ export default function RecoverPasswordEmail({ name, url }: Props) {
 
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
+          <Text style={subtitle}>Esperamos que esteja tudo bem com você.</Text>
+
           <Text style={subtitle}>
-            Recebemos uma solicitação para redefinir a senha da sua conta no
-            Zuro. Clique no botão abaixo para criar uma nova senha:
+            Gostaríamos de informar que você recebeu um novo agendamento de um
+            cliente através de nossa plataforma. Abaixo estão os detalhes do
+            agendamento:
           </Text>
 
-          <Section style={buttonContainer}>
-            <Button href={url} style={button}>
-              Recuperar minha senha
-            </Button>
-          </Section>
+          <ul>
+            <li>
+              <Text style={paragraph}>
+                <strong>Nome do Cliente</strong>: {clientName ?? "Nome teste"}
+              </Text>
+            </li>
 
-          <Hr style={hrLine} />
+            <li>
+              <Text style={paragraph}>
+                <strong>Contato do Cliente</strong>:{" "}
+                {clientContact ?? "(11) 91004-1998"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Serviço solicitado</strong>:{" "}
+                {service ?? "Serviço teste"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Data e Hora</strong>: {date ?? "01/01/2025"} às{" "}
+                {time ?? "10:00"}
+              </Text>
+            </li>
+
+            {message && (
+              <li>
+                <Text style={paragraph}>
+                  <strong>Mensagem</strong>: {message}
+                </Text>
+              </li>
+            )}
+          </ul>
 
           <Text style={paragraph}>
             Se você não solicitou essa alteração, por favor, ignore este e-mail.
             O link de redefinição é válido por 1 hora.
           </Text>
+
+          <Section style={buttonContainer}>
+            <Button href={url} style={button}>
+              Acessar a plataforma
+            </Button>
+          </Section>
+
+          <Hr style={hrLine} />
 
           <Text style={linkParagraph}>
             Contato:{" "}

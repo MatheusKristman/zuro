@@ -1,6 +1,11 @@
 import { z } from "zod";
 import { google } from "googleapis";
-import { addMinutes, setHours, setMinutes } from "date-fns";
+import { addMinutes, format, setHours, setMinutes } from "date-fns";
+import nodemailer from "nodemailer";
+import { render } from "@react-email/components";
+
+import ProfessionalServiceSchedulesNotification from "@/emails/professional-service-schedule-notification";
+import ClientServiceScheduleNotification from "@/emails/client-service-schedule-notification";
 
 import { publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
@@ -11,7 +16,7 @@ export const scheduleRouter = router({
     .input(
       z.object({
         userId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
     .query(async (opts) => {
       const { userId } = opts.input;
@@ -44,7 +49,7 @@ export const scheduleRouter = router({
     .input(
       z.object({
         userId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
     .query(async (opts) => {
       const { userId } = opts.input;
@@ -62,7 +67,7 @@ export const scheduleRouter = router({
       z.object({
         date: z.string().min(1, "Data obrigatória"),
         serviceId: z.string().min(1, "ID obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { date, serviceId } = opts.input;
@@ -96,10 +101,45 @@ export const scheduleRouter = router({
         receiptUrl: z.string(),
         serviceId: z.string().min(1, "ID do serviço é obrigatório"),
         userId: z.string().min(1, "ID do profissional é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
-      const { date, time, fullName, email, tel, message, paymentMethod, receiptUrl, serviceId, userId } = opts.input;
+      const {
+        date,
+        time,
+        fullName,
+        email,
+        tel,
+        message,
+        paymentMethod,
+        receiptUrl,
+        serviceId,
+        userId,
+      } = opts.input;
+      const devEmailUser = process.env.EMAIL_DEV_USER!;
+      const devEmailPass = process.env.EMAIL_DEV_PASS!;
+      const emailUser = process.env.EMAIL_USER!;
+      const emailPass = process.env.EMAIL_PASS!;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL!;
+      const devConfig = {
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: devEmailUser,
+          pass: devEmailPass,
+        },
+      };
+      const prodConfig = {
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      };
 
       const schedule = await prisma.schedule.create({
         data: {
@@ -128,15 +168,19 @@ export const scheduleRouter = router({
         },
       });
 
+      const celCheck = schedule.tel.slice(5).length === 9;
+
       if (schedule.user.googleRefreshToken) {
         // TODO: verificar redirectURL para o domínio do site
         const oauth2Client = new google.auth.OAuth2(
           process.env.GOOGLE_CLIENT_ID!,
           process.env.GOOGLE_CLIENT_SECRET!,
-          "http://localhost:3000"
+          "http://localhost:3000",
         );
 
-        oauth2Client.setCredentials({ refresh_token: schedule.user.googleRefreshToken });
+        oauth2Client.setCredentials({
+          refresh_token: schedule.user.googleRefreshToken,
+        });
 
         const calendar = google.calendar("v3");
 
@@ -150,8 +194,6 @@ export const scheduleRouter = router({
 
         let end = new Date(start);
         end = addMinutes(end, schedule.service.minutes);
-
-        const celCheck = schedule.tel.slice(5).length === 9;
 
         const event = await calendar.events.insert({
           auth: oauth2Client,
@@ -195,6 +237,61 @@ export const scheduleRouter = router({
             googleEventId: eventId,
           },
         });
+      }
+
+      const [year, month, day] = schedule.date.split("-").map(Number);
+      const formattedDate = format(
+        new Date(year, month - 1, day),
+        "dd/MM/yyyy",
+      );
+
+      const professionalEmailHtml = await render(
+        ProfessionalServiceSchedulesNotification({
+          url: `${baseUrl}/dashboard/agenda`,
+          service: schedule.service.name,
+          date: formattedDate,
+          name: schedule.user.name!,
+          clientName: schedule.fullName,
+          clientContact: `(${schedule.tel.slice(3, 5)}) ${
+            celCheck ? schedule.tel.slice(5, 10) : schedule.tel.slice(5, 9)
+          }-${celCheck ? schedule.tel.slice(10) : schedule.tel.slice(9)}`,
+          time: schedule.time,
+          message: schedule.message,
+        }),
+      );
+      const clientEmailHtml = await render(
+        ClientServiceScheduleNotification({
+          service: schedule.service.name,
+          date: formattedDate,
+          name: schedule.fullName,
+          time: schedule.time,
+          professionalName: schedule.user.name!,
+        }),
+      );
+
+      const professionalOptions = {
+        from: emailUser,
+        to: schedule.user.email!,
+        subject: `Novo agendamento recebido - Zuro`,
+        html: professionalEmailHtml,
+      };
+      const clientOptions = {
+        from: emailUser,
+        to: schedule.email,
+        subject: `Confirmação de Agendamento - ${formattedDate} às ${schedule.time} - Zuro`,
+        html: clientEmailHtml,
+      };
+
+      if (process.env.NODE_ENV === "development") {
+        const transporter = nodemailer.createTransport(devConfig);
+
+        await transporter.sendMail(professionalOptions);
+        await transporter.sendMail(clientOptions);
+      } else {
+        const transporter = nodemailer.createTransport(prodConfig);
+
+        await transporter.sendMail(professionalOptions);
+        await transporter.sendMail(clientOptions);
       }
 
       return {};

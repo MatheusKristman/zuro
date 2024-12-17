@@ -32,7 +32,7 @@ const clientInformationFormSchema = z.object({
       "Nome inválido, insira o sobrenome",
     ),
   email: z.string().email("E-mail inválido"),
-  tel: z.string().min(14, "Telefone inválido"),
+  tel: z.string().min(13, "Telefone inválido"),
 });
 
 function ScheduleServiceComponent() {

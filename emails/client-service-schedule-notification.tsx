@@ -7,8 +7,6 @@ import {
   Img,
   Text,
   Hr,
-  Section,
-  Button,
   Link,
 } from "@react-email/components";
 
@@ -18,16 +16,28 @@ const imageUrl =
     : "/static/logo.svg";
 
 interface Props {
+  service: string;
+  date: string;
   name: string;
-  url: string;
+  time: string;
+  professionalName: string;
 }
 
-export default function RecoverPasswordEmail({ name, url }: Props) {
+export default function ClientServiceScheduleNotification({
+  service,
+  date,
+  name,
+  time,
+  professionalName,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
 
-      <Preview>Redefina sua senha no Zuro</Preview>
+      <Preview>
+        Serviço {service ?? "Serviço teste"} agendado para o dia{" "}
+        {date ?? "01/01/2025"}
+      </Preview>
 
       <Body style={main}>
         <Container style={container}>
@@ -36,21 +46,41 @@ export default function RecoverPasswordEmail({ name, url }: Props) {
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Recebemos uma solicitação para redefinir a senha da sua conta no
-            Zuro. Clique no botão abaixo para criar uma nova senha:
+            Seu agendamento foi realizado com sucesso! Abaixo estão os detalhes
+            do seu atendimento:
           </Text>
 
-          <Section style={buttonContainer}>
-            <Button href={url} style={button}>
-              Recuperar minha senha
-            </Button>
-          </Section>
+          <ul>
+            <li>
+              <Text style={paragraph}>
+                <strong>Profissional</strong>:{" "}
+                {professionalName ?? "Profissional teste"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Serviço agendado</strong>: {service ?? "Serviço teste"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Data e Hora</strong>: {date ?? "01/01/2025"} às{" "}
+                {time ?? "10:00"}
+              </Text>
+            </li>
+          </ul>
+
+          <Text style={paragraph}>
+            Caso precise remarcar ou cancelar o agendamento, entre em contato
+            com o profissional.
+          </Text>
 
           <Hr style={hrLine} />
 
           <Text style={paragraph}>
-            Se você não solicitou essa alteração, por favor, ignore este e-mail.
-            O link de redefinição é válido por 1 hora.
+            Agradecemos por escolher nossos serviços!
           </Text>
 
           <Text style={linkParagraph}>
@@ -101,24 +131,6 @@ const subtitle = {
   color: "#1e293b",
   fontSize: "16px",
   textAlign: "left" as const,
-};
-
-const buttonContainer = {
-  margin: "27px auto",
-  width: "auto",
-};
-
-const button = {
-  height: "48px",
-  display: "flex",
-  alignItems: "center",
-  backgroundColor: "#5171e1",
-  borderRadius: "12px",
-  fontWeight: "600",
-  color: "#fff",
-  textAlign: "center" as const,
-  padding: "0px 24px",
-  margin: "0 auto",
 };
 
 const hrLine = {

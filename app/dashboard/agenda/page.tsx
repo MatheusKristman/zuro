@@ -1,30 +1,116 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatPhoneNumber } from "react-phone-number-input";
 import { Schedule, Service } from "@prisma/client";
+import { Loader2 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { trpc } from "@/lib/trpc-client";
-import { Loader2 } from "lucide-react";
 
 type ScheduleWithService = Schedule & {
   service: Service;
 };
 
+interface CancelScheduleConfirmationProps {
+  cancelSchedule: () => void;
+  scheduleStatusCancelled: boolean;
+  isPending: boolean;
+  closeDelete: boolean;
+  setCloseDelete: Dispatch<SetStateAction<boolean>>;
+}
+
+function CancelScheduleConfirmation({
+  scheduleStatusCancelled,
+  isPending,
+  cancelSchedule,
+  closeDelete,
+  setCloseDelete,
+}: CancelScheduleConfirmationProps) {
+  const [deleteConfirmation, setDeleteConfirmation] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (closeDelete) {
+      setCloseDelete(false);
+
+      setDeleteConfirmation(false);
+    }
+  }, [closeDelete, setCloseDelete]);
+
+  return (
+    <AlertDialog open={deleteConfirmation}>
+      <AlertDialogTrigger asChild>
+        <Button
+          size="xl"
+          variant="destructive"
+          disabled={scheduleStatusCancelled || isPending}
+          className="sm:w-1/2"
+          onClick={() => setDeleteConfirmation(true)}
+        >
+          Cancelar agendamento
+        </Button>
+      </AlertDialogTrigger>
+
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>
+            Tem certeza que deseja cancelar esse agendamento?
+          </AlertDialogTitle>
+
+          <AlertDialogDescription>
+            Esta ação não pode ser desfeita, para reagendar o usuário terá que
+            realizar um novo agendamento.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            className={buttonVariants({ size: "xl", variant: "outline" })}
+            disabled={isPending}
+            onClick={() => setDeleteConfirmation(false)}
+          >
+            Cancelar
+          </AlertDialogCancel>
+
+          <AlertDialogAction
+            className={buttonVariants({ size: "xl", variant: "destructive" })}
+            disabled={isPending}
+            onClick={cancelSchedule}
+          >
+            Deletar
+            {isPending && <Loader2 className="animate-spin" />}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
+
 export default function SchedulePage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [schedules, setSchedules] = useState<ScheduleWithService[]>([]);
+  const [closeDelete, setCloseDelete] = useState<boolean>(false);
 
   const { mutate: getSchedulesByDate, isPending } =
     trpc.userRouter.getSchedulesByDate.useMutation({
@@ -35,11 +121,14 @@ export default function SchedulePage() {
         console.error(err);
       },
     });
+
   const { mutate: cancelSchedule, isPending: isCancelSchedulePending } =
     trpc.userRouter.cancelSchedule.useMutation({
       onSuccess: () => {
         if (date !== undefined) {
           getSchedulesByDate({ date: format(date, "yyyy-MM-dd") });
+
+          setCloseDelete(true);
         }
       },
       onError: (err) => {
@@ -47,7 +136,7 @@ export default function SchedulePage() {
       },
     });
 
-  const pending = isCancelSchedulePending || isPending;
+  const pending = isPending;
 
   function seeReceipt(url: string) {
     window.open(url, "_blank")?.focus();
@@ -232,19 +321,17 @@ export default function SchedulePage() {
                                 Baixar comprovante
                               </Button>
 
-                              <Button
-                                size="xl"
-                                variant="destructive"
-                                disabled={
-                                  schedule.status === "cancelled" || pending
-                                }
-                                className="sm:w-1/2"
-                                onClick={() =>
+                              <CancelScheduleConfirmation
+                                cancelSchedule={() =>
                                   cancelSchedule({ scheduleId: schedule.id })
                                 }
-                              >
-                                Cancelar agendamento
-                              </Button>
+                                scheduleStatusCancelled={
+                                  schedule.status === "cancelled"
+                                }
+                                isPending={isCancelSchedulePending}
+                                closeDelete={closeDelete}
+                                setCloseDelete={setCloseDelete}
+                              />
                             </div>
                           </AccordionContent>
                         </AccordionItem>

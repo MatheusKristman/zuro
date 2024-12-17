@@ -6,13 +6,16 @@ import { TRPCError } from "@trpc/server";
 import { format, isAfter, parse } from "date-fns";
 import { generate } from "generate-password";
 import { ScheduleStatus } from "@prisma/client";
+import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
+
+import RecoverPasswordEmail from "@/emails/recover-password-email";
 
 import { isUserAuthedProcedure, publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
-import { render } from "@react-email/components";
-import RecoverPasswordEmail from "@/emails/recover-password-email";
+import ClientScheduleCancelNotification from "@/emails/client-schedule-cancel-notification";
+import ProfessionalScheduleCancelNotification from "@/emails/professional-schedule-cancel-notification";
 
 export const userRouter = router({
   getUser: isUserAuthedProcedure.query(async (opts) => {
@@ -762,6 +765,26 @@ export const userRouter = router({
     )
     .mutation(async (opts) => {
       const { scheduleId } = opts.input;
+      const devEmailUser = process.env.EMAIL_DEV_USER!;
+      const devEmailPass = process.env.EMAIL_DEV_PASS!;
+      const emailUser = process.env.EMAIL_USER!;
+      const emailPass = process.env.EMAIL_PASS!;
+      const devConfig = {
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: devEmailUser,
+          pass: devEmailPass,
+        },
+      };
+      const prodConfig = {
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      };
 
       const schedule = await prisma.schedule.update({
         where: {
@@ -772,6 +795,7 @@ export const userRouter = router({
         },
         include: {
           user: true,
+          service: true,
         },
       });
 
@@ -793,6 +817,56 @@ export const userRouter = router({
           calendarId: "primary",
           eventId: schedule.googleEventId,
         });
+      }
+
+      const [year, month, day] = schedule.date.split("-").map(Number);
+      const formattedDate = format(
+        new Date(year, month - 1, day),
+        "dd/MM/yyyy",
+      );
+
+      const professionalEmailHtml = await render(
+        ProfessionalScheduleCancelNotification({
+          service: schedule.service.name,
+          date: formattedDate,
+          name: schedule.user.name!,
+          clientName: schedule.fullName,
+          time: schedule.time,
+        }),
+      );
+      const clientEmailHtml = await render(
+        ClientScheduleCancelNotification({
+          service: schedule.service.name,
+          date: formattedDate,
+          professionalName: schedule.user.name!,
+          name: schedule.fullName,
+          time: schedule.time,
+        }),
+      );
+
+      const professionalOptions = {
+        from: emailUser,
+        to: schedule.user.email!,
+        subject: `Confirmação de Cancelamento do Agendamento - Zuro`,
+        html: professionalEmailHtml,
+      };
+      const clientOptions = {
+        from: emailUser,
+        to: schedule.email,
+        subject: `Agendamento Cancelado - Zuro`,
+        html: clientEmailHtml,
+      };
+
+      if (process.env.NODE_ENV === "development") {
+        const transporter = nodemailer.createTransport(devConfig);
+
+        await transporter.sendMail(professionalOptions);
+        await transporter.sendMail(clientOptions);
+      } else {
+        const transporter = nodemailer.createTransport(prodConfig);
+
+        await transporter.sendMail(professionalOptions);
+        await transporter.sendMail(clientOptions);
       }
 
       return { message: "Agendamento cancelado" };
@@ -1291,7 +1365,7 @@ export const userRouter = router({
       const options = {
         from: emailUser,
         to: user.email!,
-        subject: "Redefina sua senha no Zuro",
+        subject: "Redefina sua senha - Zuro",
         html: emailHtml,
       };
 
