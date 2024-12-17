@@ -66,6 +66,7 @@ model User {
   confirmationPassword   String?
   vacationMode           Boolean            @default(false)
   googleRefreshToken     String?
+  passwordRecoverExpire  Int?
 
   accounts     Account[]
   sessions     Session[]
