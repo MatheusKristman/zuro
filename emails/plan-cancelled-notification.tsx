@@ -7,9 +7,9 @@ import {
   Img,
   Text,
   Hr,
+  Link,
   Section,
   Button,
-  Link,
 } from "@react-email/components";
 
 const imageUrl =
@@ -18,40 +18,46 @@ const imageUrl =
     : "/static/logo.svg";
 
 interface Props {
-  name: string;
+  productName: string;
+  cancelDate: string;
   url: string;
 }
 
-export default function RecoverPasswordEmail({ name, url }: Props) {
+export default function PlanCancelledNotification({
+  productName,
+  url,
+  cancelDate,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
 
-      <Preview>Redefina sua senha - Zuro</Preview>
+      <Preview>Seu Plano Foi Encerrado - Zuro</Preview>
 
       <Body style={main}>
         <Container style={container}>
           <Img src={imageUrl} alt="Zuro" width="80" height="80" style={image} />
 
-          <Text style={title}>Olá {name ?? "Nome teste"},</Text>
+          <Text style={title}>Olá,</Text>
 
           <Text style={subtitle}>
-            Recebemos uma solicitação para redefinir a senha da sua conta no
-            Zuro. Clique no botão abaixo para criar uma nova senha:
+            Gostaríamos de informar que o seu plano {productName} foi encerrado
+            na data {cancelDate}.
+          </Text>
+
+          <Text style={subtitle}>
+            Se você deseja continuar aproveitando os recursos exclusivos que
+            ajudam a impulsionar seus atendimentos, é possível renovar ou
+            contratar um novo plano a qualquer momento.
           </Text>
 
           <Section style={buttonContainer}>
             <Button href={url} style={button}>
-              Recuperar minha senha
+              Renovar plano
             </Button>
           </Section>
 
           <Hr style={hrLine} />
-
-          <Text style={paragraph}>
-            Se você não solicitou essa alteração, por favor, ignore este e-mail.
-            O link de redefinição é válido por 1 hora.
-          </Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}
@@ -103,6 +109,24 @@ const subtitle = {
   textAlign: "left" as const,
 };
 
+const hrLine = {
+  width: "100%",
+  marginBottom: "16px !important",
+};
+
+const linkParagraph = {
+  color: "#64748b",
+  letterSpacing: "0",
+  margin: "0",
+  marginTop: "16px",
+  textAlign: "center" as const,
+};
+
+const link = {
+  color: "#444",
+  textDecoration: "underline",
+};
+
 const buttonContainer = {
   margin: "27px auto",
   width: "auto",
@@ -119,29 +143,4 @@ const button = {
   textAlign: "center" as const,
   padding: "0px 24px",
   margin: "0 auto",
-};
-
-const hrLine = {
-  width: "100%",
-  marginBottom: "16px !important",
-};
-
-const paragraph = {
-  color: "#64748b",
-  letterSpacing: "0",
-  margin: "0",
-  textAlign: "left" as const,
-};
-
-const linkParagraph = {
-  color: "#64748b",
-  letterSpacing: "0",
-  margin: "0",
-  marginTop: "16px",
-  textAlign: "center" as const,
-};
-
-const link = {
-  color: "#444",
-  textDecoration: "underline",
 };

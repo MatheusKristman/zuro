@@ -7,8 +7,6 @@ import {
   Img,
   Text,
   Hr,
-  Section,
-  Button,
   Link,
 } from "@react-email/components";
 
@@ -18,40 +16,67 @@ const imageUrl =
     : "/static/logo.svg";
 
 interface Props {
-  name: string;
-  url: string;
+  productName: string;
+  productPrice: string;
+  hiredDate: string;
 }
 
-export default function RecoverPasswordEmail({ name, url }: Props) {
+export default function PlanHiredNotification({
+  productName,
+  productPrice,
+  hiredDate,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
 
-      <Preview>Redefina sua senha - Zuro</Preview>
+      <Preview>Confirmação de Contratação do Plano - Zuro</Preview>
 
       <Body style={main}>
         <Container style={container}>
           <Img src={imageUrl} alt="Zuro" width="80" height="80" style={image} />
 
-          <Text style={title}>Olá {name ?? "Nome teste"},</Text>
+          <Text style={title}>
+            Parabens! A contratação do seu plano foi realizada com sucesso e
+            agora você tem acesso a todas as funcionalidades exclusivas do nosso
+            sistema. Veja os detalhes do plano:
+          </Text>
+
+          <ul>
+            <li>
+              <Text style={paragraph}>
+                <strong>Plano</strong>: {productName ?? "Plano teste"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Valor</strong>: {productPrice ?? "R$ 0,00"}
+              </Text>
+            </li>
+
+            <li>
+              <Text style={paragraph}>
+                <strong>Data de contratação</strong>:{" "}
+                {hiredDate ?? "01/01/2025"}
+              </Text>
+            </li>
+          </ul>
 
           <Text style={subtitle}>
-            Recebemos uma solicitação para redefinir a senha da sua conta no
-            Zuro. Clique no botão abaixo para criar uma nova senha:
+            Você já pode começar a aproveitar todas as ferramentas e recursos
+            disponíveis para potencializar seus atendimentos e melhorar a
+            experiência dos seus clientes!
           </Text>
 
-          <Section style={buttonContainer}>
-            <Button href={url} style={button}>
-              Recuperar minha senha
-            </Button>
-          </Section>
+          <Text style={subtitle}>
+            Caso tenha alguma dúvida ou precise de suporte, não hesite em entrar
+            em contato com a nossa equipe.
+          </Text>
+
+          <Text style={subtitle}>Obrigado por confiar em nossos serviços!</Text>
 
           <Hr style={hrLine} />
-
-          <Text style={paragraph}>
-            Se você não solicitou essa alteração, por favor, ignore este e-mail.
-            O link de redefinição é válido por 1 hora.
-          </Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}
@@ -101,24 +126,6 @@ const subtitle = {
   color: "#1e293b",
   fontSize: "16px",
   textAlign: "left" as const,
-};
-
-const buttonContainer = {
-  margin: "27px auto",
-  width: "auto",
-};
-
-const button = {
-  height: "48px",
-  display: "flex",
-  alignItems: "center",
-  backgroundColor: "#5171e1",
-  borderRadius: "12px",
-  fontWeight: "600",
-  color: "#fff",
-  textAlign: "center" as const,
-  padding: "0px 24px",
-  margin: "0 auto",
 };
 
 const hrLine = {
