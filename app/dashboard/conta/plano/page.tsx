@@ -425,8 +425,10 @@ function PlanComponent() {
                   <Link href="/dashboard/conta">Voltar</Link>
                 </Button>
 
-                <Button size="xl" className="w-full">
-                  Suporte
+                <Button size="xl" className="w-full" asChild>
+                  <a href={process.env.NEXT_PUBLIC_WHATSAPP_LINK!} target="_blank" rel="noreferrer noopener">
+                    Suporte
+                  </a>
                 </Button>
               </div>
             </div>
@@ -493,9 +495,10 @@ function PlanComponent() {
               <Link href="/dashboard/conta">Voltar</Link>
             </Button>
 
-            {/* TODO: adicionar link do whatsapp para suporte */}
-            <Button size="xl" className="w-full md:order-3 md:col-span-2">
-              Suporte
+            <Button size="xl" className="w-full md:order-3 md:col-span-2" asChild>
+              <a href={process.env.NEXT_PUBLIC_WHATSAPP_LINK!} target="_blank" rel="noreferrer noopener">
+                Suporte
+              </a>
             </Button>
 
             <CancelPlanConfirmation subscriptionId={data.plan.subscriptionId} />
