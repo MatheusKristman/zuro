@@ -45,7 +45,7 @@ export default function DailySchedulesNotification({
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Aqui estão os seus agendamentos para o dia {date}:
+            Aqui estão os seus agendamentos de hoje ({date}):
           </Text>
 
           {schedules.map((schedule) => (
