@@ -14,7 +14,7 @@ import {
 
 const imageUrl =
   process.env.NODE_ENV === "production"
-    ? `${process.env.NEXT_PUBLIC_BASEURL}/assets/images/logo.svg`
+    ? `${process.env.BASE_URL}/logo.svg`
     : "/static/logo.svg";
 
 interface Props {
