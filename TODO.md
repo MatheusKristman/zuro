@@ -4,3 +4,5 @@
 [ ] - Adicionar função de trocar e-mail adicionando a função de enviar o código de confirmação no e-mail cadastrado
 [ ] - Verificar se vale a pena ter duas rotas para cupons nos checkouts
 [ ] - Ao salvar as notificações do e-mail, redirecionar para /dashboard/conta
+[ ] - Recarregar página ao reativar o plano
+[ ] - Adicionar disabled no botão voltar enquanto atualiza foto na pagina "/alterar-foto"
