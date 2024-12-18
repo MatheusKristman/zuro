@@ -245,20 +245,43 @@ export const scheduleRouter = router({
         "dd/MM/yyyy",
       );
 
-      const professionalEmailHtml = await render(
-        ProfessionalServiceSchedulesNotification({
-          url: `${baseUrl}/dashboard/agenda`,
-          service: schedule.service.name,
-          date: formattedDate,
-          name: schedule.user.name!,
-          clientName: schedule.fullName,
-          clientContact: `(${schedule.tel.slice(3, 5)}) ${
-            celCheck ? schedule.tel.slice(5, 10) : schedule.tel.slice(5, 9)
-          }-${celCheck ? schedule.tel.slice(10) : schedule.tel.slice(9)}`,
-          time: schedule.time,
-          message: schedule.message,
-        }),
-      );
+      if (
+        schedule.user.emailNotification &&
+        schedule.user.notificationNewSchedule
+      ) {
+        const professionalEmailHtml = await render(
+          ProfessionalServiceSchedulesNotification({
+            url: `${baseUrl}/dashboard/agenda`,
+            service: schedule.service.name,
+            date: formattedDate,
+            name: schedule.user.name!,
+            clientName: schedule.fullName,
+            clientContact: `(${schedule.tel.slice(3, 5)}) ${
+              celCheck ? schedule.tel.slice(5, 10) : schedule.tel.slice(5, 9)
+            }-${celCheck ? schedule.tel.slice(10) : schedule.tel.slice(9)}`,
+            time: schedule.time,
+            message: schedule.message,
+          }),
+        );
+
+        const professionalOptions = {
+          from: emailUser,
+          to: schedule.user.email!,
+          subject: `Novo agendamento recebido - Zuro`,
+          html: professionalEmailHtml,
+        };
+
+        if (process.env.NODE_ENV === "development") {
+          const transporter = nodemailer.createTransport(devConfig);
+
+          await transporter.sendMail(professionalOptions);
+        } else {
+          const transporter = nodemailer.createTransport(prodConfig);
+
+          await transporter.sendMail(professionalOptions);
+        }
+      }
+
       const clientEmailHtml = await render(
         ClientServiceScheduleNotification({
           service: schedule.service.name,
@@ -269,12 +292,6 @@ export const scheduleRouter = router({
         }),
       );
 
-      const professionalOptions = {
-        from: emailUser,
-        to: schedule.user.email!,
-        subject: `Novo agendamento recebido - Zuro`,
-        html: professionalEmailHtml,
-      };
       const clientOptions = {
         from: emailUser,
         to: schedule.email,
@@ -285,12 +302,10 @@ export const scheduleRouter = router({
       if (process.env.NODE_ENV === "development") {
         const transporter = nodemailer.createTransport(devConfig);
 
-        await transporter.sendMail(professionalOptions);
         await transporter.sendMail(clientOptions);
       } else {
         const transporter = nodemailer.createTransport(prodConfig);
 
-        await transporter.sendMail(professionalOptions);
         await transporter.sendMail(clientOptions);
       }
 
