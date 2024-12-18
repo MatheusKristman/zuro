@@ -66,10 +66,10 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
   }, [error]);
 
   useEffect(() => {
-    if (service && date !== undefined) {
+    if (user && service && date !== undefined) {
       getDaySchedule({
         date: format(date!, "yyyy-MM-dd"),
-        serviceId: service,
+        userId: user.id,
       });
     }
   }, [service, getDaySchedule, date]);
@@ -109,8 +109,6 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
           allSlots.push(time.toTimeString().substring(0, 5));
         }
       });
-
-      console.log({ allSlots });
 
       const occupiedSlots = new Set<string>();
 

@@ -66,17 +66,15 @@ export const scheduleRouter = router({
     .input(
       z.object({
         date: z.string().min(1, "Data obrigatória"),
-        serviceId: z.string().min(1, "ID obrigatório"),
+        userId: z.string().min(1, "ID obrigatório"),
       }),
     )
     .mutation(async (opts) => {
-      const { date, serviceId } = opts.input;
-
-      console.log({ date });
+      const { date, userId } = opts.input;
 
       const schedules = await prisma.schedule.findMany({
         where: {
-          serviceId,
+          userId,
           date,
         },
         include: {
