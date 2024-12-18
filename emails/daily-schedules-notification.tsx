@@ -1,25 +1,39 @@
 import { Schedule, Service, User } from "@prisma/client";
-import {
-  Html,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Img,
-  Text,
-  Hr,
-  Link,
-} from "@react-email/components";
+import { Html, Head, Preview, Body, Container, Img, Text, Hr, Link } from "@react-email/components";
 
 type ScheduleType = Schedule & {
   user: User;
   service: Service;
 };
 
-const imageUrl =
-  process.env.NODE_ENV === "production"
-    ? `${process.env.BASE_URL}/logo.svg`
-    : "/static/logo.svg";
+const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
+
+const SCHEDULES_EXAMPLE = [
+  {
+    id: 0,
+    fullName: "teste 1",
+    time: "10:00",
+    service: {
+      name: "Serviço teste 1",
+    },
+  },
+  {
+    id: 1,
+    fullName: "teste 2",
+    time: "11:00",
+    service: {
+      name: "Serviço teste 2",
+    },
+  },
+  {
+    id: 2,
+    fullName: "teste 3",
+    time: "12:00",
+    service: {
+      name: "Serviço teste 3",
+    },
+  },
+];
 
 interface Props {
   date: string;
@@ -27,11 +41,7 @@ interface Props {
   schedules: ScheduleType[];
 }
 
-export default function DailySchedulesNotification({
-  date,
-  name,
-  schedules,
-}: Props) {
+export default function DailySchedulesNotification({ date, name, schedules }: Props) {
   return (
     <Html style={html}>
       <Head />
@@ -44,37 +54,55 @@ export default function DailySchedulesNotification({
 
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
-          <Text style={subtitle}>
-            Aqui estão os seus agendamentos de hoje ({date}):
-          </Text>
+          <Text style={subtitle}>Aqui estão os seus agendamentos de hoje ({date ?? "01/01/2025"}):</Text>
 
-          {schedules.map((schedule) => (
-            <ul key={schedule.id} style={list}>
-              <li>
-                <Text style={paragraph}>
-                  <strong>Cliente</strong>:{" "}
-                  {schedule.fullName ?? "Cliente teste"}
-                </Text>
-              </li>
+          {schedules && schedules.length > 0
+            ? schedules.map((schedule) => (
+                <ul key={schedule.id} style={list}>
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Cliente</strong>: {schedule.fullName ?? "Cliente teste"}
+                    </Text>
+                  </li>
 
-              <li>
-                <Text style={paragraph}>
-                  <strong>Horário</strong>: {schedule.time ?? "10:00"}
-                </Text>
-              </li>
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Horário</strong>: {schedule.time ?? "10:00"}
+                    </Text>
+                  </li>
 
-              <li>
-                <Text style={paragraph}>
-                  <strong>Serviço</strong>:{" "}
-                  {schedule.service.name ?? "Serviço teste"}
-                </Text>
-              </li>
-            </ul>
-          ))}
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Serviço</strong>: {schedule.service.name ?? "Serviço teste"}
+                    </Text>
+                  </li>
+                </ul>
+              ))
+            : SCHEDULES_EXAMPLE.map((schedule) => (
+                <ul key={schedule.id} style={list}>
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Cliente</strong>: {schedule.fullName ?? "Cliente teste"}
+                    </Text>
+                  </li>
+
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Horário</strong>: {schedule.time ?? "10:00"}
+                    </Text>
+                  </li>
+
+                  <li>
+                    <Text style={paragraph}>
+                      <strong>Serviço</strong>: {schedule.service.name ?? "Serviço teste"}
+                    </Text>
+                  </li>
+                </ul>
+              ))}
 
           <Hr style={hrLine} />
 
-          <Text style={paragraph}>Tenha um excelente dia de trabalho!</Text>
+          <Text style={linkParagraph}>Tenha um excelente dia de trabalho!</Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}

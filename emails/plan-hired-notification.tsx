@@ -1,19 +1,6 @@
-import {
-  Html,
-  Head,
-  Preview,
-  Body,
-  Container,
-  Img,
-  Text,
-  Hr,
-  Link,
-} from "@react-email/components";
+import { Html, Head, Preview, Body, Container, Img, Text, Hr, Link } from "@react-email/components";
 
-const imageUrl =
-  process.env.NODE_ENV === "production"
-    ? `${process.env.BASE_URL}/logo.svg`
-    : "/static/logo.svg";
+const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
 
 interface Props {
   productName: string;
@@ -21,11 +8,7 @@ interface Props {
   hiredDate: string;
 }
 
-export default function PlanHiredNotification({
-  productName,
-  productPrice,
-  hiredDate,
-}: Props) {
+export default function PlanHiredNotification({ productName, productPrice, hiredDate }: Props) {
   return (
     <Html style={html}>
       <Head />
@@ -37,9 +20,8 @@ export default function PlanHiredNotification({
           <Img src={imageUrl} alt="Zuro" width="80" height="80" style={image} />
 
           <Text style={title}>
-            Parabens! A contratação do seu plano foi realizada com sucesso e
-            agora você tem acesso a todas as funcionalidades exclusivas do nosso
-            sistema. Veja os detalhes do plano:
+            Parabens! A contratação do seu plano foi realizada com sucesso e agora você tem acesso a todas as
+            funcionalidades exclusivas do nosso sistema. Veja os detalhes do plano:
           </Text>
 
           <ul>
@@ -57,26 +39,23 @@ export default function PlanHiredNotification({
 
             <li>
               <Text style={paragraph}>
-                <strong>Data de contratação</strong>:{" "}
-                {hiredDate ?? "01/01/2025"}
+                <strong>Data de contratação</strong>: {hiredDate ?? "01/01/2025"}
               </Text>
             </li>
           </ul>
 
           <Text style={subtitle}>
-            Você já pode começar a aproveitar todas as ferramentas e recursos
-            disponíveis para potencializar seus atendimentos e melhorar a
-            experiência dos seus clientes!
+            Você já pode começar a aproveitar todas as ferramentas e recursos disponíveis para potencializar seus
+            atendimentos e melhorar a experiência dos seus clientes!
           </Text>
 
           <Text style={subtitle}>
-            Caso tenha alguma dúvida ou precise de suporte, não hesite em entrar
-            em contato com a nossa equipe.
+            Caso tenha alguma dúvida ou precise de suporte, não hesite em entrar em contato com a nossa equipe.
           </Text>
 
-          <Text style={subtitle}>Obrigado por confiar em nossos serviços!</Text>
-
           <Hr style={hrLine} />
+
+          <Text style={linkParagraph}>Obrigado por confiar em nossos serviços!</Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}
