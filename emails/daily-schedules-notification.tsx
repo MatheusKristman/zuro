@@ -45,11 +45,11 @@ export default function DailySchedulesNotification({
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Aqui estão os seus agendamentos para o dia {date}
+            Aqui estão os seus agendamentos para o dia {date}:
           </Text>
 
           {schedules.map((schedule) => (
-            <ul key={schedule.id}>
+            <ul key={schedule.id} style={list}>
               <li>
                 <Text style={paragraph}>
                   <strong>Cliente</strong>:{" "}
@@ -124,6 +124,10 @@ const subtitle = {
   color: "#1e293b",
   fontSize: "16px",
   textAlign: "left" as const,
+};
+
+const list = {
+  marginBottom: "25px",
 };
 
 const hrLine = {
