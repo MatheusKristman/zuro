@@ -11,6 +11,8 @@ export async function POST() {
       return new Response("Plano não encontrado", { status: 404 });
     }
 
+    const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
@@ -23,12 +25,8 @@ export async function POST() {
         trial_period_days: 30,
       },
       allow_promotion_codes: true,
-      success_url: `${
-        process.env.NODE_ENV === "development"
-          ? "http://localhost:3000"
-          : "https://zuro.vercel.app"
-      }/dashboard/conta/plano?checkout={CHECKOUT_SESSION_ID}`,
-      cancel_url: `https://zuroagenda.com/`,
+      success_url: `${baseUrl}/dashboard/conta/plano?checkout={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/dashboard/conta/plano`,
     });
 
     return Response.json({ url: session.url! });
