@@ -18,7 +18,7 @@ type ScheduleType = Schedule & {
 
 const imageUrl =
   process.env.NODE_ENV === "production"
-    ? `${process.env.NEXT_PUBLIC_BASEURL}/assets/images/logo.svg`
+    ? `${process.env.BASE_URL}/assets/images/logo.svg`
     : "/static/logo.svg";
 
 interface Props {
