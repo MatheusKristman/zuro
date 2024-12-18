@@ -16,7 +16,7 @@ export async function POST() {
     const devEmailUser = process.env.EMAIL_DEV_USER!;
     const devEmailPass = process.env.EMAIL_DEV_PASS!;
     const emailUser = process.env.EMAIL_USER!;
-    const emailPass = process.env.EMAIL_PASS!;
+    // const emailPass = process.env.EMAIL_PASS!;
     const devConfig = {
       host: "sandbox.smtp.mailtrap.io",
       port: 2525,
@@ -25,14 +25,14 @@ export async function POST() {
         pass: devEmailPass,
       },
     };
-    const prodConfig = {
-      host: "smtp-relay.brevo.com",
-      port: 587,
-      auth: {
-        user: emailUser,
-        pass: emailPass,
-      },
-    };
+    // const prodConfig = {
+    //   host: "smtp-relay.brevo.com",
+    //   port: 587,
+    //   auth: {
+    //     user: emailUser,
+    //     pass: emailPass,
+    //   },
+    // };
 
     const today = format(new Date(), "yyyy-MM-dd");
 
@@ -96,15 +96,19 @@ export async function POST() {
         html: emailHtml,
       };
 
-      if (process.env.NODE_ENV === "development") {
-        const transporter = nodemailer.createTransport(devConfig);
+      // if (process.env.NODE_ENV === "development") {
+      //   const transporter = nodemailer.createTransport(devConfig);
+      //
+      //   await transporter.sendMail(options);
+      // } else {
+      //   const transporter = nodemailer.createTransport(prodConfig);
+      //
+      //   await transporter.sendMail(options);
+      // }
 
-        await transporter.sendMail(options);
-      } else {
-        const transporter = nodemailer.createTransport(prodConfig);
+      const transporter = nodemailer.createTransport(devConfig);
 
-        await transporter.sendMail(options);
-      }
+      await transporter.sendMail(options);
     }
 
     return new Response("Enviado agendamentos do dia nos e-mails cadastrados", {
