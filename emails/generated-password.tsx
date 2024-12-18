@@ -14,7 +14,7 @@ export default function GeneratedPassword({ name, email, password, url }: Props)
     <Html style={html}>
       <Head />
 
-      <Preview>Bem-vindo à nossa plataforma! - Zuro</Preview>
+      <Preview>Bem-vindo à Zuro!</Preview>
 
       <Body style={main}>
         <Container style={container}>
