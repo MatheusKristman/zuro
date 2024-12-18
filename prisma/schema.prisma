@@ -51,22 +51,25 @@ enum ScheduleStatus {
 }
 
 model User {
-  id                     String             @id @default(auto()) @map("_id") @db.ObjectId
-  name                   String?
-  email                  String?            @unique
-  emailVerified          DateTime?
-  password               String?
-  image                  String?
-  role                   Role               @default(USER)
-  firstAccess            Boolean            @default(false)
-  firstConfigurationStep Int                @default(0)
-  paymentPreference      PaymentPreference?
-  pixKey                 String?
-  dayOff                 DayOff[]
-  confirmationPassword   String?
-  vacationMode           Boolean            @default(false)
-  googleRefreshToken     String?
-  passwordRecoverExpire  Int?
+  id                         String             @id @default(auto()) @map("_id") @db.ObjectId
+  name                       String?
+  email                      String?            @unique
+  emailVerified              DateTime?
+  password                   String?
+  image                      String?
+  role                       Role               @default(USER)
+  firstAccess                Boolean            @default(false)
+  firstConfigurationStep     Int                @default(0)
+  paymentPreference          PaymentPreference?
+  pixKey                     String?
+  dayOff                     DayOff[]
+  confirmationPassword       String?
+  vacationMode               Boolean            @default(false)
+  googleRefreshToken         String?
+  passwordRecoverExpire      Int?
+  emailNotification          Boolean            @default(true)
+  notificationNewSchedule    Boolean            @default(true)
+  notificationDailySchedules Boolean            @default(true)
 
   accounts     Account[]
   sessions     Session[]

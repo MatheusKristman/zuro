@@ -30,7 +30,9 @@ export function ClientInformationForm() {
       <div className="w-full flex flex-col gap-4 mt-10 sm:flex-row">
         <div className="w-full flex flex-col gap-4">
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="fullName">Nome Completo*</Label>
+            <Label className="font-bold text-slate-600" htmlFor="fullName">
+              Nome Completo*
+            </Label>
 
             <Input
               id="fullName"
@@ -45,7 +47,9 @@ export function ClientInformationForm() {
           </div>
 
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="email">E-mail*</Label>
+            <Label className="font-bold text-slate-600" htmlFor="email">
+              E-mail*
+            </Label>
 
             <Input
               id="email"
@@ -61,7 +65,9 @@ export function ClientInformationForm() {
           </div>
 
           <div className="w-full flex flex-col gap-2">
-            <Label htmlFor="tel">Telefone*</Label>
+            <Label className="font-bold text-slate-600" htmlFor="tel">
+              Telefone*
+            </Label>
 
             <PhoneInput
               id="tel"
@@ -81,7 +87,9 @@ export function ClientInformationForm() {
         </div>
 
         <div className="w-full flex flex-col gap-2">
-          <Label htmlFor="message">Mensagem</Label>
+          <Label className="font-bold text-slate-600" htmlFor="message">
+            Mensagem
+          </Label>
 
           <Textarea
             id="message"

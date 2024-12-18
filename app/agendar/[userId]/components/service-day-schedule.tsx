@@ -188,7 +188,7 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
 
         <div className="w-full flex flex-col gap-4 sm:flex-row">
           <div className="flex flex-col gap-2 sm:w-full">
-            <Label htmlFor="service" className="font-semibold">
+            <Label htmlFor="service" className="font-bold text-slate-600">
               Serviço
             </Label>
 
@@ -222,7 +222,7 @@ export function ServiceDaySchedule({ user }: ServiceDayScheduleProps) {
           </div>
 
           <div className="flex flex-col gap-2 sm:w-full">
-            <Label htmlFor="time" className="font-semibold">
+            <Label htmlFor="time" className="font-bold text-slate-600">
               Horário disponível
             </Label>
 

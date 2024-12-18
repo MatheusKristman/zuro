@@ -87,7 +87,10 @@ export default function VacationModePage() {
               </span>
 
               <div className="flex items-center gap-2">
-                <Label htmlFor="vacationMode" className="text-lg font-semibold">
+                <Label
+                  htmlFor="vacationMode"
+                  className="text-lg font-bold text-slate-600"
+                >
                   Modo Férias:
                 </Label>
 

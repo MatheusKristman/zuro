@@ -11,13 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import {
-//   Popover,
-//   PopoverContent,
-//   PopoverTrigger,
-// } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 import { cn } from "@/lib/utils";
 import {
@@ -89,7 +83,9 @@ function DaySchedule({ dayOfWeek, isPending }: DayScheduleProps) {
           className="w-full flex flex-col items-center gap-y-4 mt-6 sm:flex-row sm:items-end sm:gap-x-2"
         >
           <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-            <Label>Horário de início</Label>
+            <Label className="text-slate-600 font-bold">
+              Horário de início
+            </Label>
 
             <Select
               value={time?.startTime}
@@ -131,7 +127,9 @@ function DaySchedule({ dayOfWeek, isPending }: DayScheduleProps) {
           </div>
 
           <div className="w-full flex flex-col gap-2 sm:w-[calc(50%-4px)]">
-            <Label>Horário de término</Label>
+            <Label className="text-slate-600 font-bold">
+              Horário de término
+            </Label>
 
             <Select
               value={time?.endTime}
@@ -258,7 +256,9 @@ export function Availability({ isPending }: AvailabilityProps) {
       </h3>
 
       <div className="flex flex-col gap-2 mb-4">
-        <h4 className="text-xl font-semibold">Quais dias irá folgar?</h4>
+        <h4 className="text-xl font-semibold text-slate-600">
+          Quais dias irá folgar?
+        </h4>
 
         <ReactSelect
           isMulti
@@ -285,7 +285,7 @@ export function Availability({ isPending }: AvailabilityProps) {
       </div>
 
       <div className="flex flex-col gap-2 mb-4">
-        <h4 className="text-xl font-semibold">
+        <h4 className="text-xl font-semibold text-slate-600">
           Selecione os horários que trabalha
         </h4>
 

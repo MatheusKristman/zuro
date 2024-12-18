@@ -178,7 +178,7 @@ export default function SchedulePage() {
             date &&
             (schedules.length > 0 ? (
               <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-6">
-                <h3 className="text-xl font-semibold">
+                <h3 className="text-xl font-semibold text-slate-600">
                   Dia: {format(date, "PPPP", { locale: ptBR })}
                 </h3>
 

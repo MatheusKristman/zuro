@@ -67,17 +67,17 @@ export function ScheduleFinished({
           </div>
 
           <div className="w-full flex flex-col items-center gap-4">
-            <h3 className="text-xl font-semibold text-center">
+            <h3 className="text-xl font-semibold text-center text-slate-600">
               Resumo do agendamento
             </h3>
 
             <div className="relative w-full flex flex-col items-center gap-4 bg-black/10 rounded-xl p-4 sm:grid sm:grid-cols-[1fr_1px_1fr_1px_1fr]">
               <div className="flex flex-col items-center gap-2">
-                <span className="text-lg font-medium text-center">
+                <span className="text-lg font-medium text-center text-slate-600">
                   Profissional
                 </span>
 
-                <span className="text-2xl font-bold text-center capitalize">
+                <span className="text-2xl font-bold text-center capitalize text-slate-800">
                   {professionalName}
                 </span>
               </div>
@@ -85,11 +85,11 @@ export function ScheduleFinished({
               <div className="w-full h-px bg-foreground/10 flex sm:w-px sm:h-full sm:shrink-0" />
 
               <div className="flex flex-col items-center gap-2">
-                <span className="text-lg font-medium text-center">
+                <span className="text-lg font-medium text-center text-slate-600">
                   Data e horário do agendamento
                 </span>
 
-                <span className="text-2xl font-bold text-center">
+                <span className="text-2xl font-bold text-center text-slate-800">
                   {format(date, "dd/MM/yyyy")} às {time}
                 </span>
               </div>
@@ -97,9 +97,11 @@ export function ScheduleFinished({
               <div className="w-full h-px bg-foreground/10 flex sm:w-px sm:h-full sm:shrink-0" />
 
               <div className="flex flex-col items-center gap-2">
-                <span className="text-lg font-medium text-center">Serviço</span>
+                <span className="text-lg font-medium text-center text-slate-600">
+                  Serviço
+                </span>
 
-                <span className="text-2xl font-bold text-center capitalize">
+                <span className="text-2xl font-bold text-center capitalize text-slate-800">
                   {serviceName}
                 </span>
               </div>

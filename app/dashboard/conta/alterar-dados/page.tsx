@@ -69,7 +69,9 @@ export default function ChangeAccountDataPage() {
             <div className="space-y-2 w-full">
               <div className="w-full flex flex-col gap-12 sm:flex-row sm:items-end sm:gap-4">
                 <div className="space-y-2 w-full">
-                  <Label htmlFor="name">Nome</Label>
+                  <Label className="text-slate-600 font-bold" htmlFor="name">
+                    Nome
+                  </Label>
 
                   <Input
                     id="name"
@@ -96,7 +98,9 @@ export default function ChangeAccountDataPage() {
             <div className="w-full flex flex-col gap-4">
               <div className="w-full flex flex-col gap-4 sm:flex-row sm:items-end">
                 <div className="space-y-2 w-full">
-                  <Label htmlFor="email">E-mail</Label>
+                  <Label className="text-slate-600 font-bold" htmlFor="email">
+                    E-mail
+                  </Label>
 
                   <Input
                     id="email"
@@ -111,7 +115,12 @@ export default function ChangeAccountDataPage() {
               </div>
 
               <div className="space-y-2 w-full">
-                <Label htmlFor="confirmationCode">Código de confirmação</Label>
+                <Label
+                  className="text-slate-600 font-bold"
+                  htmlFor="confirmationCode"
+                >
+                  Código de confirmação
+                </Label>
 
                 <Input
                   disabled={pending}
