@@ -98,7 +98,7 @@ function CancelScheduleConfirmation({
             disabled={isPending}
             onClick={cancelSchedule}
           >
-            Deletar
+            Confirmar
             {isPending && <Loader2 className="animate-spin" />}
           </AlertDialogAction>
         </AlertDialogFooter>
