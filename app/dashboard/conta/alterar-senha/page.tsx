@@ -107,6 +107,7 @@ export default function ChangePasswordPage() {
               <Input
                 id="password"
                 placeholder="Insira a sua senha atual"
+                type="password"
                 value={password}
                 disabled={isPending}
                 onChange={(e) => setPassword(e.target.value)}
@@ -128,6 +129,7 @@ export default function ChangePasswordPage() {
               <Input
                 id="newPassword"
                 placeholder="Insira a sua nova senha"
+                type="password"
                 value={newPassword}
                 disabled={isPending}
                 onChange={(e) => setNewPassword(e.target.value)}
@@ -152,6 +154,7 @@ export default function ChangePasswordPage() {
               <Input
                 id="confirmNewPassword"
                 placeholder="Confirme a sua nova senha"
+                type="password"
                 value={confirmNewPassword}
                 disabled={isPending}
                 onChange={(e) => setConfirmNewPassword(e.target.value)}
