@@ -24,7 +24,7 @@ interface Props {
 
 export default function RecoverPasswordEmail({ name, url }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Redefina sua senha - Zuro</Preview>

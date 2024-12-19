@@ -27,7 +27,7 @@ export default function PlanHiredNotification({
   hiredDate,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Confirmação de Contratação do Plano - Zuro</Preview>

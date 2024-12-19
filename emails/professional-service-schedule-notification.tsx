@@ -39,7 +39,7 @@ export default function ProfessionalServiceSchedulesNotification({
   url,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>

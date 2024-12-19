@@ -31,7 +31,7 @@ export default function ClientScheduleCancelNotification({
   time,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Agendamento Cancelado - Zuro</Preview>

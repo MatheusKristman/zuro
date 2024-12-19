@@ -31,7 +31,7 @@ export default function ClientServiceScheduleNotification({
   professionalName,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>

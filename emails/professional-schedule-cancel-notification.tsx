@@ -31,7 +31,7 @@ export default function ProfessionalScheduleCancelNotification({
   time,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Confirmação de Cancelamento do Agendamento - Zuro</Preview>

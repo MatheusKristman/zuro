@@ -24,7 +24,7 @@ interface Props {
 
 export default function ConfirmationCodeNotification({ name, code }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Código de Confirmação para Alteração do E-mail - Zuro</Preview>

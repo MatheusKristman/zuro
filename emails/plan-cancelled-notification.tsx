@@ -29,7 +29,7 @@ export default function PlanCancelledNotification({
   cancelDate,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Seu Plano Foi Encerrado - Zuro</Preview>

@@ -60,7 +60,7 @@ export default function DailySchedulesNotification({
   schedules,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Seus agendamentos de hoje - Zuro</Preview>

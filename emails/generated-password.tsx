@@ -31,7 +31,7 @@ export default function GeneratedPassword({
   url,
 }: Props) {
   return (
-    <Html style={html}>
+    <Html lang="ptBR" style={html}>
       <Head />
 
       <Preview>Bem-vindo à Zuro!</Preview>
