@@ -284,7 +284,14 @@ export const scheduleRouter = router({
         } else {
           const transporter = nodemailer.createTransport(prodConfig);
 
-          await transporter.sendMail(professionalOptions);
+          await transporter
+            .sendMail(professionalOptions)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         }
       }
 
