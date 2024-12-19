@@ -6,6 +6,9 @@
 [x] - Ao salvar as notificações do e-mail, redirecionar para /dashboard/conta
 [x] - Recarregar página ao reativar o plano
 [x] - Adicionar disabled no botão voltar enquanto atualiza foto na pagina "/alterar-foto"
+[ ] - Checar primeira configuração
+[ ] - Checar versões mobile e tablet das paginas
+[ ] - Checar se usuário está autorizado nas paginas
 [ ] - Configurar stripe para produção
 [ ] - Configurar google console para produção
 [ ] - Hospedar site

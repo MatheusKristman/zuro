@@ -38,6 +38,16 @@ export async function POST(request: Request) {
       return new Response("Dados inválidos", { status: 400 });
     }
 
+    const userAlreadyRegistered = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    });
+
+    if (userAlreadyRegistered) {
+      return new Response("Usuário já cadastrado", { status: 401 });
+    }
+
     const generatedPassword = generate({
       length: 10,
       numbers: true,
