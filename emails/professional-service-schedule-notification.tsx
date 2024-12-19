@@ -167,15 +167,15 @@ const buttonContainer = {
 };
 
 const button = {
-  height: "48px",
   display: "flex",
   alignItems: "center",
   backgroundColor: "#5171e1",
   borderRadius: "12px",
   fontWeight: "600",
+  fontSize: "16px",
   color: "#fff",
   textAlign: "center" as const,
-  padding: "0px 24px",
+  padding: "16px 24px",
   margin: "0 auto",
 };
 
