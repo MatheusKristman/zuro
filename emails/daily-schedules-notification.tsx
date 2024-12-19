@@ -1,12 +1,25 @@
 import { Schedule, Service, User } from "@prisma/client";
-import { Html, Head, Preview, Body, Container, Img, Text, Hr, Link } from "@react-email/components";
+import {
+  Html,
+  Head,
+  Preview,
+  Body,
+  Container,
+  Img,
+  Text,
+  Hr,
+  Link,
+} from "@react-email/components";
 
 type ScheduleType = Schedule & {
   user: User;
   service: Service;
 };
 
-const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
+const imageUrl =
+  process.env.NODE_ENV === "production"
+    ? `${process.env.BASE_URL}/zuro-email.png`
+    : "/static/zuro-email.png";
 
 const SCHEDULES_EXAMPLE = [
   {
@@ -41,7 +54,11 @@ interface Props {
   schedules: ScheduleType[];
 }
 
-export default function DailySchedulesNotification({ date, name, schedules }: Props) {
+export default function DailySchedulesNotification({
+  date,
+  name,
+  schedules,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
@@ -54,14 +71,17 @@ export default function DailySchedulesNotification({ date, name, schedules }: Pr
 
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
-          <Text style={subtitle}>Aqui estão os seus agendamentos de hoje ({date ?? "01/01/2025"}):</Text>
+          <Text style={subtitle}>
+            Aqui estão os seus agendamentos de hoje ({date ?? "01/01/2025"}):
+          </Text>
 
           {schedules && schedules.length > 0
             ? schedules.map((schedule) => (
                 <ul key={schedule.id} style={list}>
                   <li>
                     <Text style={paragraph}>
-                      <strong>Cliente</strong>: {schedule.fullName ?? "Cliente teste"}
+                      <strong>Cliente</strong>:{" "}
+                      {schedule.fullName ?? "Cliente teste"}
                     </Text>
                   </li>
 
@@ -73,7 +93,8 @@ export default function DailySchedulesNotification({ date, name, schedules }: Pr
 
                   <li>
                     <Text style={paragraph}>
-                      <strong>Serviço</strong>: {schedule.service.name ?? "Serviço teste"}
+                      <strong>Serviço</strong>:{" "}
+                      {schedule.service.name ?? "Serviço teste"}
                     </Text>
                   </li>
                 </ul>
@@ -82,7 +103,8 @@ export default function DailySchedulesNotification({ date, name, schedules }: Pr
                 <ul key={schedule.id} style={list}>
                   <li>
                     <Text style={paragraph}>
-                      <strong>Cliente</strong>: {schedule.fullName ?? "Cliente teste"}
+                      <strong>Cliente</strong>:{" "}
+                      {schedule.fullName ?? "Cliente teste"}
                     </Text>
                   </li>
 
@@ -94,7 +116,8 @@ export default function DailySchedulesNotification({ date, name, schedules }: Pr
 
                   <li>
                     <Text style={paragraph}>
-                      <strong>Serviço</strong>: {schedule.service.name ?? "Serviço teste"}
+                      <strong>Serviço</strong>:{" "}
+                      {schedule.service.name ?? "Serviço teste"}
                     </Text>
                   </li>
                 </ul>

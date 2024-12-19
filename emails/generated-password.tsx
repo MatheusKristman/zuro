@@ -1,6 +1,21 @@
-import { Html, Head, Preview, Body, Container, Img, Text, Hr, Link, Section, Button } from "@react-email/components";
+import {
+  Html,
+  Head,
+  Preview,
+  Body,
+  Container,
+  Img,
+  Text,
+  Hr,
+  Link,
+  Section,
+  Button,
+} from "@react-email/components";
 
-const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
+const imageUrl =
+  process.env.NODE_ENV === "production"
+    ? `${process.env.BASE_URL}/zuro-email.png`
+    : "/static/zuro-email.png";
 
 interface Props {
   name: string;
@@ -9,7 +24,12 @@ interface Props {
   url: string;
 }
 
-export default function GeneratedPassword({ name, email, password, url }: Props) {
+export default function GeneratedPassword({
+  name,
+  email,
+  password,
+  url,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
@@ -23,10 +43,13 @@ export default function GeneratedPassword({ name, email, password, url }: Props)
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Bem-vindo à nossa plataforma de agendamento Zuro! Estamos felizes em tê-lo conosco.
+            Bem-vindo à nossa plataforma de agendamento Zuro! Estamos felizes em
+            tê-lo conosco.
           </Text>
 
-          <Text style={subtitle}>Abaixo estão os detalhes para acessar sua conta:</Text>
+          <Text style={subtitle}>
+            Abaixo estão os detalhes para acessar sua conta:
+          </Text>
 
           <ul>
             <li>
@@ -43,7 +66,8 @@ export default function GeneratedPassword({ name, email, password, url }: Props)
           </ul>
 
           <Text style={paragraph}>
-            Recomendamos que você altere sua senha após o primeiro acesso para garantir sua segurança.
+            Recomendamos que você altere sua senha após o primeiro acesso para
+            garantir sua segurança.
           </Text>
 
           <Text style={paragraph}>Acesse sua conta pelo botão abaixo:</Text>
@@ -56,7 +80,10 @@ export default function GeneratedPassword({ name, email, password, url }: Props)
 
           <Hr style={hrLine} />
 
-          <Text style={linkParagraph}>Se precisar de ajuda ou tiver alguma dúvida, estamos aqui para ajudar.</Text>
+          <Text style={linkParagraph}>
+            Se precisar de ajuda ou tiver alguma dúvida, estamos aqui para
+            ajudar.
+          </Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}

@@ -1,6 +1,19 @@
-import { Html, Head, Preview, Body, Container, Img, Text, Hr, Link } from "@react-email/components";
+import {
+  Html,
+  Head,
+  Preview,
+  Body,
+  Container,
+  Img,
+  Text,
+  Hr,
+  Link,
+} from "@react-email/components";
 
-const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
+const imageUrl =
+  process.env.NODE_ENV === "production"
+    ? `${process.env.BASE_URL}/zuro-email.png`
+    : "/static/zuro-email.png";
 
 interface Props {
   service: string;
@@ -10,13 +23,20 @@ interface Props {
   professionalName: string;
 }
 
-export default function ClientServiceScheduleNotification({ service, date, name, time, professionalName }: Props) {
+export default function ClientServiceScheduleNotification({
+  service,
+  date,
+  name,
+  time,
+  professionalName,
+}: Props) {
   return (
     <Html style={html}>
       <Head />
 
       <Preview>
-        Serviço {service ?? "Serviço teste"} agendado para o dia {date ?? "01/01/2025"}
+        Serviço {service ?? "Serviço teste"} agendado para o dia{" "}
+        {date ?? "01/01/2025"}
       </Preview>
 
       <Body style={main}>
@@ -26,13 +46,15 @@ export default function ClientServiceScheduleNotification({ service, date, name,
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Seu agendamento foi realizado com sucesso! Abaixo estão os detalhes do seu atendimento:
+            Seu agendamento foi realizado com sucesso! Abaixo estão os detalhes
+            do seu atendimento:
           </Text>
 
           <ul>
             <li>
               <Text style={paragraph}>
-                <strong>Profissional</strong>: {professionalName ?? "Profissional teste"}
+                <strong>Profissional</strong>:{" "}
+                {professionalName ?? "Profissional teste"}
               </Text>
             </li>
 
@@ -44,18 +66,22 @@ export default function ClientServiceScheduleNotification({ service, date, name,
 
             <li>
               <Text style={paragraph}>
-                <strong>Data e Hora</strong>: {date ?? "01/01/2025"} às {time ?? "10:00"}
+                <strong>Data e Hora</strong>: {date ?? "01/01/2025"} às{" "}
+                {time ?? "10:00"}
               </Text>
             </li>
           </ul>
 
           <Text style={paragraph}>
-            Caso precise remarcar ou cancelar o agendamento, entre em contato com o profissional.
+            Caso precise remarcar ou cancelar o agendamento, entre em contato
+            com o profissional.
           </Text>
 
           <Hr style={hrLine} />
 
-          <Text style={linkParagraph}>Agradecemos por escolher nossos serviços!</Text>
+          <Text style={linkParagraph}>
+            Agradecemos por escolher nossos serviços!
+          </Text>
 
           <Text style={linkParagraph}>
             Contato:{" "}

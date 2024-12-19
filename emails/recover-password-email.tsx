@@ -1,6 +1,21 @@
-import { Html, Head, Preview, Body, Container, Img, Text, Hr, Section, Button, Link } from "@react-email/components";
+import {
+  Html,
+  Head,
+  Preview,
+  Body,
+  Container,
+  Img,
+  Text,
+  Hr,
+  Section,
+  Button,
+  Link,
+} from "@react-email/components";
 
-const imageUrl = process.env.NODE_ENV === "production" ? `${process.env.BASE_URL}/logo.svg` : "/static/logo.svg";
+const imageUrl =
+  process.env.NODE_ENV === "production"
+    ? `${process.env.BASE_URL}/zuro-email.png`
+    : "/static/zuro-email.png";
 
 interface Props {
   name: string;
@@ -21,8 +36,8 @@ export default function RecoverPasswordEmail({ name, url }: Props) {
           <Text style={title}>Olá {name ?? "Nome teste"},</Text>
 
           <Text style={subtitle}>
-            Recebemos uma solicitação para redefinir a senha da sua conta no Zuro. Clique no botão abaixo para criar uma
-            nova senha:
+            Recebemos uma solicitação para redefinir a senha da sua conta no
+            Zuro. Clique no botão abaixo para criar uma nova senha:
           </Text>
 
           <Section style={buttonContainer}>
@@ -34,8 +49,8 @@ export default function RecoverPasswordEmail({ name, url }: Props) {
           <Hr style={hrLine} />
 
           <Text style={linkParagraph}>
-            Se você não solicitou essa alteração, por favor, ignore este e-mail. O link de redefinição é válido por 1
-            hora.
+            Se você não solicitou essa alteração, por favor, ignore este e-mail.
+            O link de redefinição é válido por 1 hora.
           </Text>
 
           <Text style={linkParagraph}>
@@ -109,13 +124,6 @@ const button = {
 const hrLine = {
   width: "100%",
   marginBottom: "16px !important",
-};
-
-const paragraph = {
-  color: "#64748b",
-  letterSpacing: "0",
-  margin: "0",
-  textAlign: "left" as const,
 };
 
 const linkParagraph = {

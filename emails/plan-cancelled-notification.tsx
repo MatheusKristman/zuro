@@ -14,8 +14,8 @@ import {
 
 const imageUrl =
   process.env.NODE_ENV === "production"
-    ? `${process.env.BASE_URL}/logo.svg`
-    : "/static/logo.svg";
+    ? `${process.env.BASE_URL}/zuro-email.png`
+    : "/static/zuro-email.png";
 
 interface Props {
   productName: string;
