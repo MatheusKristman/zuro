@@ -13,8 +13,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const updatePrimaryColor = (hex: string) => {
       setColor(hex);
 
-      console.log({ hex });
-
       const hexToRgb = (hex: string) => {
         hex = hex.replace(/^#/, "");
         const bigint = parseInt(hex, 16);
@@ -30,7 +28,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
 
     if (data !== undefined) {
-      console.log({ data });
       updatePrimaryColor(data.color);
     }
   }, [data]);

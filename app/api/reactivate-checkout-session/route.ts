@@ -11,7 +11,10 @@ export async function POST() {
       return new Response("Plano não encontrado", { status: 404 });
     }
 
-    const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.BASE_URL_DEV!
+        : process.env.BASE_URL!;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -29,7 +32,9 @@ export async function POST() {
       cancel_url: `${baseUrl}/dashboard/conta/plano`,
     });
 
-    return Response.json({ url: session.url! });
+    console.log({ value: session });
+
+    return Response.redirect(session.url as string);
   } catch (error) {
     console.log(`[ERROR_CREATE_CHECKOUT_SESSION]: ${error}`);
 

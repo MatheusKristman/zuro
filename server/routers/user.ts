@@ -10,12 +10,13 @@ import { render } from "@react-email/components";
 import nodemailer from "nodemailer";
 
 import RecoverPasswordEmail from "@/emails/recover-password-email";
+import ClientScheduleCancelNotification from "@/emails/client-schedule-cancel-notification";
+import ProfessionalScheduleCancelNotification from "@/emails/professional-schedule-cancel-notification";
+import ConfirmationCodeNotification from "@/emails/confirmation-code-notification";
 
 import { isUserAuthedProcedure, publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
-import ClientScheduleCancelNotification from "@/emails/client-schedule-cancel-notification";
-import ProfessionalScheduleCancelNotification from "@/emails/professional-schedule-cancel-notification";
 
 export const userRouter = router({
   getUser: isUserAuthedProcedure.query(async (opts) => {
@@ -706,6 +707,157 @@ export const userRouter = router({
       return {
         error: false,
         message: "Nome atualizado com sucesso",
+      };
+    }),
+  sendConfirmationCodeToMail: isUserAuthedProcedure
+    .input(
+      z.object({
+        newEmail: z
+          .string()
+          .email("E-mail inválido")
+          .min(1, "E-mail é obrigatório"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { newEmail } = opts.input;
+      const { email } = opts.ctx.user.user;
+      const devEmailUser = process.env.EMAIL_DEV_USER!;
+      const devEmailPass = process.env.EMAIL_DEV_PASS!;
+      const emailUser = process.env.EMAIL_USER!;
+      const emailPass = process.env.EMAIL_PASS!;
+      const devConfig = {
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: devEmailUser,
+          pass: devEmailPass,
+        },
+      };
+      const prodConfig = {
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      };
+
+      if (!email) {
+        return {
+          error: true,
+          message: "E-mail não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const generateAlphanumericCode = (length: number = 6): string => {
+        const chars =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        let result = "";
+
+        for (let i = 0; i < length; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+
+        return result;
+      };
+
+      const code = generateAlphanumericCode();
+
+      await prisma.resetCode.create({
+        data: {
+          userId: user.id,
+          code,
+          newEmail,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        },
+      });
+
+      const emailHtml = await render(
+        ConfirmationCodeNotification({
+          code,
+          name: user.name!,
+        }),
+      );
+
+      const options = {
+        from: emailUser,
+        to: newEmail,
+        subject: "Código de Confirmação para Alteração do E-mail - Zuro",
+        html: emailHtml,
+      };
+
+      if (process.env.NODE_ENV === "development") {
+        const transporter = nodemailer.createTransport(devConfig);
+
+        await transporter.sendMail(options);
+      } else {
+        const transporter = nodemailer.createTransport(prodConfig);
+
+        await transporter.sendMail(options);
+      }
+
+      return {
+        error: false,
+        message: "Código enviado no e-mail cadastrado",
+      };
+    }),
+  confirmChangeEmailCode: isUserAuthedProcedure
+    .input(
+      z.object({
+        code: z.string().min(1, "Código obrigatório").min(6, "Código inválido"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { code } = opts.input;
+
+      const resetCode = await prisma.resetCode.findFirst({
+        where: {
+          code,
+          expiresAt: {
+            gt: new Date(),
+          },
+        },
+      });
+
+      if (!resetCode) {
+        return {
+          error: true,
+          message: "Código inválido ou expirado",
+        };
+      }
+
+      await prisma.user.update({
+        where: {
+          id: resetCode.userId,
+        },
+        data: {
+          email: resetCode.newEmail,
+        },
+      });
+
+      await prisma.resetCode.delete({
+        where: {
+          id: resetCode.id,
+        },
+      });
+
+      return {
+        error: false,
+        message: "E-mail atualizado com sucesso",
       };
     }),
   getSchedulesByDate: isUserAuthedProcedure

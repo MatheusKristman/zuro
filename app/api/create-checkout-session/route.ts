@@ -11,7 +11,10 @@ export async function POST() {
       return new Response("Plano não encontrado", { status: 404 });
     }
 
-    const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.BASE_URL_DEV!
+        : process.env.BASE_URL!;
 
     const session = await stripe.checkout.sessions.create({
       line_items: [
@@ -24,6 +27,7 @@ export async function POST() {
       subscription_data: {
         trial_period_days: 30,
       },
+      allow_promotion_codes: true,
       success_url: `${baseUrl}/cadastro?checkout={CHECKOUT_SESSION_ID}`,
       cancel_url: `https://zuroagenda.com/`,
     });

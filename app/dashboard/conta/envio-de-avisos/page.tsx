@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Toggle } from "@/components/ui/toggle";
 
 import { trpc } from "@/lib/trpc-client";
+import { useRouter } from "next/navigation";
 
 function GoogleLoginButton() {
   const trpcUtils = trpc.useUtils();
@@ -71,6 +72,7 @@ export default function AlertConfigurationPage() {
     useState<boolean>(false);
 
   const trpcUtils = trpc.useUtils();
+  const router = useRouter();
 
   const { data, isPending } = trpc.userRouter.getGoogleClientToken.useQuery();
   const { data: emailNotificationOptions, isPending: isEmailOptionsPending } =
@@ -105,6 +107,8 @@ export default function AlertConfigurationPage() {
         toast.success(res.message);
 
         trpcUtils.userRouter.getEmailNotificationOptions.invalidate();
+
+        router.replace("/dashboard/conta");
       },
       onError: (err) => {
         console.error(err);
