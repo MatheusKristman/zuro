@@ -2,7 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { addDays, format } from "date-fns";
-import { Calendar as CalendarIcon, Loader2, Search, UserRound, UserRoundSearch, UserRoundX } from "lucide-react";
+import {
+  Calendar as CalendarIcon,
+  Loader2,
+  Search,
+  UserRound,
+  UserRoundSearch,
+  UserRoundX,
+} from "lucide-react";
 import { DateRange } from "react-day-picker";
 import Image from "next/image";
 import { User } from "@prisma/client";
@@ -10,10 +17,25 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
@@ -29,16 +51,20 @@ export function Logins() {
     to: addDays(new Date(), 60),
   });
 
-  const { mutate: getUsers, isPending } = trpc.adminRouter.getUsers.useMutation({
-    onSuccess: (res) => {
-      setUsers(res.users);
-    },
-    onError: (err) => {
-      console.error(err);
+  const { mutate: getUsers, isPending } = trpc.adminRouter.getUsers.useMutation(
+    {
+      onSuccess: (res) => {
+        setUsers(res.users);
+      },
+      onError: (err) => {
+        console.error(err);
 
-      toast.error("Ocorreu um erro ao resgatar os logins, tente novamente mais tarde");
+        toast.error(
+          "Ocorreu um erro ao resgatar os logins, tente novamente mais tarde",
+        );
+      },
     },
-  });
+  );
 
   useEffect(() => {
     if (date && date?.from !== undefined && date?.to !== undefined) {
@@ -57,8 +83,8 @@ export function Logins() {
             searchValue
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase()
-          )
+              .toLowerCase(),
+          ),
       );
 
       setUsersFiltered(filter);
@@ -74,8 +100,8 @@ export function Logins() {
             searchValue
               .normalize("NFD")
               .replace(/[\u0300-\u036f]/g, "")
-              .toLowerCase()
-          )
+              .toLowerCase(),
+          ),
       );
 
       setUsersFiltered(filter);
@@ -87,12 +113,20 @@ export function Logins() {
       <div className="w-full flex flex-col gap-4 sm:flex-row sm:justify-between">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="xl" className={cn("w-full sm:w-fit", !date && "text-muted-foreground")}>
+            <Button
+              variant="outline"
+              size="xl"
+              className={cn(
+                "w-full sm:w-fit",
+                !date && "text-muted-foreground",
+              )}
+            >
               <CalendarIcon />
               {date?.from ? (
                 date.to ? (
                   <>
-                    {format(date.from, "LLL dd, y")} - {format(date.to, "LLL dd, y")}
+                    {format(date.from, "LLL dd, y")} -{" "}
+                    {format(date.to, "LLL dd, y")}
                   </>
                 ) : (
                   format(date.from, "LLL dd, y")
@@ -147,13 +181,23 @@ export function Logins() {
 
       {isPending ? (
         <div className="w-full flex flex-col items-center gap-2">
-          <Loader2 size={50} strokeWidth={1.5} className="animate-spin text-skin-primary" />
+          <Loader2
+            size={50}
+            strokeWidth={1.5}
+            className="animate-spin text-skin-primary"
+          />
 
-          <span className="text-skin-primary text-xl font-semibold text-center">Carregando contas...</span>
+          <span className="text-skin-primary text-xl font-semibold text-center">
+            Carregando contas...
+          </span>
         </div>
       ) : searchValue.length > 3 && usersFiltered.length === 0 ? (
         <div className="w-full flex flex-col items-center gap-2">
-          <UserRoundSearch size={50} strokeWidth={1.5} className="text-skin-primary opacity-60" />
+          <UserRoundSearch
+            size={50}
+            strokeWidth={1.5}
+            className="text-skin-primary opacity-60"
+          />
 
           <span className="text-skin-primary text-xl font-semibold text-center opacity-60">
             Nenhuma conta encontrada
@@ -162,24 +206,35 @@ export function Logins() {
       ) : searchValue.length > 3 && usersFiltered.length > 0 ? (
         <Accordion type="single" collapsible className="w-full">
           {usersFiltered.map((user) => (
-            <AccordionItem value={user.id} key={user.id} className="border-0 bg-skin-primary rounded-2xl">
+            <AccordionItem
+              value={user.id}
+              key={user.id}
+              className="border-0 bg-skin-primary rounded-2xl"
+            >
               <AccordionTrigger className="px-4">
                 <div className="flex items-center gap-4">
                   <div
                     className={cn(
                       "relative w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center",
-                      "bg-white"
+                      "bg-white",
                     )}
                   >
                     {user.image ? (
-                      <Image src={user.image} alt="Foto de perfil" fill className="object-center object-cover" />
+                      <Image
+                        src={user.image}
+                        alt="Foto de perfil"
+                        fill
+                        className="object-center object-cover"
+                      />
                     ) : (
                       <UserRound className="text-skin-primary" />
                     )}
                   </div>
 
                   <div className="flex flex-col items-center gap-1">
-                    <h4 className="text-lg font-semibold text-white">{user.name}</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      {user.name}
+                    </h4>
 
                     <div className="h-[2px] w-full bg-white/50" />
 
@@ -199,13 +254,17 @@ export function Logins() {
                   {/* </div> */}
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">E-mail:</span>
+                    <span className="text-base text-white font-bold">
+                      E-mail:
+                    </span>
 
                     <span className="text-base text-white">{user.email}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">Data de cadastro:</span>
+                    <span className="text-base text-white font-bold">
+                      Data de cadastro:
+                    </span>
 
                     <span className="text-base text-white">
                       {format(new Date(user.createdAt), "dd/MM/yyyy - HH:mm")}
@@ -213,11 +272,19 @@ export function Logins() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">Plano:</span>
+                    <span className="text-base text-white font-bold">
+                      Plano:
+                    </span>
 
-                    <span className="text-base text-white">30 dias</span>
-
-                    <span className="bg-green-500 p-1 rounded-sm text-white text-center font-semibold">Ativo</span>
+                    {user.planId ? (
+                      <span className="bg-green-500 p-1 rounded-sm text-white text-center font-semibold">
+                        Ativo
+                      </span>
+                    ) : (
+                      <span className="bg-red-500 p-1 rounded-sm text-white text-center font-semibold">
+                        Inativo
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -236,7 +303,11 @@ export function Logins() {
         </Accordion>
       ) : users.length === 0 ? (
         <div className="w-full flex flex-col items-center gap-2">
-          <UserRoundX size={50} strokeWidth={1.5} className="text-skin-primary opacity-60" />
+          <UserRoundX
+            size={50}
+            strokeWidth={1.5}
+            className="text-skin-primary opacity-60"
+          />
 
           <span className="text-skin-primary text-xl font-semibold text-center opacity-60">
             Nenhuma conta cadastrada no momento
@@ -245,24 +316,35 @@ export function Logins() {
       ) : (
         <Accordion type="single" collapsible className="w-full">
           {users.map((user) => (
-            <AccordionItem value={user.id} key={user.id} className="border-0 bg-skin-primary rounded-2xl">
+            <AccordionItem
+              value={user.id}
+              key={user.id}
+              className="border-0 bg-skin-primary rounded-2xl"
+            >
               <AccordionTrigger className="px-4">
                 <div className="flex items-center gap-4">
                   <div
                     className={cn(
                       "relative w-10 h-10 rounded-full shrink-0 overflow-hidden flex items-center justify-center",
-                      "bg-white"
+                      "bg-white",
                     )}
                   >
                     {user.image ? (
-                      <Image src={user.image} alt="Foto de perfil" fill className="object-center object-cover" />
+                      <Image
+                        src={user.image}
+                        alt="Foto de perfil"
+                        fill
+                        className="object-center object-cover"
+                      />
                     ) : (
                       <UserRound className="text-skin-primary" />
                     )}
                   </div>
 
                   <div className="flex flex-col items-center gap-1">
-                    <h4 className="text-lg font-semibold text-white">{user.name}</h4>
+                    <h4 className="text-lg font-semibold text-white">
+                      {user.name}
+                    </h4>
 
                     <div className="h-[2px] w-full bg-white/50" />
 
@@ -282,13 +364,17 @@ export function Logins() {
                   {/* </div> */}
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">E-mail:</span>
+                    <span className="text-base text-white font-bold">
+                      E-mail:
+                    </span>
 
                     <span className="text-base text-white">{user.email}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">Data de cadastro:</span>
+                    <span className="text-base text-white font-bold">
+                      Data de cadastro:
+                    </span>
 
                     <span className="text-base text-white">
                       {format(new Date(user.createdAt), "dd/MM/yyyy - HH:mm")}
@@ -296,11 +382,19 @@ export function Logins() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-base text-white font-bold">Plano:</span>
+                    <span className="text-base text-white font-bold">
+                      Plano:
+                    </span>
 
-                    <span className="text-base text-white">30 dias</span>
-
-                    <span className="bg-green-500 p-1 rounded-sm text-white text-center font-semibold">Ativo</span>
+                    {user.planId ? (
+                      <span className="bg-green-500 p-1 rounded-sm text-white text-center font-semibold">
+                        Ativo
+                      </span>
+                    ) : (
+                      <span className="bg-red-500 p-1 rounded-sm text-white text-center font-semibold">
+                        Inativo
+                      </span>
+                    )}
                   </div>
                 </div>
 

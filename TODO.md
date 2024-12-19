@@ -11,6 +11,8 @@
 [x] - Checar primeira configuração
 [x] - Checar versões mobile e tablet das paginas
 [x] - Checar se usuário está autorizado nas paginas
+[ ] - Adicionar função de aplicar desconto para cliente no admin
+[ ] - Adicionar função de cancelar plano do cliente no admin
 [ ] - Configurar stripe para produção
 [ ] - Configurar google console para produção
 [ ] - Hospedar site
