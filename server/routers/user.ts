@@ -794,7 +794,7 @@ export const userRouter = router({
       );
 
       const options = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: newEmail,
         subject: "Código de Confirmação para Alteração do E-mail - Zuro",
         html: emailHtml,
@@ -996,13 +996,13 @@ export const userRouter = router({
       );
 
       const professionalOptions = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: schedule.user.email!,
         subject: `Confirmação de Cancelamento do Agendamento - Zuro`,
         html: professionalEmailHtml,
       };
       const clientOptions = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: schedule.email,
         subject: `Agendamento Cancelado - Zuro`,
         html: clientEmailHtml,
@@ -1510,7 +1510,7 @@ export const userRouter = router({
       );
 
       const options = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: user.email!,
         subject: "Redefina sua senha - Zuro",
         html: emailHtml,

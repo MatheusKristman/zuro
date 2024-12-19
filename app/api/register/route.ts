@@ -13,7 +13,10 @@ export async function POST(request: Request) {
     const devEmailPass = process.env.EMAIL_DEV_PASS!;
     const emailUser = process.env.EMAIL_USER!;
     const emailPass = process.env.EMAIL_PASS!;
-    const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+    const baseUrl =
+      process.env.NODE_ENV === "development"
+        ? process.env.BASE_URL_DEV!
+        : process.env.BASE_URL!;
     const devConfig = {
       host: "sandbox.smtp.mailtrap.io",
       port: 2525,
@@ -46,11 +49,11 @@ export async function POST(request: Request) {
         email: email as string,
         password: generatedPassword,
         url: `${baseUrl}/`,
-      })
+      }),
     );
 
     const options = {
-      from: emailUser,
+      from: '"Zuro" suporte.zuro@gmail.com',
       to: email,
       subject: "Bem-vindo à Zuro!",
       html: emailHtml,

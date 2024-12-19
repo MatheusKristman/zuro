@@ -306,7 +306,7 @@ export const scheduleRouter = router({
       );
 
       const clientOptions = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: schedule.email,
         subject: `Confirmação de Agendamento - ${formattedDate} às ${schedule.time} - Zuro`,
         html: clientEmailHtml,

@@ -22,7 +22,10 @@ export async function POST(req: Request) {
   const devEmailPass = process.env.EMAIL_DEV_PASS!;
   const emailUser = process.env.EMAIL_USER!;
   const emailPass = process.env.EMAIL_PASS!;
-  const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+  const baseUrl =
+    process.env.NODE_ENV === "development"
+      ? process.env.BASE_URL_DEV!
+      : process.env.BASE_URL!;
   const devConfig = {
     host: "sandbox.smtp.mailtrap.io",
     port: 2525,
@@ -55,7 +58,9 @@ export async function POST(req: Request) {
   try {
     if (event.type === "checkout.session.completed") {
       const subscriptionId = event.data.object.subscription;
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId as string);
+      const subscription = await stripe.subscriptions.retrieve(
+        subscriptionId as string,
+      );
       const prodId = subscription.items.data[0].price.product;
       const product = await stripe.products.retrieve(prodId as string);
       const userSub = await prisma.subscription.findFirst({
@@ -70,13 +75,18 @@ export async function POST(req: Request) {
       const emailHtml = await render(
         PlanHiredNotification({
           productName: product.name,
-          productPrice: formatPrice(subscription.items.data[0].price.unit_amount! / 100),
-          hiredDate: format(new Date(subscription.current_period_start), "dd/MM/yyyy"),
-        })
+          productPrice: formatPrice(
+            subscription.items.data[0].price.unit_amount! / 100,
+          ),
+          hiredDate: format(
+            new Date(subscription.current_period_start),
+            "dd/MM/yyyy",
+          ),
+        }),
       );
 
       const options = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: userSub!.user.email!,
         subject: "Confirmação de Contratação do Plano - Zuro",
         html: emailHtml,
@@ -95,7 +105,9 @@ export async function POST(req: Request) {
 
     if (event.type === "customer.subscription.deleted") {
       const subscriptionId = event.data.object.id;
-      const subscription = await stripe.subscriptions.retrieve(subscriptionId! as string);
+      const subscription = await stripe.subscriptions.retrieve(
+        subscriptionId! as string,
+      );
       const prodId = subscription.items.data[0].price.product;
       const product = await stripe.products.retrieve(prodId as string);
       const userSub = await prisma.subscription.findFirst({
@@ -118,11 +130,11 @@ export async function POST(req: Request) {
           productName: product.name,
           url: `${baseUrl}/dashboard/conta/plano`,
           cancelDate: format(new Date(subscription.canceled_at!), "dd/MM/yyyy"),
-        })
+        }),
       );
 
       const options = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: userSub!.user.email!,
         subject: "Seu Plano Foi Encerrado - Zuro",
         html: emailHtml,

@@ -50,27 +50,34 @@ export async function POST() {
       return new Response("Sem agendamentos no dia", { status: 200 });
     }
 
-    const groupedSchedules: Record<string, ScheduleType[]> = todaySchedules.reduce(
-      (acc, schedule) => {
-        if (schedule.user.emailNotification && schedule.user.notificationDailySchedules) {
-          const professionalEmail = schedule.user.email!;
+    const groupedSchedules: Record<string, ScheduleType[]> =
+      todaySchedules.reduce(
+        (acc, schedule) => {
+          if (
+            schedule.user.emailNotification &&
+            schedule.user.notificationDailySchedules
+          ) {
+            const professionalEmail = schedule.user.email!;
 
-          if (!acc[professionalEmail]) {
-            acc[professionalEmail] = [];
+            if (!acc[professionalEmail]) {
+              acc[professionalEmail] = [];
+            }
+
+            acc[professionalEmail].push(schedule);
           }
 
-          acc[professionalEmail].push(schedule);
-        }
-
-        return acc;
-      },
-      {} as Record<string, ScheduleType[]>
-    );
+          return acc;
+        },
+        {} as Record<string, ScheduleType[]>,
+      );
 
     if (Object.entries(groupedSchedules).length === 0) {
-      return new Response("Sem e-mails para enviar as notificações dos agendamentos", {
-        status: 200,
-      });
+      return new Response(
+        "Sem e-mails para enviar as notificações dos agendamentos",
+        {
+          status: 200,
+        },
+      );
     }
 
     for (const [email, schedules] of Object.entries(groupedSchedules)) {
@@ -79,11 +86,11 @@ export async function POST() {
           name: schedules[0].user.name!,
           date: format(new Date(), "dd/MM/yyyy"),
           schedules,
-        })
+        }),
       );
 
       const options = {
-        from: emailUser,
+        from: '"Zuro" suporte.zuro@gmail.com',
         to: email,
         subject: "Seus agendamentos de hoje - Zuro",
         html: emailHtml,
