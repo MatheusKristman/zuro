@@ -10,12 +10,15 @@ import { Button } from "@/components/ui/button";
 
 import { UploadButton } from "@/lib/uploadthing";
 import { trpc } from "@/lib/trpc-client";
+import { cn } from "@/lib/utils";
 
 export default function ChangeProfilePhotoPage() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const util = trpc.useUtils();
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
+
+  const pending = isSubmitting || isPending;
 
   return (
     <main className="dashboard-main">
@@ -57,10 +60,11 @@ export default function ChangeProfilePhotoPage() {
                 allowedContent({ ready, isUploading }) {
                   if (!ready) return "Carregando...";
                   if (isUploading) return "Enviando...";
+
                   return "Imagem (4MB)";
                 },
               }}
-              disabled={isPending || isSubmitting}
+              disabled={pending}
               endpoint="updateProfilePhoto"
               input={{ id: data?.user.id ?? "" }}
               onClientUploadComplete={() => {
@@ -69,10 +73,13 @@ export default function ChangeProfilePhotoPage() {
                 toast.success("Foto atualizada com sucesso");
               }}
               onUploadError={(error: Error) => {
+                setIsSubmitting(false);
                 toast.error("Ocorreu um erro!");
                 console.error(`UPLOADTHING ERROR! ${error.message}`);
               }}
               onBeforeUploadBegin={(files) => {
+                setIsSubmitting(true);
+
                 return files.map(
                   (f) => new File([f], f.name, { type: f.type }),
                 );
@@ -87,11 +94,15 @@ export default function ChangeProfilePhotoPage() {
             <Button
               size="xl"
               variant="outline"
-              className="w-full sm:max-w-md"
-              disabled={isPending || isSubmitting}
+              className={cn("w-full sm:max-w-md", pending && "opacity-50")}
+              disabled={pending}
               asChild
             >
-              <Link href="/dashboard/conta">Voltar</Link>
+              {pending ? (
+                <span className="pointer-events-none">Voltar</span>
+              ) : (
+                <Link href="/dashboard/conta">Voltar</Link>
+              )}
             </Button>
           </div>
         </div>

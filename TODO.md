@@ -5,7 +5,7 @@
 [x] - Verificar se vale a pena ter duas rotas para cupons nos checkouts
 [x] - Ao salvar as notificações do e-mail, redirecionar para /dashboard/conta
 [x] - Recarregar página ao reativar o plano
-[ ] - Adicionar disabled no botão voltar enquanto atualiza foto na pagina "/alterar-foto"
+[x] - Adicionar disabled no botão voltar enquanto atualiza foto na pagina "/alterar-foto"
 [ ] - Configurar stripe para produção
 [ ] - Configurar google console para produção
 [ ] - Hospedar site
