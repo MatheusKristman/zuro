@@ -17,6 +17,7 @@ import ConfirmationCodeNotification from "@/emails/confirmation-code-notificatio
 import { isUserAuthedProcedure, publicProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import GeneratedPassword from "@/emails/generated-password";
 
 export const userRouter = router({
   getUser: isUserAuthedProcedure.query(async (opts) => {
@@ -82,6 +83,30 @@ export const userRouter = router({
     .mutation(async (opts) => {
       const { input } = opts;
       const { email, name, checkoutId } = input;
+      const devEmailUser = process.env.EMAIL_DEV_USER!;
+      const devEmailPass = process.env.EMAIL_DEV_PASS!;
+      const emailUser = process.env.EMAIL_USER!;
+      const emailPass = process.env.EMAIL_PASS!;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL!;
+      const devConfig = {
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: devEmailUser,
+          pass: devEmailPass,
+        },
+      };
+      const prodConfig = {
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      };
 
       const accountExists = await prisma.user.findUnique({
         where: {
@@ -107,11 +132,34 @@ export const userRouter = router({
         numbers: true,
       });
 
+      const emailHtml = await render(
+        GeneratedPassword({
+          name: name as string,
+          email: email as string,
+          password: generatedPassword,
+          url: `${baseUrl}/`,
+        }),
+      );
+
+      const options = {
+        from: '"Zuro" suporte.zuro@gmail.com',
+        to: email,
+        subject: "Bem-vindo à Zuro!",
+        html: emailHtml,
+      };
+
+      if (process.env.NODE_ENV === "development") {
+        const transporter = nodemailer.createTransport(devConfig);
+
+        await transporter.sendMail(options);
+      } else {
+        const transporter = nodemailer.createTransport(prodConfig);
+
+        await transporter.sendMail(options);
+      }
+
       const salt = await bcrypt.genSalt(10);
       const pwHash = await bcrypt.hash(generatedPassword, salt);
-
-      // TODO: enviar no e-mail a senha para o usuário
-      console.log({ generatedPassword });
 
       const checkoutResult =
         await stripe.checkout.sessions.retrieve(checkoutId);
