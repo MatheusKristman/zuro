@@ -35,9 +35,7 @@ export default function VacationModePage() {
       onError: (err) => {
         console.error(err);
 
-        toast.error(
-          "Ocorreu um erro ao atualizar o modo férias da sua conta, tente novamente mais tarde",
-        );
+        toast.error("Ocorreu um erro ao atualizar o modo férias da sua conta, tente novamente mais tarde");
       },
     });
 
@@ -51,67 +49,42 @@ export default function VacationModePage() {
 
   return (
     <main className="dashboard-main">
-      <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">
-          Configurar Modo Férias
-        </h2>
+      <div className="dashboard-container flex flex-col justify-between mb-12">
+        <h2 className="text-3xl font-bold text-center text-white mt-10">Configurar Modo Férias</h2>
 
-        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 my-10">
+        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 mt-10">
           <p className="text-lg text-muted-foreground">
-            Ative o Modo Férias para pausar temporariamente os agendamentos.
-            Enquanto esse modo estiver ativo, novos agendamentos não poderão ser
-            realizados, mas você poderá gerenciar os existentes. Quando estiver
-            pronto para voltar, basta desativar o modo para reabrir sua agenda.
+            Ative o Modo Férias para pausar temporariamente os agendamentos. Enquanto esse modo estiver ativo, novos
+            agendamentos não poderão ser realizados, mas você poderá gerenciar os existentes. Quando estiver pronto para
+            voltar, basta desativar o modo para reabrir sua agenda.
           </p>
 
           {isPending ? (
             <div className="w-full flex items-center justify-center">
-              <Loader2
-                strokeWidth={1.5}
-                className="animate-spin size-10 text-muted-foreground"
-              />
+              <Loader2 strokeWidth={1.5} className="animate-spin size-10 text-muted-foreground" />
             </div>
           ) : (
             <div className="w-full flex flex-col items-center gap-4">
               <span
-                className={cn(
-                  "bg-muted rounded-xl py-2 px-4 text-muted-foreground font-semibold",
-                  {
-                    "bg-green-400 text-green-700": data?.vacationMode,
-                  },
-                )}
+                className={cn("bg-muted rounded-xl py-2 px-4 text-muted-foreground font-semibold", {
+                  "bg-green-400 text-green-700": data?.vacationMode,
+                })}
               >
-                {data?.vacationMode !== null && data?.vacationMode
-                  ? "Ligado"
-                  : "Desligado"}
+                {data?.vacationMode !== null && data?.vacationMode ? "Ligado" : "Desligado"}
               </span>
 
               <div className="flex items-center gap-2">
-                <Label
-                  htmlFor="vacationMode"
-                  className="text-lg font-bold text-slate-600"
-                >
+                <Label htmlFor="vacationMode" className="text-lg font-bold text-slate-600">
                   Modo Férias:
                 </Label>
 
-                <Switch
-                  id="vacationMode"
-                  disabled={pending}
-                  checked={vacationMode}
-                  onCheckedChange={setVacationMode}
-                />
+                <Switch id="vacationMode" disabled={pending} checked={vacationMode} onCheckedChange={setVacationMode} />
               </div>
             </div>
           )}
 
           <div className="w-full flex flex-col gap-4 sm:flex-row">
-            <Button
-              size="xl"
-              variant="outline"
-              className="w-full"
-              disabled={pending}
-              asChild
-            >
+            <Button size="xl" variant="outline" className="w-full" disabled={pending} asChild>
               <Link href="/dashboard/conta">Voltar</Link>
             </Button>
 

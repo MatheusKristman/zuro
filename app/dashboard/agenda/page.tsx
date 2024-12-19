@@ -1,11 +1,13 @@
 "use client";
 
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { formatPhoneNumber } from "react-phone-number-input";
-import { Schedule, Service } from "@prisma/client";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Schedule, Service } from "@prisma/client";
+import { formatPhoneNumber } from "react-phone-number-input";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 
 import { Calendar } from "@/components/ui/calendar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -112,7 +114,12 @@ export default function SchedulePage() {
   const [schedules, setSchedules] = useState<ScheduleWithService[]>([]);
   const [closeDelete, setCloseDelete] = useState<boolean>(false);
 
-  const { mutate: getSchedulesByDate, isPending } =
+  const { data, isPending } = trpc.userRouter.getUser.useQuery();
+
+  const router = useRouter();
+  const session = useSession();
+
+  const { mutate: getSchedulesByDate, isPending: isSchedulesPending } =
     trpc.userRouter.getSchedulesByDate.useMutation({
       onSuccess: (res) => {
         setSchedules(res.schedules);
@@ -121,7 +128,6 @@ export default function SchedulePage() {
         console.error(err);
       },
     });
-
   const { mutate: cancelSchedule, isPending: isCancelSchedulePending } =
     trpc.userRouter.cancelSchedule.useMutation({
       onSuccess: () => {
@@ -136,11 +142,21 @@ export default function SchedulePage() {
       },
     });
 
-  const pending = isPending;
+  const pending = isSchedulesPending || isPending;
 
   function seeReceipt(url: string) {
     window.open(url, "_blank")?.focus();
   }
+
+  useEffect(() => {
+    if (session.status === "unauthenticated") {
+      router.replace("/");
+    }
+
+    if (data && data.user.role === "USER" && !data.user.firstAccess) {
+      router.replace("/dashboard/primeira-configuracao?step=0");
+    }
+  }, [data, session, router]);
 
   useEffect(() => {
     if (date !== undefined) {

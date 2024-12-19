@@ -225,10 +225,9 @@ export const userRouter = router({
         redirect: true,
       };
     }),
-  newPassword: publicProcedure
+  newPassword: isUserAuthedProcedure
     .input(
       z.object({
-        id: z.string().min(1, "ID é obrigatório"),
         password: z
           .string({
             required_error: "Este campo é obrigatória",
@@ -247,18 +246,39 @@ export const userRouter = router({
     )
     .mutation(async (opts) => {
       const { input } = opts;
-      const { id, password } = input;
+      const { password } = input;
+      const { email } = opts.ctx.user.user;
+
+      if (!email) {
+        return {
+          error: true,
+          message: "E-mail não encontrado",
+        };
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return {
+          error: true,
+          message: "Usuário não encontrado",
+        };
+      }
 
       const salt = await bcrypt.genSalt(10);
       const pwHash = await bcrypt.hash(password, salt);
 
       await prisma.user.update({
         where: {
-          id,
+          id: user.id,
         },
         data: {
           password: pwHash,
-          emailVerified: new Date(),
+          passwordVerified: true,
         },
       });
 

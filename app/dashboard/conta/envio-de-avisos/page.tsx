@@ -18,25 +18,24 @@ import { useRouter } from "next/navigation";
 function GoogleLoginButton() {
   const trpcUtils = trpc.useUtils();
 
-  const { mutate: generateGoogleToken, isPending } =
-    trpc.userRouter.generateGoogleToken.useMutation({
-      onSuccess: (res) => {
-        if (res.error) {
-          toast.error(res.message);
+  const { mutate: generateGoogleToken, isPending } = trpc.userRouter.generateGoogleToken.useMutation({
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.message);
 
-          return;
-        }
+        return;
+      }
 
-        toast.success(res.message);
+      toast.success(res.message);
 
-        trpcUtils.userRouter.getGoogleClientToken.invalidate();
-      },
-      onError: (err) => {
-        console.error(err);
+      trpcUtils.userRouter.getGoogleClientToken.invalidate();
+    },
+    onError: (err) => {
+      console.error(err);
 
-        toast.error("Ocorreu um erro ao vincular a conta");
-      },
-    });
+      toast.error("Ocorreu um erro ao vincular a conta");
+    },
+  });
 
   const signInGoogle = useGoogleLogin({
     onSuccess: (codeResponse) => {
@@ -50,13 +49,7 @@ function GoogleLoginButton() {
   });
 
   return (
-    <Button
-      onClick={() => signInGoogle()}
-      disabled={isPending}
-      size="xl"
-      variant="outline"
-      className="w-fit"
-    >
+    <Button onClick={() => signInGoogle()} disabled={isPending} size="xl" variant="outline" className="w-fit">
       Vincular Conta
       <FcGoogle />
     </Button>
@@ -66,10 +59,8 @@ function GoogleLoginButton() {
 export default function AlertConfigurationPage() {
   const [hasToken, setHasToken] = useState<boolean>(false);
   const [emailNotification, setEmailNotification] = useState<boolean>(false);
-  const [notificationNewSchedule, setNotificationNewSchedule] =
-    useState<boolean>(false);
-  const [notificationDailySchedules, setNotificationDailySchedules] =
-    useState<boolean>(false);
+  const [notificationNewSchedule, setNotificationNewSchedule] = useState<boolean>(false);
+  const [notificationDailySchedules, setNotificationDailySchedules] = useState<boolean>(false);
 
   const trpcUtils = trpc.useUtils();
   const router = useRouter();
@@ -96,8 +87,8 @@ export default function AlertConfigurationPage() {
         toast.error("Ocorreu um erro ao desvincular a conta");
       },
     });
-  const { mutate: updateAlertsOptions, isPending: isUpdatingOptions } =
-    trpc.userRouter.updateAlertsOptions.useMutation({
+  const { mutate: updateAlertsOptions, isPending: isUpdatingOptions } = trpc.userRouter.updateAlertsOptions.useMutation(
+    {
       onSuccess: (res) => {
         if (res.error) {
           toast.error(res.message);
@@ -115,20 +106,15 @@ export default function AlertConfigurationPage() {
 
         toast.error("Ocorreu um erro ao salvar as opções");
       },
-    });
+    }
+  );
 
   const clientId = data?.clientId ?? "";
-  const pending =
-    isPending ||
-    isUnbindingGoogleToken ||
-    isEmailOptionsPending ||
-    isUpdatingOptions;
+  const pending = isPending || isUnbindingGoogleToken || isEmailOptionsPending || isUpdatingOptions;
   const saveEnabled =
     emailNotification !== emailNotificationOptions?.emailNotification ||
-    notificationNewSchedule !==
-      emailNotificationOptions?.notificationNewSchedule ||
-    notificationDailySchedules !==
-      emailNotificationOptions?.notificationDailySchedules;
+    notificationNewSchedule !== emailNotificationOptions?.notificationNewSchedule ||
+    notificationDailySchedules !== emailNotificationOptions?.notificationDailySchedules;
 
   useEffect(() => {
     if (data !== undefined) {
@@ -143,12 +129,8 @@ export default function AlertConfigurationPage() {
   useEffect(() => {
     if (emailNotificationOptions !== undefined) {
       setEmailNotification(emailNotificationOptions.emailNotification!);
-      setNotificationNewSchedule(
-        emailNotificationOptions.notificationNewSchedule!,
-      );
-      setNotificationDailySchedules(
-        emailNotificationOptions.notificationDailySchedules!,
-      );
+      setNotificationNewSchedule(emailNotificationOptions.notificationNewSchedule!);
+      setNotificationDailySchedules(emailNotificationOptions.notificationDailySchedules!);
     }
   }, [emailNotificationOptions]);
 
@@ -167,9 +149,7 @@ export default function AlertConfigurationPage() {
   return (
     <main className="dashboard-main">
       <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">
-          Alerta de Avisos
-        </h2>
+        <h2 className="text-3xl font-bold text-center text-white mt-10">Alerta de Avisos</h2>
 
         <div className="w-full my-10 p-6 bg-white rounded-3xl flex flex-col gap-12">
           <div className="w-full flex flex-col gap-6">
@@ -183,9 +163,7 @@ export default function AlertConfigurationPage() {
                   <div className="p-4 flex flex-col items-center gap-2 border border-input rounded-xl">
                     <FcGoogle size={26} />
 
-                    <span className="text-skin-primary text-base font-semibold">
-                      Google Agenda Conectado
-                    </span>
+                    <span className="text-skin-primary text-base font-semibold">Google Agenda Conectado</span>
 
                     <Button
                       onClick={() => unbindGoogleToken()}
@@ -195,11 +173,7 @@ export default function AlertConfigurationPage() {
                       className="w-full"
                     >
                       Desvincular
-                      {isUnbindingGoogleToken ? (
-                        <Loader2 className="animate-spin" />
-                      ) : (
-                        <LogOut />
-                      )}
+                      {isUnbindingGoogleToken ? <Loader2 className="animate-spin" /> : <LogOut />}
                     </Button>
                   </div>
                 </div>
@@ -214,10 +188,7 @@ export default function AlertConfigurationPage() {
               <div className="w-full h-px bg-muted" />
 
               <div className="flex flex-col gap-2">
-                <Label
-                  htmlFor="email-notification"
-                  className="font-bold text-slate-600"
-                >
+                <Label htmlFor="email-notification" className="font-bold text-slate-600">
                   Notificação por e-mail
                 </Label>
 
@@ -229,51 +200,42 @@ export default function AlertConfigurationPage() {
                 />
               </div>
 
-              <div className="flex flex-col gap-4 sm:flex-row">
-                <Toggle
-                  variant="outline"
-                  size="xl"
-                  disabled={!emailNotification}
-                  pressed={notificationNewSchedule}
-                  onPressedChange={(pressed) =>
-                    setNotificationNewSchedule(pressed)
-                  }
-                >
-                  Novo agendamento
-                </Toggle>
+              <div className="w-full flex flex-col gap-2">
+                <span className="text-sm font-bold text-slate-600">
+                  Selecione quando deseja receber as notificações
+                </span>
 
-                <Toggle
-                  variant="outline"
-                  size="xl"
-                  disabled={!emailNotification}
-                  pressed={notificationDailySchedules}
-                  onPressedChange={(pressed) =>
-                    setNotificationDailySchedules(pressed)
-                  }
-                >
-                  Agenda do dia
-                </Toggle>
+                <div className="flex flex-col gap-4 sm:flex-row">
+                  <Toggle
+                    variant="outline"
+                    size="xl"
+                    disabled={!emailNotification}
+                    pressed={notificationNewSchedule}
+                    onPressedChange={(pressed) => setNotificationNewSchedule(pressed)}
+                  >
+                    Novo agendamento
+                  </Toggle>
+
+                  <Toggle
+                    variant="outline"
+                    size="xl"
+                    disabled={!emailNotification}
+                    pressed={notificationDailySchedules}
+                    onPressedChange={(pressed) => setNotificationDailySchedules(pressed)}
+                  >
+                    Agenda do dia
+                  </Toggle>
+                </div>
               </div>
             </div>
           </div>
 
           <div className="w-full flex flex-col gap-4 sm:flex-row">
-            <Button
-              size="xl"
-              variant="outline"
-              className="w-full"
-              disabled={pending}
-              asChild
-            >
+            <Button size="xl" variant="outline" className="w-full" disabled={pending} asChild>
               <Link href="/dashboard/conta">Voltar</Link>
             </Button>
 
-            <Button
-              size="xl"
-              className="w-full"
-              disabled={pending || !saveEnabled}
-              onClick={saveOptions}
-            >
+            <Button size="xl" className="w-full" disabled={pending || !saveEnabled} onClick={saveOptions}>
               Salvar
               {isUpdatingOptions && <Loader2 className="animate-spin" />}
             </Button>

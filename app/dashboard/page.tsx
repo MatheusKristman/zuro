@@ -1,13 +1,13 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { Roboto_Flex } from "next/font/google";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { DateRange } from "react-day-picker";
-import { ptBR } from "date-fns/locale";
+import { Roboto_Flex } from "next/font/google";
+import { Calendar as CalendarIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -61,14 +61,8 @@ export default function Dashboard() {
   }, [pending]);
 
   useEffect(() => {
-    console.log({ data });
-
     if (session.status === "unauthenticated") {
       router.replace("/");
-    }
-
-    if (data && !data.user.emailVerified) {
-      router.replace("/nova-senha");
     }
 
     if (data && data.user.role === "ADMIN") {
@@ -77,6 +71,10 @@ export default function Dashboard() {
 
     if (data && data.user.role === "USER" && !data.user.firstAccess) {
       router.replace("/dashboard/primeira-configuracao?step=0");
+    }
+
+    if (data && data.user.role === "USER" && !data.user.passwordVerified) {
+      router.replace("/nova-senha");
     }
   }, [session, data, router]);
 
@@ -96,8 +94,8 @@ export default function Dashboard() {
       <div className="dashboard-container flex flex-col justify-between">
         <h2 className="text-3xl font-bold text-center text-white mt-10">Dashboard</h2>
 
-        <div className="w-full bg-white rounded-3xl p-6 mt-10 mb-6">
-          <div className="w-full p-4 rounded-2xl bg-skin-primary flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+        <div className="w-full bg-white rounded-3xl p-6 mt-10 mb-12">
+          <div className="w-full p-4 rounded-2xl bg-skin-primary flex flex-col items-center gap-2 sm:gap-6 sm:flex-row sm:justify-between">
             <span className="text-2xl text-white font-semibold text-center">Resumo do Mês</span>
 
             <Popover>

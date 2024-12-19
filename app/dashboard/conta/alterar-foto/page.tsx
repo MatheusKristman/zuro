@@ -22,27 +22,19 @@ export default function ChangeProfilePhotoPage() {
 
   return (
     <main className="dashboard-main">
-      <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">
-          Alterar Foto
-        </h2>
+      <div className="dashboard-container flex flex-col justify-between mb-12">
+        <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Foto</h2>
 
         <div className="w-full mt-10 bg-white rounded-3xl p-6 flex flex-col gap-12">
           <div className="w-full flex flex-col items-center gap-4">
             <p className="bg-muted p-3 rounded-xl block text-base font-medium text-muted-foreground text-center w-full max-w-md">
-              A foto selecionada será exibida para os clientes no momento do
-              agendamento, ajudando a identificar seu perfil de forma
-              personalizada.
+              A foto selecionada será exibida para os clientes no momento do agendamento, ajudando a identificar seu
+              perfil de forma personalizada.
             </p>
 
             <div className="relative w-36 h-36 shrink-0 rounded-full bg-skin-primary overflow-hidden flex items-center justify-center">
               {data && data.user.image ? (
-                <Image
-                  src={data.user.image}
-                  alt="Imagem selecionada"
-                  fill
-                  className="object-center object-cover"
-                />
+                <Image src={data.user.image} alt="Imagem selecionada" fill className="object-center object-cover" />
               ) : (
                 <div className="flex items-center justify-center size-24 bg-skin-primary rounded-full">
                   <UserRound color="#FFF" className="size-12" />
@@ -80,9 +72,7 @@ export default function ChangeProfilePhotoPage() {
               onBeforeUploadBegin={(files) => {
                 setIsSubmitting(true);
 
-                return files.map(
-                  (f) => new File([f], f.name, { type: f.type }),
-                );
+                return files.map((f) => new File([f], f.name, { type: f.type }));
               }}
               onUploadBegin={() => {
                 setIsSubmitting(true);

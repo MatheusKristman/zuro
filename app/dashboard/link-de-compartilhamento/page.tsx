@@ -1,9 +1,10 @@
 "use client";
 
-// TODO: verificar se o usuário concluiu a configuração da conta para permitir acessar a página
-import { useEffect, useState } from "react";
-import { Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Copy, Loader2 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,24 +12,33 @@ import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc-client";
 
 export default function ShareLinkPage() {
-  // TODO: criar função para gerar o link de compartilhamento
   const [shareLink, setShareLink] = useState<string>("");
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
 
+  const router = useRouter();
+  const session = useSession();
+
   useEffect(() => {
+    if (session.status === "unauthenticated") {
+      router.replace("/");
+    }
+
+    if (data && data.user.role === "USER" && !data.user.firstAccess) {
+      router.replace("/dashboard/primeira-configuracao?step=0");
+    }
+
     if (data && data.user.id) {
       console.log("Tem dados");
       setShareLink(`${window.location.origin}/agendar/${data.user.id}`);
     }
-  }, [data]);
+  }, [data, session, router]);
 
   function copyToClipboard() {
     if (!navigator.clipboard) {
-      // Fallback para navegadores que não suportam o Clipboard API
       const textArea = document.createElement("textarea");
       textArea.value = shareLink;
-      textArea.style.position = "fixed"; // Evita que o textarea afete o layout
-      textArea.style.opacity = "0"; // Torna invisível
+      textArea.style.position = "fixed";
+      textArea.style.opacity = "0";
       document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
@@ -43,7 +53,6 @@ export default function ShareLinkPage() {
 
       document.body.removeChild(textArea);
     } else {
-      // Uso moderno do Clipboard API
       navigator.clipboard.writeText(shareLink).then(
         () => toast.success("Link copiado com sucesso!"),
         (err) => {

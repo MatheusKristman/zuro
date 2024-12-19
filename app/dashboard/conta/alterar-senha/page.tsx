@@ -33,21 +33,20 @@ export default function ChangePasswordPage() {
     console.log({ password, newPassword, confirmNewPassword });
   }, [password, newPassword, confirmNewPassword]);
 
-  const { mutate: submitChangePassword, isPending } =
-    trpc.userRouter.submitChangePassword.useMutation({
-      onSuccess: (res) => {
-        if (res.error) {
-          toast.error(res.message);
-          return;
-        }
+  const { mutate: submitChangePassword, isPending } = trpc.userRouter.submitChangePassword.useMutation({
+    onSuccess: (res) => {
+      if (res.error) {
+        toast.error(res.message);
+        return;
+      }
 
-        toast.success(res.message);
-        router.push("/dashboard/conta");
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+      toast.success(res.message);
+      router.push("/dashboard/conta");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   function onSubmit() {
     let passwordError = "";
@@ -71,8 +70,7 @@ export default function ChangePasswordPage() {
     }
 
     if (confirmNewPassword !== newPassword) {
-      confirmNewPasswordError =
-        "A confirmação da senha precisa ser igual a senha criada";
+      confirmNewPasswordError = "A confirmação da senha precisa ser igual a senha criada";
     }
 
     if (passwordError || newPasswordError || confirmNewPasswordError) {
@@ -92,12 +90,10 @@ export default function ChangePasswordPage() {
 
   return (
     <main className="dashboard-main">
-      <div className="dashboard-container flex flex-col justify-between">
-        <h2 className="text-3xl font-bold text-center text-white mt-10">
-          Alterar Senha
-        </h2>
+      <div className="dashboard-container flex flex-col justify-between mb-12">
+        <h2 className="text-3xl font-bold text-center text-white mt-10">Alterar Senha</h2>
 
-        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 my-10">
+        <div className="w-full bg-white rounded-3xl p-6 flex flex-col gap-10 mt-10">
           <div className="w-full flex flex-col gap-4 xl:flex-row">
             <div className="space-y-2 w-full">
               <Label className="text-slate-600 font-bold" htmlFor="password">
@@ -114,11 +110,7 @@ export default function ChangePasswordPage() {
                 onKeyDown={(e) => e.key === "Enter" && onSubmit()}
               />
 
-              {error.password && (
-                <span className="text-sm text-destructive">
-                  {error.password}
-                </span>
-              )}
+              {error.password && <span className="text-sm text-destructive">{error.password}</span>}
             </div>
 
             <div className="space-y-2 w-full">
@@ -136,18 +128,11 @@ export default function ChangePasswordPage() {
                 onKeyDown={(e) => e.key === "Enter" && onSubmit()}
               />
 
-              {error.newPassword && (
-                <span className="text-sm text-destructive">
-                  {error.newPassword}
-                </span>
-              )}
+              {error.newPassword && <span className="text-sm text-destructive">{error.newPassword}</span>}
             </div>
 
             <div className="space-y-2 w-full">
-              <Label
-                className="text-slate-600 font-bold"
-                htmlFor="confirmNewPassword"
-              >
+              <Label className="text-slate-600 font-bold" htmlFor="confirmNewPassword">
                 Confirmar Senha
               </Label>
 
@@ -161,31 +146,16 @@ export default function ChangePasswordPage() {
                 onKeyDown={(e) => e.key === "Enter" && onSubmit()}
               />
 
-              {error.confirmNewPassword && (
-                <span className="text-sm text-destructive">
-                  {error.confirmNewPassword}
-                </span>
-              )}
+              {error.confirmNewPassword && <span className="text-sm text-destructive">{error.confirmNewPassword}</span>}
             </div>
           </div>
 
           <div className="w-full flex flex-col gap-4 sm:flex-row">
-            <Button
-              size="xl"
-              variant="outline"
-              className="w-full"
-              disabled={isPending}
-              asChild
-            >
+            <Button size="xl" variant="outline" className="w-full" disabled={isPending} asChild>
               <Link href="/dashboard/conta">Voltar</Link>
             </Button>
 
-            <Button
-              size="xl"
-              className="w-full"
-              onClick={onSubmit}
-              disabled={isPending}
-            >
+            <Button size="xl" className="w-full" onClick={onSubmit} disabled={isPending}>
               {isPending && <Loader2 className="animate-spin" />}
               Salvar
             </Button>

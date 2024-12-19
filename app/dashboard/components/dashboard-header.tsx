@@ -2,16 +2,20 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { AlignJustify, UserRound } from "lucide-react";
+import { AlignJustify, LogOut, UserRound } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
+import { signOut } from "next-auth/react";
 
 function MobileHeader() {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+
   const pathname = usePathname();
 
   const { data, isPending } = trpc.userRouter.getUser.useQuery();
@@ -25,14 +29,14 @@ function MobileHeader() {
         <Image src="/logo.svg" alt="Logo" fill className="object-contain object-center " />
       </Link>
 
-      <Sheet>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon" disabled={isPending}>
+          <Button variant="ghost" size="icon" disabled={isPending} onClick={() => setIsOpen(true)}>
             <AlignJustify className="!size-7 text-white sm:!size-10" strokeWidth={1.5} />
           </Button>
         </SheetTrigger>
 
-        <SheetContent>
+        <SheetContent className="h-full max-h-[600px] overflow-y-auto">
           <SheetHeader className="mb-6">
             <SheetTitle className="flex flex-col items-center justify-center gap-3">
               <div className="relative flex items-center justify-center size-24 bg-skin-primary rounded-full overflow-hidden">
@@ -55,6 +59,7 @@ function MobileHeader() {
                 "bg-skin-primary/70 text-white disabled:bg-skin-primary/70 hover:bg-skin-primary/70":
                   pathname === "/dashboard/agenda",
               })}
+              onClick={() => setIsOpen(false)}
               asChild
             >
               {pathname === "/dashboard/agenda" ? <span>Agenda</span> : <Link href="/dashboard/agenda">Agenda</Link>}
@@ -67,6 +72,7 @@ function MobileHeader() {
                 "bg-skin-primary/70 text-white disabled:bg-skin-primary/70 hover:bg-skin-primary/70":
                   pathname === "/dashboard",
               })}
+              onClick={() => setIsOpen(false)}
               asChild
             >
               {pathname === "/dashboard" ? <span>Dashboard</span> : <Link href="/dashboard">Dashboard</Link>}
@@ -79,6 +85,7 @@ function MobileHeader() {
                 "bg-skin-primary/70 text-white disabled:bg-skin-primary/70 hover:bg-skin-primary/70":
                   pathname === "/dashboard/configuracao",
               })}
+              onClick={() => setIsOpen(false)}
               asChild
             >
               {pathname === "/dashboard/configuracao" ? (
@@ -95,6 +102,7 @@ function MobileHeader() {
                 "bg-skin-primary/70 text-white disabled:bg-skin-primary/70 hover:bg-skin-primary/70":
                   pathname === "/dashboard/link-de-compartilhamento",
               })}
+              onClick={() => setIsOpen(false)}
               asChild
             >
               {pathname === "/dashboard/link-de-compartilhamento" ? (
@@ -110,11 +118,21 @@ function MobileHeader() {
                 "bg-skin-primary/70 text-white disabled:bg-skin-primary/70 hover:bg-skin-primary/70":
                   pathname === "/dashboard/conta",
               })}
+              onClick={() => setIsOpen(false)}
               asChild
             >
               {pathname === "/dashboard/conta" ? <span>Conta</span> : <Link href="/dashboard/conta">Conta</Link>}
             </Button>
           </div>
+
+          <Button
+            onClick={() => signOut({ redirectTo: "/" })}
+            size="xl"
+            variant="outline"
+            className="w-full mt-10 flex items-center gap-2"
+          >
+            Sair <LogOut />
+          </Button>
         </SheetContent>
       </Sheet>
     </>

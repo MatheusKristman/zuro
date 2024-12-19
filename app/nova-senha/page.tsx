@@ -1,19 +1,19 @@
 "use client";
 
-import Image from "next/image";
 import { z } from "zod";
+import Image from "next/image";
 import { toast } from "sonner";
+import { Suspense } from "react";
 import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2 } from "lucide-react";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
 import { trpc } from "@/lib/trpc-client";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 
 const formSchema = z
   .object({
@@ -43,15 +43,7 @@ const formSchema = z
   });
 
 function NewPasswordComponent() {
-  const searchParams = useSearchParams();
   const router = useRouter();
-  const id = searchParams.get("token");
-
-  console.log(id);
-
-  if (!id) {
-    router.replace("/");
-  }
 
   const { mutate: newPassword, isPending } = trpc.userRouter.newPassword.useMutation({
     onSuccess: () => {
@@ -74,13 +66,7 @@ function NewPasswordComponent() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!id) {
-      toast.error("ID inválido");
-
-      return;
-    }
-
-    newPassword({ ...values, id });
+    newPassword(values);
   }
 
   return (
@@ -102,7 +88,12 @@ function NewPasswordComponent() {
                       <FormLabel className="text-slate-600 font-bold">Nova Senha</FormLabel>
 
                       <FormControl>
-                        <Input placeholder="Insira a sua nova senha" className="text-slate-800" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Insira a sua nova senha"
+                          className="text-slate-800"
+                          {...field}
+                        />
                       </FormControl>
 
                       <FormMessage />
@@ -118,7 +109,12 @@ function NewPasswordComponent() {
                       <FormLabel className="text-slate-600 font-bold">Confirmar Nova Senha</FormLabel>
 
                       <FormControl>
-                        <Input placeholder="Confirme sua senha nova" className="text-slate-800" {...field} />
+                        <Input
+                          type="password"
+                          placeholder="Confirme sua senha nova"
+                          className="text-slate-800"
+                          {...field}
+                        />
                       </FormControl>
 
                       <FormMessage />

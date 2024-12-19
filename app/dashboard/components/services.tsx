@@ -84,6 +84,10 @@ export function Services({ isPending }: ServicesProps) {
       minutes: parseInt(minutes),
       price: parseFloat(price as string),
     });
+
+    setName("");
+    setMinutes("");
+    setPrice(undefined);
   }
 
   return (
@@ -193,7 +197,7 @@ export function Services({ isPending }: ServicesProps) {
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="absolute top-3 right-3 opacity-0 transition-opacity group-hover:opacity-100"
+                  className="absolute top-3 right-3 opacity-100 lg:opacity-0 transition-opacity group-hover:opacity-100"
                   disabled={isPending}
                   onClick={() => deleteService(service.name)}
                 >
