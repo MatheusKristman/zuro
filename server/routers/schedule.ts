@@ -264,7 +264,7 @@ export const scheduleRouter = router({
         );
 
         const professionalOptions = {
-          from: emailUser,
+          from: '"Zuro" suporte.zuro@gmail.com',
           to: schedule.user.email!,
           subject: `Novo agendamento recebido - Zuro`,
           html: professionalEmailHtml,
@@ -273,7 +273,14 @@ export const scheduleRouter = router({
         if (process.env.NODE_ENV === "development") {
           const transporter = nodemailer.createTransport(devConfig);
 
-          await transporter.sendMail(professionalOptions);
+          await transporter
+            .sendMail(professionalOptions)
+            .then((res) => {
+              console.log(res);
+            })
+            .catch((error) => {
+              console.log(error);
+            });
         } else {
           const transporter = nodemailer.createTransport(prodConfig);
 
