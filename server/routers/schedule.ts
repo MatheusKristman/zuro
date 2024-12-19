@@ -133,6 +133,7 @@ export const scheduleRouter = router({
       const prodConfig = {
         host: "smtp-relay.brevo.com",
         port: 587,
+        secure: false,
         auth: {
           user: emailUser,
           pass: emailPass,
