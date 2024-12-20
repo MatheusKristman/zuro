@@ -34,6 +34,12 @@ export function CancelPlanConfirmation({
   const { mutate: cancelPlan, isPending } =
     trpc.adminRouter.cancelPlan.useMutation({
       onSuccess: (res) => {
+        if (res.error) {
+          toast.error(res.message);
+
+          return;
+        }
+
         toast.success(res.message);
 
         handleGetUsers();

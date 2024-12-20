@@ -515,7 +515,10 @@ export const adminRouter = router({
       });
 
       if (!userSub) {
-        return new Response("Usuário não encontrado", { status: 404 });
+        return {
+          error: true,
+          message: "Assinatura não encontrada",
+        };
       }
 
       await prisma.subscription.delete({
@@ -558,6 +561,7 @@ export const adminRouter = router({
       }
 
       return {
+        error: false,
         message: "Plano cancelado com sucesso",
       };
     }),
