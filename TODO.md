@@ -14,7 +14,7 @@
 [x] - Adicionar função de aplicar desconto para cliente no admin
 [x] - Adicionar função de cancelar plano do cliente no admin
 [x] - Adicionar campo de CPF ao agendar
-[ ] - Adicionar popup para aceitar termos do site (COOKIE)
+[x] - Adicionar popup para aceitar termos do site (COOKIE)
 [ ] - Configurar stripe para produção
 [ ] - Configurar google console para produção
 [ ] - Hospedar site

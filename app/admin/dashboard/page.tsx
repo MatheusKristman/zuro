@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 import { ChartSpline, LogIn, LogOut, Settings } from "lucide-react";
-import { signOut } from "next-auth/react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logins } from "./components/logins";
@@ -13,19 +15,42 @@ import { Button } from "@/components/ui/button";
 export default function AdminDashboardPage() {
   const [tabSelected, setTabSelected] = useState<string>("logins");
 
+  const session = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session.status === "unauthenticated") {
+      router.replace("/");
+
+      toast.error("Acesso não autorizado");
+    }
+  }, [session, router]);
+
   return (
     <main className="w-full min-h-screen bg-skin-background">
       <div className="w-full flex flex-col items-center px-6 py-10 sm:px-16 lg:max-w-4xl lg:mx-auto">
         <div className="w-full flex flex-col items-center gap-4 sm:flex-row sm:justify-between sm:items-end">
-          <h1 className="text-3xl font-bold text-center text-white">Administração</h1>
+          <h1 className="text-3xl font-bold text-center text-white">
+            Administração
+          </h1>
 
-          <Button size="xl" variant="secondary" className="hidden sm:flex" onClick={() => signOut({ redirectTo: "/" })}>
+          <Button
+            size="xl"
+            variant="secondary"
+            className="hidden sm:flex"
+            onClick={() => signOut({ redirectTo: "/" })}
+          >
             <LogOut />
             Sair
           </Button>
         </div>
 
-        <Tabs defaultValue="logins" value={tabSelected} onValueChange={setTabSelected} className="w-full mt-6">
+        <Tabs
+          defaultValue="logins"
+          value={tabSelected}
+          onValueChange={setTabSelected}
+          className="w-full mt-6"
+        >
           <TabsList className="h-auto grid w-full grid-cols-3 bg-black/20 rounded-xl">
             <TabsTrigger
               value="logins"
@@ -33,7 +58,9 @@ export default function AdminDashboardPage() {
             >
               <LogIn color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">Logins</span>
+              <span className="font-bold text-base text-white hidden sm:block">
+                Logins
+              </span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -42,7 +69,9 @@ export default function AdminDashboardPage() {
             >
               <ChartSpline color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">Estatísticas</span>
+              <span className="font-bold text-base text-white hidden sm:block">
+                Estatísticas
+              </span>
             </TabsTrigger>
 
             <TabsTrigger
@@ -51,7 +80,9 @@ export default function AdminDashboardPage() {
             >
               <Settings color="#FFF" className="shrink-0" />
 
-              <span className="font-bold text-base text-white hidden sm:block">Configurações</span>
+              <span className="font-bold text-base text-white hidden sm:block">
+                Configurações
+              </span>
             </TabsTrigger>
           </TabsList>
 

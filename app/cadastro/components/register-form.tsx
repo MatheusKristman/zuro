@@ -5,9 +5,16 @@ import { z } from "zod";
 import { motion } from "framer-motion";
 import { Suspense, useEffect } from "react";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -64,6 +71,7 @@ function RegisterFormComponent() {
   const { setRegistered } = RegisterStore();
 
   const searchParams = useSearchParams();
+  const router = useRouter();
   const checkoutId = searchParams.get("checkout");
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -76,9 +84,15 @@ function RegisterFormComponent() {
   });
 
   useEffect(() => {
-    if (checkoutId) {
-      form.setValue("checkoutId", checkoutId);
+    if (!checkoutId) {
+      router.replace("/");
+
+      toast.error("Acesso não autorizado");
+
+      return;
     }
+
+    form.setValue("checkoutId", checkoutId);
   }, [checkoutId]);
 
   const { mutate: register, isPending } = trpc.userRouter.register.useMutation({
@@ -108,20 +122,31 @@ function RegisterFormComponent() {
       variants={animation}
       className="w-full flex flex-col items-center gap-6"
     >
-      <h2 className="text-3xl font-bold text-center text-slate-800">Faça o seu cadastro</h2>
+      <h2 className="text-3xl font-bold text-center text-slate-800">
+        Faça o seu cadastro
+      </h2>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-6 w-full"
+        >
           <div className="space-y-4">
             <FormField
               name="name"
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-600 font-bold">Nome</FormLabel>
+                  <FormLabel className="text-slate-600 font-bold">
+                    Nome
+                  </FormLabel>
 
                   <FormControl>
-                    <Input placeholder="Insira o seu nome completo" className="text-slate-800" {...field} />
+                    <Input
+                      placeholder="Insira o seu nome completo"
+                      className="text-slate-800"
+                      {...field}
+                    />
                   </FormControl>
 
                   <FormMessage />
@@ -134,10 +159,16 @@ function RegisterFormComponent() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-slate-600 font-bold">E-mail</FormLabel>
+                  <FormLabel className="text-slate-600 font-bold">
+                    E-mail
+                  </FormLabel>
 
                   <FormControl>
-                    <Input placeholder="Insira o seu e-mail" className="text-slate-800" {...field} />
+                    <Input
+                      placeholder="Insira o seu e-mail"
+                      className="text-slate-800"
+                      {...field}
+                    />
                   </FormControl>
 
                   <FormMessage />
@@ -146,7 +177,11 @@ function RegisterFormComponent() {
             />
           </div>
 
-          <Button type="submit" size="xl" className="w-full flex items-center gap-2">
+          <Button
+            type="submit"
+            size="xl"
+            className="w-full flex items-center gap-2"
+          >
             Cadastrar
             {isPending ? <Loader2 className="animate-spin" /> : <LogIn />}
           </Button>

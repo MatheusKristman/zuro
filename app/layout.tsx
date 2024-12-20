@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import { Nunito } from "next/font/google";
-import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 
-import { NextAuthSessionProvider } from "@/providers/sessionProvider";
-import TRPCProvider from "@/providers/TRPCProvider";
 import { Toaster } from "@/components/ui/sonner";
+import TRPCProvider from "@/providers/TRPCProvider";
+import { ThemeProvider } from "./components/theme-provider";
+import { NextAuthSessionProvider } from "@/providers/sessionProvider";
+import { TermsAndConditionsAlert } from "./components/terms-and-conditions-alert";
+
 import { ourFileRouter } from "@/app/api/uploadthing/core";
 
 import "./globals.css";
-import { ThemeProvider } from "./components/theme-provider";
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -33,7 +35,10 @@ export default function RootLayout({
         <NextAuthSessionProvider>
           <TRPCProvider>
             <NextSSRPlugin routerConfig={extractRouterConfig(ourFileRouter)} />
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              <TermsAndConditionsAlert />
+              {children}
+            </ThemeProvider>
           </TRPCProvider>
         </NextAuthSessionProvider>
         <Toaster />
