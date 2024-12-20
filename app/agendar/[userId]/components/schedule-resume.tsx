@@ -16,7 +16,7 @@ interface ScheduleResumeProps {
 }
 
 export function ScheduleResume({ user }: ScheduleResumeProps) {
-  const { service, time, date, fullName, email, tel } = ScheduleStore();
+  const { service, time, date, fullName, cpf, email, tel } = ScheduleStore();
 
   if (user === undefined) {
     return <div>Skeleton</div>;
@@ -34,11 +34,11 @@ export function ScheduleResume({ user }: ScheduleResumeProps) {
 
       <div className="w-full mt-10 flex flex-col items-center gap-4 sm:grid sm:grid-cols-2">
         <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
-          <span className="text-xl text-white font-medium text-center">
+          <span className="text-xl text-white font-medium text-center  break-words">
             Profissional
           </span>
 
-          <span className="text-2xl text-white font-bold text-center">
+          <span className="text-2xl text-white font-bold text-center break-words">
             {user.name}
           </span>
         </div>
@@ -48,7 +48,7 @@ export function ScheduleResume({ user }: ScheduleResumeProps) {
             Serviço
           </span>
 
-          <span className="text-2xl text-white font-bold text-center">
+          <span className="text-2xl text-white font-bold text-center break-words">
             {serviceSelected.name}
           </span>
         </div>
@@ -58,7 +58,7 @@ export function ScheduleResume({ user }: ScheduleResumeProps) {
             Data e horário
           </span>
 
-          <span className="text-2xl text-white font-bold text-center">
+          <span className="text-2xl text-white font-bold text-center break-words">
             {format(date ?? new Date(), "dd/MM/yyyy")} as {time}
           </span>
         </div>
@@ -68,29 +68,41 @@ export function ScheduleResume({ user }: ScheduleResumeProps) {
             Seu nome completo
           </span>
 
-          <span className="text-2xl text-white font-bold text-center">
+          <span className="text-2xl text-white font-bold text-center break-words">
             {fullName}
           </span>
         </div>
 
-        <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
-          <span className="text-xl text-white font-medium text-center">
-            Seu e-mail
-          </span>
+        <div className="w-full col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
+            <span className="text-xl text-white font-medium text-center">
+              Seu e-mail
+            </span>
 
-          <span className="text-2xl text-white font-bold text-center">
-            {email}
-          </span>
-        </div>
+            <span className="text-2xl text-white font-bold text-center break-words">
+              {email}
+            </span>
+          </div>
 
-        <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
-          <span className="text-xl text-white font-medium text-center">
-            Seu telefone
-          </span>
+          <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
+            <span className="text-xl text-white font-medium text-center">
+              Seu CPF
+            </span>
 
-          <span className="text-2xl text-white font-bold text-center">
-            {formatPhoneNumber(tel)}
-          </span>
+            <span className="text-2xl text-white font-bold text-center break-words">
+              {cpf}
+            </span>
+          </div>
+
+          <div className="w-full p-4 rounded-xl bg-skin-primary flex flex-col gap-2">
+            <span className="text-xl text-white font-medium text-center">
+              Seu telefone
+            </span>
+
+            <span className="text-2xl text-white font-bold text-center break-words">
+              {formatPhoneNumber(tel)}
+            </span>
+          </div>
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { addDays, format } from "date-fns";
 import {
   Calendar as CalendarIcon,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import Image from "next/image";
-import { User } from "@prisma/client";
+import { Coupon, Subscription, User } from "@prisma/client";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -39,10 +39,21 @@ import {
 
 import { cn } from "@/lib/utils";
 import { trpc } from "@/lib/trpc-client";
+import { DiscountConfirmation } from "./logins/discount-confirmation";
+import { RemoveCouponConfirmation } from "./logins/remove-coupon-confirmation";
+import { CancelPlanConfirmation } from "./logins/cancel-plan-confirmation";
+
+type SubscriptionType = Subscription & {
+  coupon: Coupon | null;
+};
+
+type UserType = User & {
+  subscription: SubscriptionType | null;
+};
 
 export function Logins() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [usersFiltered, setUsersFiltered] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
+  const [usersFiltered, setUsersFiltered] = useState<UserType[]>([]);
   const [category, setCategory] = useState<string>("");
   const [searchValue, setSearchValue] = useState<string>("");
 
@@ -66,11 +77,15 @@ export function Logins() {
     },
   );
 
-  useEffect(() => {
+  const handleGetUsers = useCallback(() => {
     if (date && date?.from !== undefined && date?.to !== undefined) {
       getUsers({ from: date.from, to: date.to });
     }
-  }, [date, date?.from, date?.to, getUsers]);
+  }, [date, getUsers]);
+
+  useEffect(() => {
+    handleGetUsers();
+  }, [handleGetUsers]);
 
   useEffect(() => {
     if (category === "name" && searchValue.length > 3 && users.length > 0) {
@@ -288,15 +303,30 @@ export function Logins() {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  <Button size="xl" variant="confirm" className="w-full">
-                    Aplicar desconto
-                  </Button>
+                {user.subscription && (
+                  <div className="flex flex-col gap-4">
+                    {user.subscription.coupon ? (
+                      <RemoveCouponConfirmation
+                        stripeSubscriptionId={
+                          user.subscription.stripeSubscriptionId
+                        }
+                        handleGetUsers={handleGetUsers}
+                      />
+                    ) : (
+                      <DiscountConfirmation
+                        subscriptionId={user.subscription.stripeSubscriptionId}
+                        handleGetUsers={handleGetUsers}
+                      />
+                    )}
 
-                  <Button size="xl" variant="destructive" className="w-full">
-                    Cancelar plano
-                  </Button>
-                </div>
+                    <CancelPlanConfirmation
+                      stripeSubscriptionId={
+                        user.subscription.stripeSubscriptionId
+                      }
+                      handleGetUsers={handleGetUsers}
+                    />
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -396,17 +426,46 @@ export function Logins() {
                       </span>
                     )}
                   </div>
+
+                  {user.planId &&
+                    user.subscription &&
+                    user.subscription.coupon && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-base text-white font-bold">
+                          Desconto:
+                        </span>
+
+                        <span className="text-base text-white">
+                          {user.subscription.coupon.percentage}%
+                        </span>
+                      </div>
+                    )}
                 </div>
 
-                <div className="flex flex-col gap-4">
-                  <Button size="xl" variant="confirm" className="w-full">
-                    Aplicar desconto
-                  </Button>
+                {user.subscription && (
+                  <div className="flex flex-col gap-4">
+                    {user.subscription.coupon ? (
+                      <RemoveCouponConfirmation
+                        stripeSubscriptionId={
+                          user.subscription.stripeSubscriptionId
+                        }
+                        handleGetUsers={handleGetUsers}
+                      />
+                    ) : (
+                      <DiscountConfirmation
+                        subscriptionId={user.subscription.stripeSubscriptionId}
+                        handleGetUsers={handleGetUsers}
+                      />
+                    )}
 
-                  <Button size="xl" variant="destructive" className="w-full">
-                    Cancelar plano
-                  </Button>
-                </div>
+                    <CancelPlanConfirmation
+                      stripeSubscriptionId={
+                        user.subscription.stripeSubscriptionId
+                      }
+                      handleGetUsers={handleGetUsers}
+                    />
+                  </div>
+                )}
               </AccordionContent>
             </AccordionItem>
           ))}

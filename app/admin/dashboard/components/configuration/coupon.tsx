@@ -8,7 +8,14 @@ import { toast } from "sonner";
 import { useState } from "react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,7 +34,10 @@ import {
 import { trpc } from "@/lib/trpc-client";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Nome do cumpom é obrigatório").min(4, "O nome precisa ter no mínimo 4 caracteres"),
+  name: z
+    .string()
+    .min(1, "Nome do cumpom é obrigatório")
+    .min(4, "O nome precisa ter no mínimo 4 caracteres"),
   percentage: z.coerce
     .number()
     .gte(0, "Valor precisa ser maior ou igual à zero")
@@ -47,19 +57,20 @@ function CouponItem({ id, name, percentage, duration }: CouponItemProps) {
 
   const trpcUtils = trpc.useUtils();
 
-  const { mutate: deleteCoupon, isPending: isDeletingCoupon } = trpc.adminRouter.deleteCoupon.useMutation({
-    onSuccess: (res) => {
-      toast.success(res.message);
+  const { mutate: deleteCoupon, isPending: isDeletingCoupon } =
+    trpc.adminRouter.deleteCoupon.useMutation({
+      onSuccess: (res) => {
+        toast.success(res.message);
 
-      setDeleteConfirmation(false);
-      trpcUtils.adminRouter.getCoupons.invalidate();
-    },
-    onError: (error) => {
-      console.error(error);
+        setDeleteConfirmation(false);
+        trpcUtils.adminRouter.getCoupons.invalidate();
+      },
+      onError: (error) => {
+        console.error(error);
 
-      toast.error("Ocorreu um erro ao deletar o cupom");
-    },
-  });
+        toast.error("Ocorreu um erro ao deletar o cupom");
+      },
+    });
 
   return (
     <div className="bg-skin-primary rounded-xl p-3 flex items-end justify-between gap-6">
@@ -70,7 +81,9 @@ function CouponItem({ id, name, percentage, duration }: CouponItemProps) {
 
         <span className="text-white text-lg font-bold">{name}</span>
 
-        <span className="text-sm text-white/70 font-semibold">Desconto: {percentage}%</span>
+        <span className="text-sm text-white/70 font-semibold">
+          Desconto: {percentage}%
+        </span>
       </div>
 
       <AlertDialog open={deleteConfirmation}>
@@ -88,10 +101,13 @@ function CouponItem({ id, name, percentage, duration }: CouponItemProps) {
 
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza que deseja deletar esse cupom?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Tem certeza que deseja deletar esse cupom?
+            </AlertDialogTitle>
 
             <AlertDialogDescription>
-              Esta ação não pode ser desfeita, e o cupom será removido permanentemente do sistema.
+              Esta ação não pode ser desfeita, e o cupom será removido
+              permanentemente do sistema.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
@@ -131,18 +147,19 @@ export function Coupon() {
 
   const trpcUtils = trpc.useUtils();
   const { data } = trpc.adminRouter.getCoupons.useQuery();
-  const { mutate: createCoupon, isPending: isCreatingCoupon } = trpc.adminRouter.createCoupon.useMutation({
-    onSuccess: (res) => {
-      trpcUtils.adminRouter.getCoupons.invalidate();
+  const { mutate: createCoupon, isPending: isCreatingCoupon } =
+    trpc.adminRouter.createCoupon.useMutation({
+      onSuccess: (res) => {
+        trpcUtils.adminRouter.getCoupons.invalidate();
 
-      toast.success(res.message);
-    },
-    onError: (err) => {
-      console.log(err);
+        toast.success(res.message);
+      },
+      onError: (err) => {
+        console.log(err);
 
-      toast.error("Ocorreu um erro ao criar o cupom");
-    },
-  });
+        toast.error("Ocorreu um erro ao criar o cupom");
+      },
+    });
 
   const pending = isCreatingCoupon;
 
@@ -155,7 +172,10 @@ export function Coupon() {
   return (
     <div className="w-full mt-6 flex flex-col gap-12 md:flex-row md:gap-6">
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="w-full p-3 rounded-xl bg-black/10 flex flex-col gap-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="w-full p-3 rounded-xl bg-black/10 flex flex-col gap-8"
+        >
           <div className="w-full flex flex-col gap-4">
             <FormField
               control={form.control}
@@ -165,7 +185,11 @@ export function Coupon() {
                   <FormLabel>Nome do Cupom</FormLabel>
 
                   <FormControl>
-                    <Input disabled={pending} placeholder="Insira o nome do cupom" {...field} />
+                    <Input
+                      disabled={pending}
+                      placeholder="Insira o nome do cupom"
+                      {...field}
+                    />
                   </FormControl>
 
                   <FormMessage />
@@ -184,7 +208,10 @@ export function Coupon() {
                     <Input
                       type="number"
                       placeholder="Insira a porcentagem do cupom"
-                      onKeyDown={(evt) => ["e", "E", "+", "-"].includes(evt.key) && evt.preventDefault()}
+                      onKeyDown={(evt) =>
+                        ["e", "E", "+", "-"].includes(evt.key) &&
+                        evt.preventDefault()
+                      }
                       disabled={pending}
                       {...field}
                     />
@@ -210,11 +237,19 @@ export function Coupon() {
                       disabled={pending}
                       className="w-full flex flex-col gap-2 sm:flex-row md:flex-col"
                     >
-                      <ToggleGroupItem variant="outline" value="once" className="w-full h-12 rounded-xl">
+                      <ToggleGroupItem
+                        variant="outline"
+                        value="once"
+                        className="w-full h-12 rounded-xl"
+                      >
                         Primeira Mensalidade
                       </ToggleGroupItem>
 
-                      <ToggleGroupItem variant="outline" value="forever" className="w-full h-12 rounded-xl">
+                      <ToggleGroupItem
+                        variant="outline"
+                        value="forever"
+                        className="w-full h-12 rounded-xl"
+                      >
                         Todas as Mensalidades
                       </ToggleGroupItem>
                     </ToggleGroup>
@@ -233,16 +268,18 @@ export function Coupon() {
       </Form>
 
       <div className="w-full flex flex-col gap-2">
-        <h4 className="text-2xl font-bold text-skin-primary">Cupons cadastrados</h4>
+        <h4 className="text-2xl font-bold text-skin-primary">
+          Cupons cadastrados
+        </h4>
 
         {data !== undefined ? (
           <div className="w-full flex flex-col gap-4">
-            {data.coupons.data.map((coupon) => (
+            {data.coupons.map((coupon) => (
               <CouponItem
                 key={coupon.id}
                 id={coupon.id}
-                name={coupon.name!}
-                percentage={coupon.percent_off!}
+                name={coupon.name}
+                percentage={coupon.percentage}
                 duration={coupon.duration}
               />
             ))}

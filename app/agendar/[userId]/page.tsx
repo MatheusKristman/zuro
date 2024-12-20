@@ -31,7 +31,8 @@ const clientInformationFormSchema = z.object({
       /^[A-Za-zÀ-ÿ]+(?:\s+[A-Za-zÀ-ÿ]+)+$/,
       "Nome inválido, insira o sobrenome",
     ),
-  email: z.string().email("E-mail inválido"),
+  cpf: z.string().min(1, "CPF é obrigatório").min(14, "CPF inválido"),
+  email: z.string().min(1, "E-mail é obrigatório").email("E-mail inválido"),
   tel: z.string().min(13, "Telefone inválido"),
 });
 
@@ -46,6 +47,7 @@ function ScheduleServiceComponent() {
     service,
     time,
     fullName,
+    cpf,
     email,
     tel,
     setIsConclude,
@@ -103,6 +105,7 @@ function ScheduleServiceComponent() {
     if (step === "1") {
       const zodValidate = clientInformationFormSchema.safeParse({
         fullName,
+        cpf,
         email,
         tel,
       });
@@ -113,6 +116,7 @@ function ScheduleServiceComponent() {
         setError({
           ...error,
           fullName: errorFormatted.fullName?._errors[0] ?? "",
+          cpf: errorFormatted.cpf?._errors[0] ?? "",
           email: errorFormatted.email?._errors[0] ?? "",
           tel: errorFormatted.tel?._errors[0] ?? "",
         });

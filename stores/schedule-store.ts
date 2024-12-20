@@ -5,6 +5,7 @@ type errorType = {
   service: string;
   time: string;
   fullName: string;
+  cpf: string;
   email: string;
   tel: string;
 };
@@ -18,6 +19,8 @@ interface ScheduleStoreInter {
   setTime: (value: string) => void;
   fullName: string;
   setFullName: (value: string) => void;
+  cpf: string;
+  setCpf: (value: string) => void;
   email: string;
   setEmail: (value: string) => void;
   tel: string;
@@ -40,6 +43,8 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
   setTime: (value) => set({ time: value }),
   fullName: "",
   setFullName: (value) => set({ fullName: value }),
+  cpf: "",
+  setCpf: (value) => set({ cpf: value }),
   email: "",
   setEmail: (value) => set({ email: value }),
   tel: "",
@@ -53,6 +58,7 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
     service: "",
     time: "",
     fullName: "",
+    cpf: "",
     email: "",
     tel: "",
   },
@@ -64,6 +70,7 @@ export const ScheduleStore = create<ScheduleStoreInter>((set) => ({
         service: "",
         time: "",
         fullName: "",
+        cpf: "",
         email: "",
         tel: "",
       },

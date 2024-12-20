@@ -74,10 +74,11 @@ export const userRouter = router({
         checkoutId: z
           .string({
             required_error: "ID do checkout é obrigatório",
-            invalid_type_error: "O valor enviado para o ID do checkout é inválido",
+            invalid_type_error:
+              "O valor enviado para o ID do checkout é inválido",
           })
           .min(1, "ID do checkout é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -86,7 +87,10 @@ export const userRouter = router({
       const devEmailPass = process.env.EMAIL_DEV_PASS!;
       const emailUser = process.env.EMAIL_USER!;
       const emailPass = process.env.EMAIL_PASS!;
-      const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL!;
       const devConfig = {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
@@ -117,10 +121,23 @@ export const userRouter = router({
         });
       }
 
-      const plan = await prisma.plan.findFirst();
+      const checkoutResult =
+        await stripe.checkout.sessions.retrieve(checkoutId);
+      const subscription = await stripe.subscriptions.retrieve(
+        checkoutResult.subscription as string,
+      );
+
+      const plan = await prisma.plan.findFirst({
+        where: {
+          productId: subscription.items.data[0].price.product as string,
+        },
+      });
 
       if (!plan) {
-        return new Response("Plano não encontrado", { status: 404 });
+        return {
+          error: true,
+          message: "Plano não encontrado",
+        };
       }
 
       const generatedPassword = generate({
@@ -130,8 +147,6 @@ export const userRouter = router({
 
       const salt = await bcrypt.genSalt(10);
       const pwHash = await bcrypt.hash(generatedPassword, salt);
-
-      const checkoutResult = await stripe.checkout.sessions.retrieve(checkoutId);
 
       const createdUser = await prisma.user.create({
         data: {
@@ -153,21 +168,88 @@ export const userRouter = router({
         });
       }
 
-      await prisma.subscription.create({
-        data: {
-          stripeSubscriptionId: checkoutResult.subscription as string,
-          plan: {
-            connect: {
-              id: plan.id,
+      const stripeSubscription = await stripe.subscriptions.retrieve(
+        checkoutResult.subscription as string,
+      );
+
+      if (stripeSubscription.discount) {
+        const coupon = await prisma.coupon.findUnique({
+          where: {
+            stripeCouponId: stripeSubscription.discount.id,
+          },
+        });
+
+        if (!coupon) {
+          const newCoupon = await prisma.coupon.create({
+            data: {
+              stripeCouponId: stripeSubscription.discount.id,
+              name: stripeSubscription.discount.coupon.name!,
+              percentage: stripeSubscription.discount.coupon.percent_off!,
+              duration: stripeSubscription.discount.coupon.duration as
+                | "once"
+                | "forever",
+            },
+          });
+
+          await prisma.subscription.create({
+            data: {
+              stripeSubscriptionId: checkoutResult.subscription as string,
+              coupon: {
+                connect: {
+                  id: newCoupon.id,
+                },
+              },
+              plan: {
+                connect: {
+                  id: plan.id,
+                },
+              },
+              user: {
+                connect: {
+                  id: createdUser.id,
+                },
+              },
+            },
+          });
+        } else {
+          await prisma.subscription.create({
+            data: {
+              stripeSubscriptionId: checkoutResult.subscription as string,
+              coupon: {
+                connect: {
+                  id: coupon.id,
+                },
+              },
+              plan: {
+                connect: {
+                  id: plan.id,
+                },
+              },
+              user: {
+                connect: {
+                  id: createdUser.id,
+                },
+              },
+            },
+          });
+        }
+      } else {
+        await prisma.subscription.create({
+          data: {
+            stripeSubscriptionId: checkoutResult.subscription as string,
+            plan: {
+              connect: {
+                id: plan.id,
+              },
+            },
+            user: {
+              connect: {
+                id: createdUser.id,
+              },
             },
           },
-          user: {
-            connect: {
-              id: createdUser.id,
-            },
-          },
-        },
-      });
+        });
+      }
 
       const emailHtml = await render(
         GeneratedPassword({
@@ -175,7 +257,7 @@ export const userRouter = router({
           email: email as string,
           password: generatedPassword,
           url: `${baseUrl}/verificar-email?id=${createdUser.id}`,
-        })
+        }),
       );
 
       const options = {
@@ -201,7 +283,7 @@ export const userRouter = router({
     .input(
       z.object({
         id: z.string().min(1, "ID do usuário obrigatório").nullable(),
-      })
+      }),
     )
     .query(async (opts) => {
       const { id } = opts.input;
@@ -242,7 +324,7 @@ export const userRouter = router({
           })
           .min(1, "Este campo é obrigatório")
           .min(6, { message: "Este campo precisa ter no mínimo 6 caracteres" }),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { input } = opts;
@@ -288,14 +370,19 @@ export const userRouter = router({
     .input(
       z
         .object({
-          paymentPreference: z.enum(["", "before_after", "before", "after", "no_payment"], {
-            message: "Dados inválidos",
-          }),
+          paymentPreference: z.enum(
+            ["", "before_after", "before", "after", "no_payment"],
+            {
+              message: "Dados inválidos",
+            },
+          ),
           pixKey: z.string(),
         })
         .superRefine(({ paymentPreference, pixKey }, ctx) => {
           if (
-            (!paymentPreference || paymentPreference === "before_after" || paymentPreference === "before") &&
+            (!paymentPreference ||
+              paymentPreference === "before_after" ||
+              paymentPreference === "before") &&
             !pixKey
           ) {
             ctx.addIssue({
@@ -304,7 +391,7 @@ export const userRouter = router({
               path: ["pixKey"],
             });
           }
-        })
+        }),
     )
     .mutation(async (opts) => {
       const { paymentPreference, pixKey } = opts.input;
@@ -373,10 +460,28 @@ export const userRouter = router({
   submitAvailability: isUserAuthedProcedure
     .input(
       z.object({
-        dayOff: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]).array(),
+        dayOff: z
+          .enum([
+            "Sunday",
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+          ])
+          .array(),
         availability: z
           .object({
-            dayOfWeek: z.enum(["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]),
+            dayOfWeek: z.enum([
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ]),
             availableTimes: z
               .object({
                 startTime: z.string(),
@@ -386,12 +491,20 @@ export const userRouter = router({
               .refine(
                 (times) => {
                   const sortedTimes = [...times].sort(
-                    (a, b) => parseInt(a.startTime.replace(":", ""), 10) - parseInt(b.startTime.replace(":", ""), 10)
+                    (a, b) =>
+                      parseInt(a.startTime.replace(":", ""), 10) -
+                      parseInt(b.startTime.replace(":", ""), 10),
                   );
 
                   for (let i = 0; i < sortedTimes.length - 1; i++) {
-                    const currentEndTime = parseInt(sortedTimes[i].endTime.replace(":", ""), 10);
-                    const nextStartTime = parseInt(sortedTimes[i + 1].startTime.replace(":", ""), 10);
+                    const currentEndTime = parseInt(
+                      sortedTimes[i].endTime.replace(":", ""),
+                      10,
+                    );
+                    const nextStartTime = parseInt(
+                      sortedTimes[i + 1].startTime.replace(":", ""),
+                      10,
+                    );
 
                     if (currentEndTime > nextStartTime) {
                       return false;
@@ -402,12 +515,12 @@ export const userRouter = router({
                 },
                 {
                   message: "Os horários estão sobrepostos.",
-                }
+                },
               ),
           })
           .array()
           .min(7, "Dados inválidos, precisa receber o dados de todos os dias"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { availability, dayOff } = opts.input;
@@ -459,7 +572,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            })
+            }),
           );
 
           await Promise.all(availabilityDeletePromise);
@@ -487,7 +600,8 @@ export const userRouter = router({
 
           return {
             error: true,
-            message: "Ocorreu um erro ao registrar as disponibilidades do usuário",
+            message:
+              "Ocorreu um erro ao registrar as disponibilidades do usuário",
           };
         });
 
@@ -503,7 +617,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          })
+          }),
         );
 
         await Promise.all(availabilityDeletePromise);
@@ -540,7 +654,8 @@ export const userRouter = router({
 
         return {
           error: true,
-          message: "Ocorreu um erro ao registrar as disponibilidades do usuário",
+          message:
+            "Ocorreu um erro ao registrar as disponibilidades do usuário",
         };
       });
 
@@ -558,10 +673,10 @@ export const userRouter = router({
               name: z.string().min(1, "Nome é obrigatório"),
               minutes: z.number().gt(0, "Minutos inválidos"),
               price: z.number().gt(0, "Valor inválido"),
-            })
+            }),
           )
           .min(1, "É preciso ter ao menos um serviço registrado"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { services } = opts.input;
@@ -612,7 +727,7 @@ export const userRouter = router({
               where: {
                 id: obj.id,
               },
-            })
+            }),
           );
 
           await Promise.all(servicesDeletePromise);
@@ -634,7 +749,7 @@ export const userRouter = router({
             where: {
               id: obj.id,
             },
-          })
+          }),
         );
 
         await Promise.all(servicesDeletePromise);
@@ -658,17 +773,20 @@ export const userRouter = router({
             .string()
             .min(1, "Nova Senha é obrigatória")
             .min(6, "Nova Senha precisa ter no mínimo 6 caracteres"),
-          confirmNewPassword: z.string().min(1, "Confirmar Senha é obrigatória"),
+          confirmNewPassword: z
+            .string()
+            .min(1, "Confirmar Senha é obrigatória"),
         })
         .superRefine(({ newPassword, confirmNewPassword }, ctx) => {
           if (confirmNewPassword !== newPassword) {
             ctx.addIssue({
               code: "custom",
-              message: "A confirmação da senha precisa ser igual a senha criada",
+              message:
+                "A confirmação da senha precisa ser igual a senha criada",
               path: ["confirmNewPassword"],
             });
           }
-        })
+        }),
     )
     .mutation(async (opts) => {
       const { password, newPassword } = opts.input;
@@ -724,7 +842,7 @@ export const userRouter = router({
     .input(
       z.object({
         newName: z.string().min(1, "Novo nome é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { newName } = opts.input;
@@ -767,8 +885,11 @@ export const userRouter = router({
   sendConfirmationCodeToMail: isUserAuthedProcedure
     .input(
       z.object({
-        newEmail: z.string().email("E-mail inválido").min(1, "E-mail é obrigatório"),
-      })
+        newEmail: z
+          .string()
+          .email("E-mail inválido")
+          .min(1, "E-mail é obrigatório"),
+      }),
     )
     .mutation(async (opts) => {
       const { newEmail } = opts.input;
@@ -815,7 +936,8 @@ export const userRouter = router({
       }
 
       const generateAlphanumericCode = (length: number = 6): string => {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        const chars =
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
         let result = "";
 
@@ -841,7 +963,7 @@ export const userRouter = router({
         ConfirmationCodeNotification({
           code,
           name: user.name!,
-        })
+        }),
       );
 
       const options = {
@@ -870,7 +992,7 @@ export const userRouter = router({
     .input(
       z.object({
         code: z.string().min(1, "Código obrigatório").min(6, "Código inválido"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { code } = opts.input;
@@ -915,7 +1037,7 @@ export const userRouter = router({
     .input(
       z.object({
         date: z.string().min(1, "Data é obrigatória"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { date } = opts.input;
@@ -962,7 +1084,7 @@ export const userRouter = router({
     .input(
       z.object({
         scheduleId: z.string().min(1, "ID do agendamento é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { scheduleId } = opts.input;
@@ -1005,7 +1127,7 @@ export const userRouter = router({
         const oauth2Client = new google.auth.OAuth2(
           process.env.GOOGLE_CLIENT_ID!,
           process.env.GOOGLE_CLIENT_SECRET!,
-          "http://localhost:3000"
+          "http://localhost:3000",
         );
 
         oauth2Client.setCredentials({
@@ -1022,7 +1144,10 @@ export const userRouter = router({
       }
 
       const [year, month, day] = schedule.date.split("-").map(Number);
-      const formattedDate = format(new Date(year, month - 1, day), "dd/MM/yyyy");
+      const formattedDate = format(
+        new Date(year, month - 1, day),
+        "dd/MM/yyyy",
+      );
 
       const professionalEmailHtml = await render(
         ProfessionalScheduleCancelNotification({
@@ -1031,7 +1156,7 @@ export const userRouter = router({
           name: schedule.user.name!,
           clientName: schedule.fullName,
           time: schedule.time,
-        })
+        }),
       );
       const clientEmailHtml = await render(
         ClientScheduleCancelNotification({
@@ -1040,7 +1165,7 @@ export const userRouter = router({
           professionalName: schedule.user.name!,
           name: schedule.fullName,
           time: schedule.time,
-        })
+        }),
       );
 
       const professionalOptions = {
@@ -1075,7 +1200,7 @@ export const userRouter = router({
       z.object({
         from: z.string().min(1, "Data de início é obrigatório"),
         to: z.string().min(1, "Data de término é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { from, to } = opts.input;
@@ -1111,8 +1236,14 @@ export const userRouter = router({
         };
       }
 
-      const startDateFormatted = format(parse(from, "yyyy-MM-dd", new Date(), { locale: ptBR }), "yyyy-MM-dd");
-      const endDateFormatted = format(parse(to, "yyyy-MM-dd", new Date(), { locale: ptBR }), "yyyy-MM-dd");
+      const startDateFormatted = format(
+        parse(from, "yyyy-MM-dd", new Date(), { locale: ptBR }),
+        "yyyy-MM-dd",
+      );
+      const endDateFormatted = format(
+        parse(to, "yyyy-MM-dd", new Date(), { locale: ptBR }),
+        "yyyy-MM-dd",
+      );
 
       const schedules = await prisma.schedule.findMany({
         where: {
@@ -1127,7 +1258,9 @@ export const userRouter = router({
         },
       });
 
-      const schedulesFiltered = schedules.filter((schedule) => schedule.status === ScheduleStatus.confirmed);
+      const schedulesFiltered = schedules.filter(
+        (schedule) => schedule.status === ScheduleStatus.confirmed,
+      );
 
       const clientsAttended = schedulesFiltered.length;
       const totalEarned = schedulesFiltered.reduce((total, obj) => {
@@ -1141,21 +1274,24 @@ export const userRouter = router({
 
           return acc;
         },
-        {} as Record<string, number>
+        {} as Record<string, number>,
       );
-      const datesCount = schedulesFiltered.reduce((acc: Record<string, number>, obj) => {
-        acc[obj.date] = (acc[obj.date] || 0) + 1;
+      const datesCount = schedulesFiltered.reduce(
+        (acc: Record<string, number>, obj) => {
+          acc[obj.date] = (acc[obj.date] || 0) + 1;
 
-        return acc;
-      }, {});
-      const mostFrequentService = Object.entries(serviceCount).reduce((a, b) => (b[1] > a[1] ? b : a), ["", 0] as [
-        string,
-        number,
-      ]);
-      const mostFrequentDate = Object.entries(datesCount).reduce((a, b) => (b[1] > a[1] ? b : a), ["", 0] as [
-        string,
-        number,
-      ]);
+          return acc;
+        },
+        {},
+      );
+      const mostFrequentService = Object.entries(serviceCount).reduce(
+        (a, b) => (b[1] > a[1] ? b : a),
+        ["", 0] as [string, number],
+      );
+      const mostFrequentDate = Object.entries(datesCount).reduce(
+        (a, b) => (b[1] > a[1] ? b : a),
+        ["", 0] as [string, number],
+      );
 
       return {
         schedules: schedulesFiltered,
@@ -1207,11 +1343,21 @@ export const userRouter = router({
       };
     }
 
-    const plan = await stripe.products.retrieve(user.subscription.plan.productId);
+    const plan = await stripe.products.retrieve(
+      user.subscription.plan.productId,
+    );
     const price = await stripe.prices.retrieve(user.subscription.plan.priceId);
-    const subscription = await stripe.subscriptions.retrieve(user.subscription.stripeSubscriptionId);
-    const hiredDate = format(new Date(user.subscription.createdAt), "dd/MM/yyyy");
-    const nextPayment = format(new Date(subscription.current_period_end * 1000), "dd/MM/yyyy");
+    const subscription = await stripe.subscriptions.retrieve(
+      user.subscription.stripeSubscriptionId,
+    );
+    const hiredDate = format(
+      new Date(user.subscription.createdAt),
+      "dd/MM/yyyy",
+    );
+    const nextPayment = format(
+      new Date(subscription.current_period_end * 1000),
+      "dd/MM/yyyy",
+    );
 
     return {
       error: false,
@@ -1229,7 +1375,7 @@ export const userRouter = router({
     .input(
       z.object({
         subscriptionId: z.string().min(1, "ID da assinatura é obrigatória"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { subscriptionId } = opts.input;
@@ -1242,7 +1388,7 @@ export const userRouter = router({
     .input(
       z.object({
         checkoutId: z.string().min(1, "ID do checkout é obrigatório"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { checkoutId } = opts.input;
@@ -1268,7 +1414,17 @@ export const userRouter = router({
         };
       }
 
-      const plan = await prisma.plan.findFirst();
+      const checkoutResult =
+        await stripe.checkout.sessions.retrieve(checkoutId);
+      const subscription = await stripe.subscriptions.retrieve(
+        checkoutResult.subscription as string,
+      );
+
+      const plan = await prisma.plan.findFirst({
+        where: {
+          productId: subscription.items.data[0].price.product as string,
+        },
+      });
 
       if (!plan) {
         return {
@@ -1276,8 +1432,6 @@ export const userRouter = router({
           message: "Plano não encontrado",
         };
       }
-
-      const checkoutResult = await stripe.checkout.sessions.retrieve(checkoutId);
 
       if (!checkoutResult.subscription) {
         throw new TRPCError({
@@ -1295,6 +1449,19 @@ export const userRouter = router({
             },
           },
           user: {
+            connect: {
+              id: user.id,
+            },
+          },
+        },
+      });
+
+      await prisma.plan.update({
+        where: {
+          id: plan.id,
+        },
+        data: {
+          users: {
             connect: {
               id: user.id,
             },
@@ -1343,7 +1510,7 @@ export const userRouter = router({
           required_error: "Valor do modo férias é obrigatório",
           message: "Valor inválido",
         }),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { vacationMode } = opts.input;
@@ -1412,7 +1579,7 @@ export const userRouter = router({
     .input(
       z.object({
         code: z.string().min(1, "Código é obrigatória"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { code } = opts.input;
@@ -1429,7 +1596,7 @@ export const userRouter = router({
       const oauth2Client = new google.auth.OAuth2(
         process.env.GOOGLE_CLIENT_ID!,
         process.env.GOOGLE_CLIENT_SECRET!,
-        "http://localhost:3000"
+        "http://localhost:3000",
       );
 
       const token = await oauth2Client.getToken(code);
@@ -1485,11 +1652,12 @@ export const userRouter = router({
         recoverEmail: z
           .string({
             required_error: "E-mail de recuperação é obrigatório",
-            invalid_type_error: "O valor enviado para e-mail de recuperação é invalido",
+            invalid_type_error:
+              "O valor enviado para e-mail de recuperação é invalido",
           })
           .min(1, "E-mail de recuperação é obrigatório")
           .email("E-mail de recuperação inválido"),
-      })
+      }),
     )
     .mutation(async (opts) => {
       const { recoverEmail } = opts.input;
@@ -1497,7 +1665,10 @@ export const userRouter = router({
       const devEmailPass = process.env.EMAIL_DEV_PASS!;
       const emailUser = process.env.EMAIL_USER!;
       const emailPass = process.env.EMAIL_PASS!;
-      const baseUrl = process.env.NODE_ENV === "development" ? process.env.BASE_URL_DEV! : process.env.BASE_URL!;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL!;
       const devConfig = {
         host: "sandbox.smtp.mailtrap.io",
         port: 2525,
@@ -1528,7 +1699,7 @@ export const userRouter = router({
         RecoverPasswordEmail({
           url: `${baseUrl}/recuperar-senha?user=${user.id}`,
           name: user.name!,
-        })
+        }),
       );
 
       const options = {
@@ -1556,7 +1727,7 @@ export const userRouter = router({
     .input(
       z.object({
         id: z.string().min(1, "ID do usuário é obrigatório"),
-      })
+      }),
     )
     .query(async (opts) => {
       const { id } = opts.input;
@@ -1580,7 +1751,10 @@ export const userRouter = router({
         };
       }
 
-      const dateExpired = isAfter(new Date(), new Date(user.passwordRecoverExpire!));
+      const dateExpired = isAfter(
+        new Date(),
+        new Date(user.passwordRecoverExpire!),
+      );
 
       if (dateExpired) {
         return { redirect: true };
@@ -1600,7 +1774,10 @@ export const userRouter = router({
           newPasswordConfirmation: z
             .string()
             .min(1, "Confirmação da senha nova é obrigatória")
-            .min(6, "Confirmação da senha nova precisa ter no mínimo 6 caracteres"),
+            .min(
+              6,
+              "Confirmação da senha nova precisa ter no mínimo 6 caracteres",
+            ),
         })
         .superRefine(({ newPassword, newPasswordConfirmation }, ctx) => {
           if (newPasswordConfirmation !== newPassword) {
@@ -1610,7 +1787,7 @@ export const userRouter = router({
               path: ["newPasswordConfirmation"],
             });
           }
-        })
+        }),
     )
     .mutation(async (opts) => {
       const { id, newPassword } = opts.input;
@@ -1673,10 +1850,14 @@ export const userRouter = router({
         emailNotification: z.boolean({ message: "Valor inválido" }),
         notificationNewSchedule: z.boolean({ message: "Valor inválido" }),
         notificationDailySchedules: z.boolean({ message: "Valor inválido" }),
-      })
+      }),
     )
     .mutation(async (opts) => {
-      const { emailNotification, notificationNewSchedule, notificationDailySchedules } = opts.input;
+      const {
+        emailNotification,
+        notificationNewSchedule,
+        notificationDailySchedules,
+      } = opts.input;
       const { email } = opts.ctx.user.user;
 
       if (!email) {

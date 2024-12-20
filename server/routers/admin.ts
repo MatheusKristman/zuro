@@ -3,10 +3,13 @@ import { Role, ScheduleStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { format, parse } from "date-fns";
 import { ptBR } from "date-fns/locale/pt-BR";
+import nodemailer from "nodemailer";
 
 import { adminProcedure, router } from "../trpc";
 import { prisma } from "@/lib/db";
 import { stripe } from "@/lib/stripe";
+import { render } from "@react-email/components";
+import PlanCancelledNotification from "@/emails/plan-cancelled-notification";
 
 export const adminRouter = router({
   getUsers: adminProcedure
@@ -30,7 +33,11 @@ export const adminRouter = router({
           },
         },
         include: {
-          subscription: true,
+          subscription: {
+            include: {
+              coupon: true,
+            },
+          },
         },
       });
 
@@ -301,7 +308,7 @@ export const adminRouter = router({
       };
     }),
   getCoupons: adminProcedure.query(async () => {
-    const coupons = await stripe.coupons.list();
+    const coupons = await prisma.coupon.findMany();
 
     return { coupons };
   }),
@@ -322,10 +329,19 @@ export const adminRouter = router({
     .mutation(async (opts) => {
       const { name, percentage, monthly } = opts.input;
 
-      await stripe.coupons.create({
+      const newCoupon = await stripe.coupons.create({
         duration: monthly,
         name,
         percent_off: percentage,
+      });
+
+      await prisma.coupon.create({
+        data: {
+          stripeCouponId: newCoupon.id,
+          duration: monthly,
+          name,
+          percentage,
+        },
       });
 
       return { message: "Cupom criado com sucesso!" };
@@ -341,17 +357,208 @@ export const adminRouter = router({
 
       await stripe.coupons.del(couponId);
 
+      await prisma.coupon.delete({
+        where: {
+          stripeCouponId: couponId,
+        },
+      });
+
       return { message: "Cupom deletado com sucesso" };
     }),
   addDiscount: adminProcedure
     .input(
       z.object({
         subscriptionId: z.string().min(1, "ID da assinatura é obrigatória"),
+        couponId: z.string().min(1, "ID do cupom é obrigatório"),
       }),
     )
     .mutation(async (opts) => {
+      const { subscriptionId, couponId } = opts.input;
+
+      const coupon = await prisma.coupon.findUnique({
+        where: {
+          stripeCouponId: couponId,
+        },
+      });
+
+      if (!coupon) {
+        return {
+          error: true,
+          message: "Cupom não encontrado",
+        };
+      }
+
+      await stripe.subscriptions.update(subscriptionId, {
+        discounts: [{ coupon: couponId }],
+      });
+
+      await prisma.subscription.update({
+        where: {
+          stripeSubscriptionId: subscriptionId,
+        },
+        data: {
+          coupon: {
+            connect: {
+              id: coupon.id,
+            },
+          },
+        },
+      });
+
+      return {
+        error: false,
+        message: "Desconto aplicado com sucesso",
+      };
+    }),
+  getSubscriptionCoupon: adminProcedure
+    .input(
+      z.object({
+        subscriptionId: z.string().min(1, "ID da assinatura é obrigatória"),
+      }),
+    )
+    .query(async (opts) => {
       const { subscriptionId } = opts.input;
 
-      // const subscriptionId
+      const subscription = await prisma.subscription.findUnique({
+        where: {
+          stripeSubscriptionId: subscriptionId,
+        },
+        include: {
+          coupon: true,
+        },
+      });
+
+      if (!subscription || !subscription.coupon) {
+        return {
+          couponId: "",
+        };
+      }
+
+      return {
+        couponId: subscription.coupon.stripeCouponId,
+      };
+    }),
+  removeDiscount: adminProcedure
+    .input(
+      z.object({
+        stripeSubscriptionId: z
+          .string()
+          .min(1, "ID da assinatura da Stripe é obrigatória"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { stripeSubscriptionId } = opts.input;
+
+      await stripe.subscriptions.deleteDiscount(stripeSubscriptionId);
+
+      await prisma.subscription.update({
+        where: {
+          stripeSubscriptionId,
+        },
+        data: {
+          couponId: null,
+        },
+      });
+
+      return {
+        message: "Desconto removido com sucesso",
+      };
+    }),
+  cancelPlan: adminProcedure
+    .input(
+      z.object({
+        stripeSubscriptionId: z
+          .string()
+          .min(1, "ID da assinatura da Stripe é obrigatória"),
+      }),
+    )
+    .mutation(async (opts) => {
+      const { stripeSubscriptionId } = opts.input;
+
+      const devEmailUser = process.env.EMAIL_DEV_USER!;
+      const devEmailPass = process.env.EMAIL_DEV_PASS!;
+      const emailUser = process.env.EMAIL_USER!;
+      const emailPass = process.env.EMAIL_PASS!;
+      const baseUrl =
+        process.env.NODE_ENV === "development"
+          ? process.env.BASE_URL_DEV!
+          : process.env.BASE_URL!;
+      const devConfig = {
+        host: "sandbox.smtp.mailtrap.io",
+        port: 2525,
+        auth: {
+          user: devEmailUser,
+          pass: devEmailPass,
+        },
+      };
+      const prodConfig = {
+        host: "smtp-relay.brevo.com",
+        port: 587,
+        auth: {
+          user: emailUser,
+          pass: emailPass,
+        },
+      };
+
+      const subscription = await stripe.subscriptions.retrieve(
+        stripeSubscriptionId! as string,
+      );
+      const prodId = subscription.items.data[0].price.product;
+      const product = await stripe.products.retrieve(prodId as string);
+      const userSub = await prisma.subscription.findFirst({
+        where: {
+          stripeSubscriptionId,
+        },
+        include: {
+          user: true,
+        },
+      });
+
+      if (!userSub) {
+        return new Response("Usuário não encontrado", { status: 404 });
+      }
+
+      await prisma.subscription.delete({
+        where: {
+          stripeSubscriptionId,
+        },
+      });
+      await prisma.user.update({
+        where: {
+          id: userSub.user.id,
+        },
+        data: {
+          planId: null,
+        },
+      });
+
+      const emailHtml = await render(
+        PlanCancelledNotification({
+          productName: product.name,
+          url: `${baseUrl}/dashboard/conta/plano`,
+          cancelDate: format(new Date(subscription.canceled_at!), "dd/MM/yyyy"),
+        }),
+      );
+
+      const options = {
+        from: '"Zuro" suporte.zuro@gmail.com',
+        to: userSub!.user.email!,
+        subject: "Seu Plano Foi Encerrado - Zuro",
+        html: emailHtml,
+      };
+
+      if (process.env.NODE_ENV === "development") {
+        const transporter = nodemailer.createTransport(devConfig);
+
+        await transporter.sendMail(options);
+      } else {
+        const transporter = nodemailer.createTransport(prodConfig);
+
+        await transporter.sendMail(options);
+      }
+
+      return {
+        message: "Plano cancelado com sucesso",
+      };
     }),
 });
